@@ -1,6 +1,7 @@
-import 'package:berisheba/my_home_page.dart';
-import 'package:berisheba/test_native.dart';
+import 'package:berisheba/squellete.dart';
+import 'package:berisheba/tab_state.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 void main() => runApp(MyApp());
 
@@ -9,11 +10,19 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: 'Berisheba',
+      debugShowCheckedModeBanner: false,
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: TestNative(),
+      home: MultiProvider(
+        providers: [
+          ChangeNotifierProvider<TabState>.value(
+              value: TabState()
+          )
+        ],
+        child: Squellete(),
+      ),
     );
   }
 }
