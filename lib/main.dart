@@ -1,9 +1,11 @@
 import 'package:berisheba/squellete.dart';
-import 'package:berisheba/tab_state.dart';
+import 'package:berisheba/states/tab_state.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-void main() => runApp(MyApp());
+void main() {
+runApp(MyApp());
+}
 
 class MyApp extends StatelessWidget {
   // This widget is the root of your application.
