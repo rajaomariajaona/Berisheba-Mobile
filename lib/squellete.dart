@@ -1,6 +1,7 @@
 import 'package:berisheba/config.dart';
 import 'package:berisheba/routes/acceuil/acceuil_landscape.dart';
 import 'package:berisheba/routes/acceuil/acceuil_portrait.dart';
+import 'package:berisheba/routes/client/client_portrait.dart';
 import 'package:berisheba/routes/clients.dart';
 import 'package:berisheba/states/tab_state.dart';
 import 'package:flutter/material.dart';
@@ -46,8 +47,8 @@ class _SquelleteState extends State<Squellete> {
       },
     );
     final List<Widget> routesPortrait = [
+      ClientPortrait(),
       AcceuilPortrait(),
-      Clients(),
       Clients(),
       Clients(),
       Clients(),
@@ -66,6 +67,7 @@ class _SquelleteState extends State<Squellete> {
     assert(_bottomNavBar.items.length == routesPortrait.length);
     assert(_bottomNavBar.items.length == routesLandscape.length);
     return Scaffold(
+        resizeToAvoidBottomInset: false,
         appBar: AppBar(
           backgroundColor: Config.appBarBgColor,
           centerTitle: true,
