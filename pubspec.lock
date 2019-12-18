@@ -209,6 +209,27 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "0.3.3+3"
+  flutter_slidable:
+    dependency: "direct main"
+    description:
+      name: flutter_slidable
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.5.4"
+  flutter_spinkit:
+    dependency: "direct main"
+    description:
+      name: flutter_spinkit
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "4.1.1+1"
+  flutter_sticky_header:
+    dependency: "direct main"
+    description:
+      name: flutter_sticky_header
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.4.0"
   flutter_svg:
     dependency: "direct main"
     description:
@@ -352,6 +373,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "0.3.27"
+  lists:
+    dependency: transitive
+    description:
+      name: lists
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.1.3"
   logging:
     dependency: transitive
     description:
@@ -562,6 +590,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "0.2.3"
+  side_header_list_view:
+    dependency: "direct main"
+    description:
+      name: side_header_list_view
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.0.4"
   simple_gesture_detector:
     dependency: transitive
     description:
@@ -616,6 +651,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.0.5"
+  strings:
+    dependency: "direct main"
+    description:
+      name: strings
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.1.2"
   table_calendar:
     dependency: "direct main"
     description:
@@ -651,6 +693,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.1.6"
+  unicode:
+    dependency: transitive
+    description:
+      name: unicode
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.2.2"
   vector_math:
     dependency: transitive
     description:

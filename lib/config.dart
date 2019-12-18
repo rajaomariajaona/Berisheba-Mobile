@@ -18,6 +18,16 @@ class Config {
         "statistique": Icons.show_chart
       };
 
+  static List<String> get routesName => <String>[
+        "Acceuil",
+        "Client",
+        "Reservation",
+        "Salle",
+        "Materiel",
+        "Ustensile",
+        "Statistique"
+      ];
+
   //App bar
   static Color get appBarBgColor => Config.secondaryBlue;
   static Color get appBarTextColor => Config.primaryBlue;

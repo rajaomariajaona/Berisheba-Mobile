@@ -1,10 +1,14 @@
+import 'package:berisheba/config.dart';
 import 'package:berisheba/squellete.dart';
 import 'package:berisheba/states/tab_state.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 void main() {
-runApp(MyApp());
+  runApp(MyApp());
+  SystemChrome.setSystemUIOverlayStyle(
+      SystemUiOverlayStyle(statusBarColor: Config.primaryBlue));
 }
 
 class MyApp extends StatelessWidget {
@@ -18,14 +22,9 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.blue,
       ),
       home: MultiProvider(
-        providers: [
-          ChangeNotifierProvider<TabState>.value(
-              value: TabState()
-          )
-        ],
+        providers: [ChangeNotifierProvider<TabState>.value(value: TabState())],
         child: Squellete(),
       ),
     );
   }
 }
-

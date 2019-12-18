@@ -70,9 +70,10 @@ class _SquelleteState extends State<Squellete> {
           backgroundColor: Config.appBarBgColor,
           centerTitle: true,
           title: Text(
-            "Berisheba",
+            tabState.titleAppBar,
             style: TextStyle(color: Config.appBarTextColor),
           ),
+          iconTheme: IconThemeData(color: Config.primaryBlue),
         ),
         body: OrientationBuilder(
           builder: (BuildContext context, Orientation orientation) =>
@@ -80,6 +81,48 @@ class _SquelleteState extends State<Squellete> {
                   ? routesPortrait[tabState.index]
                   : routesLandscape[tabState.index],
         ),
+        drawer: MenuDrawer(context).menu,
         bottomNavigationBar: _bottomNavBar);
   }
+}
+
+class MenuDrawer {
+  final BuildContext _ctx;
+  MenuDrawer(this._ctx);
+  Drawer get menu => Drawer(
+          child: Flex(
+        direction: Axis.vertical,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: <Widget>[
+          Expanded(
+            child: Container(
+              color: Config.primaryBlue,
+              child: SafeArea(
+                top: true,
+                child: Flex(
+                  direction: Axis.vertical,
+                  children: <Widget>[
+                    Flexible(
+                      child: ListTile(
+                        trailing: IconButton(
+                            icon: Icon(
+                              Icons.close,
+                              color: Colors.white,
+                            ),
+                            onPressed: () {
+                              Navigator.of(_ctx).pop();
+                            }),
+                      ),
+                      flex: 5,
+                    ),
+                    Divider(
+                      color: Config.secondaryBlue,
+                    )
+                  ],
+                ),
+              ),
+            ),
+          )
+        ],
+      ));
 }
