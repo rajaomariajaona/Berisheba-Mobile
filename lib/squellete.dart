@@ -4,6 +4,7 @@ import 'package:berisheba/routes/acceuil/acceuil_portrait.dart';
 import 'package:berisheba/routes/client/client_portrait.dart';
 import 'package:berisheba/routes/client/client_widgets.dart';
 import 'package:berisheba/routes/clients.dart';
+import 'package:berisheba/states/global_state.dart';
 import 'package:berisheba/states/tab_state.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -32,6 +33,7 @@ class _SquelleteState extends State<Squellete> {
   @override
   Widget build(BuildContext context) {
     final tabState = Provider.of<TabState>(context);
+    final globalState = Provider.of<GlobalState>(context);
     final BottomNavigationBar _bottomNavBar = BottomNavigationBar(
       items: <BottomNavigationBarItem>[
         bottomNav("Acceuil", Config.navIcons["acceuil"]),
@@ -107,7 +109,7 @@ class _SquelleteState extends State<Squellete> {
         },
       ),
       drawer: MenuDrawer(),
-      bottomNavigationBar: _bottomNavBar,
+      bottomNavigationBar: globalState.hideBottomNavBar ? null : _bottomNavBar,
       floatingActionButton: floatButtons[tabState.index],
     );
   }

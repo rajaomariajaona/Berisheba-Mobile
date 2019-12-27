@@ -1,6 +1,7 @@
 import 'package:berisheba/config.dart';
 import 'package:berisheba/squellete.dart';
 import 'package:berisheba/states/client_state.dart';
+import 'package:berisheba/states/global_state.dart';
 import 'package:berisheba/states/tab_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -77,6 +78,7 @@ class MyApp extends StatelessWidget {
       theme: t,
       home: MultiProvider(
         providers: [
+          ChangeNotifierProvider<GlobalState>.value(value: GlobalState()),
           ChangeNotifierProvider<TabState>.value(value: TabState()),
           ChangeNotifierProvider<ClientState>.value(value: ClientState())
         ],

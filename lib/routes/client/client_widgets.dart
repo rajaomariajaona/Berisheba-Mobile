@@ -1,6 +1,7 @@
 //Mila
 import 'package:berisheba/config.dart';
 import 'package:berisheba/states/client_state.dart';
+import 'package:berisheba/states/global_state.dart';
 import 'package:berisheba/states/tab_state.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -426,6 +427,8 @@ class ClientAppBar {
   AppBar get appbar {
     TabState _tabState = Provider.of<TabState>(_context);
     ClientState _clientState = Provider.of<ClientState>(_context);
+    Provider.of<GlobalState>(_context).hideBottomNavBar =
+        _clientState.isDeleting;
     return _clientState.isDeleting
         ? AppBar(
             backgroundColor: Colors.grey,
