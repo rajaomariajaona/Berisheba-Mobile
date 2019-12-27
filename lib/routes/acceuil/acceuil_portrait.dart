@@ -19,14 +19,14 @@ class AcceuilPortrait extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
               NavigationItem(context, "Clients", Config.navIcons["client"], () {
-                tabState.changeIndex(1);
+                tabState.changePage(1);
               }).item,
               SizedBox(
                 width: 20,
               ),
               NavigationItem(
                   context, "Reservation", Config.navIcons["reservation"], () {
-                tabState.changeIndex(2);
+                tabState.changePage(2);
               }).item
             ],
           ),
@@ -37,14 +37,14 @@ class AcceuilPortrait extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
               NavigationItem(context, "Salle", Config.navIcons["salle"], () {
-                tabState.changeIndex(3);
+                tabState.changePage(3);
               }).item,
               SizedBox(
                 width: 20,
               ),
               NavigationItem(context, "Materiel", Config.navIcons["materiel"],
                   () {
-                tabState.changeIndex(4);
+                tabState.changePage(4);
               }).item
             ],
           ),
@@ -56,14 +56,14 @@ class AcceuilPortrait extends StatelessWidget {
             children: <Widget>[
               NavigationItem(context, "Ustensile", Config.navIcons["ustensile"],
                   () {
-                tabState.changeIndex(5);
+                tabState.changePage(5);
               }).item,
               SizedBox(
                 width: 20,
               ),
               NavigationItem(
                   context, "Statistique", Config.navIcons["statistique"], () {
-                tabState.changeIndex(6);
+                tabState.changePage(6);
               }).item
             ],
           ),
