@@ -4,6 +4,7 @@ import 'package:berisheba/states/client_state.dart';
 import 'package:berisheba/states/global_state.dart';
 import 'package:berisheba/states/tab_state.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -271,10 +272,44 @@ class ClientFormulaire extends StatefulWidget {
 }
 
 class _ClientFormulaireState extends State<ClientFormulaire> {
+  final _formKey = GlobalKey<FormState>();
+
   String nom;
   String prenom;
   String adresse;
   String num;
+
+  final Map<String, FormFieldValidator> validators = {
+    "nom": (value) {
+      if (value.isEmpty) return "Champ vide";
+      return null;
+    },
+    "prenom": (value) {
+      if (value.isEmpty) return "Champ vide";
+      return null;
+    },
+    "num": (value) {
+      if (value.isEmpty) return "Champ vide";
+      return null;
+    },
+    "adresse": (value) {
+      if (value.isEmpty) return "Champ vide";
+      return null;
+    }
+  };
+
+  final Map<String, List<TextInputFormatter>> inputFormatters = {
+    "nom": <TextInputFormatter>[
+      WhitelistingTextInputFormatter(RegExp("[A-Za-z ]")),
+    ],
+    "prenom": <TextInputFormatter>[
+      WhitelistingTextInputFormatter(RegExp("[A-Za-z ]")),
+    ],
+    "num": <TextInputFormatter>[
+      WhitelistingTextInputFormatter.digitsOnly,
+    ],
+    "adresse": <TextInputFormatter>[],
+  };
 
   @override
   void initState() {
@@ -313,26 +348,29 @@ class _ClientFormulaireState extends State<ClientFormulaire> {
               color: Config.primaryBlue,
             ),
             onPressed: () async {
-              modifier
-                  ? await http.put(
-                      Config.apiURI + "clients/${widget.client["idClient"]}",
-                      body: {
-                        "nomClient": nom,
-                        "prenomClient": prenom,
-                        "adresseClient": adresse,
-                        "numTelClient": num
-                      },
-                    )
-                  : await http.post(
-                      Config.apiURI + "clients",
-                      body: {
-                        "nomClient": nom,
-                        "prenomClient": prenom,
-                        "adresseClient": adresse,
-                        "numTelClient": num
-                      },
-                    );
-              Navigator.of(context).pop(true);
+              if (_formKey.currentState.validate()) {
+                modifier
+                    ? await http.put(
+                        Config.apiURI + "clients/${widget.client["idClient"]}",
+                        body: {
+                          "nomClient": nom,
+                          "prenomClient": prenom,
+                          "adresseClient": adresse,
+                          "numTelClient": num
+                        },
+                      )
+                    : await http.post(
+                        Config.apiURI + "clients",
+                        body: {
+                          "nomClient": nom,
+                          "prenomClient": prenom,
+                          "adresseClient": adresse,
+                          "numTelClient": num
+                        },
+                      );
+                GlobalState().channel.sink.add("client");
+                Navigator.of(context).pop(true);
+              }
             },
           ),
         ],
@@ -340,11 +378,14 @@ class _ClientFormulaireState extends State<ClientFormulaire> {
       body: SafeArea(
         bottom: true,
         child: Form(
+          key: _formKey,
           child: SingleChildScrollView(
             padding: EdgeInsets.symmetric(vertical: 8, horizontal: 15),
             child: Column(
               children: <Widget>[
                 TextFormField(
+                  validator: validators["nom"],
+                  inputFormatters: inputFormatters["nom"],
                   decoration: InputDecoration(
                     border: UnderlineInputBorder(),
                     labelText: "Nom",
@@ -357,6 +398,9 @@ class _ClientFormulaireState extends State<ClientFormulaire> {
                   },
                 ),
                 TextFormField(
+                  textCapitalization: TextCapitalization.words,
+                  validator: validators["prenom"],
+                  inputFormatters: inputFormatters["prenom"],
                   decoration: InputDecoration(
                     border: UnderlineInputBorder(),
                     labelText: "Prenom",
@@ -369,6 +413,8 @@ class _ClientFormulaireState extends State<ClientFormulaire> {
                   },
                 ),
                 TextFormField(
+                  validator: validators["num"],
+                  inputFormatters: inputFormatters["num"],
                   keyboardType: TextInputType.phone,
                   decoration: InputDecoration(
                     border: UnderlineInputBorder(),
@@ -382,7 +428,8 @@ class _ClientFormulaireState extends State<ClientFormulaire> {
                   },
                 ),
                 TextFormField(
-                  keyboardType: TextInputType.phone,
+                  validator: validators["adresse"],
+                  inputFormatters: inputFormatters["adresse"],
                   decoration: InputDecoration(
                     border: UnderlineInputBorder(),
                     labelText: "Adresse",
@@ -427,8 +474,6 @@ class ClientAppBar {
   AppBar get appbar {
     TabState _tabState = Provider.of<TabState>(_context);
     ClientState _clientState = Provider.of<ClientState>(_context);
-    Provider.of<GlobalState>(_context).hideBottomNavBar =
-        _clientState.isDeleting;
     return _clientState.isDeleting
         ? AppBar(
             backgroundColor: Colors.grey,
@@ -446,9 +491,25 @@ class ClientAppBar {
             ),
             actions: <Widget>[
                 IconButton(
+                  icon: _clientState.emptySelected()
+                      ? const Icon(Icons.check_box_outline_blank)
+                      : _clientState.allSelected()
+                          ? const Icon(Icons.check_box)
+                          : const Icon(Icons.indeterminate_check_box),
+                  onPressed: () async {
+                    if (_clientState.emptySelected()) {
+                      _clientState.addAllSelected();
+                    } else if (_clientState.allSelected()) {
+                      _clientState.deleteAllSelected();
+                    } else {
+                      _clientState.deleteAllSelected();
+                    }
+                  },
+                ),
+                IconButton(
                   icon: Icon(Icons.delete),
                   onPressed: () async {
-                    http.post(Config.apiURI + "clients",
+                    await http.post(Config.apiURI + "clients",
                         body: {"deleteList": _clientState.selected.toString()});
                   },
                 )

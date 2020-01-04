@@ -1,6 +1,9 @@
+import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:berisheba/config.dart';
+import 'package:berisheba/states/global_state.dart';
 import 'package:berisheba/states/parametres.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -28,11 +31,22 @@ class ClientState extends ChangeNotifier {
     notifyListeners();
   }
 
+  void addAllSelected() {
+    _clientSelected.clear();
+    this._clients.forEach((v) {
+      _clientSelected.add(v["idClient"]);
+    });
+    notifyListeners();
+  }
+
+  bool allSelected() => this._clients.length == _clientSelected.length;
+  bool emptySelected() => _clientSelected.isEmpty;
   bool isSelected(int idClient) => _clientSelected.contains(idClient);
 
   set isDeleting(bool value) {
     if (!value) deleteAllSelected();
     _isDeleting = value;
+    GlobalState().hideBottomNavBar = _isDeleting;
     notifyListeners();
   }
 
@@ -54,11 +68,19 @@ class ClientState extends ChangeNotifier {
   List<dynamic> _clients = [];
   List<dynamic> _clientsFiltered = [];
   Future<void> getData() async {
-    _clients = await jsonDecode(
-        (await http.get(Config.apiURI + "clients")).body)["data"];
-    _clientsFiltered = _clients;
-    await this.sort();
-    notifyListeners();
+    try {
+      _clients = await jsonDecode(
+          (await http.get(Config.apiURI + "clients")).body)["data"];
+      _clientsFiltered = _clients;
+      await this.sort();
+      GlobalState().isConnected = true;
+    } on SocketException catch (_) {
+      GlobalState().isConnected = false;
+    } on Exception catch (_) {
+      print(_.toString());
+    } finally {
+      notifyListeners();
+    }
   }
 
   Future<void> sort() async {
@@ -106,6 +128,12 @@ class ClientState extends ChangeNotifier {
       this._isNotReverse = _sharedPreferences.getBool(Parametres.clientSort);
     });
     await getData();
+    GlobalState().streamController.stream.listen((msg) {
+      print(msg);
+      if (msg == "client") {
+        getData();
+      }
+    });
   }
 
   ClientState() {

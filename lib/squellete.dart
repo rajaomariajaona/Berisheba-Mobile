@@ -1,4 +1,5 @@
 import 'package:berisheba/config.dart';
+import 'package:berisheba/no_internet.dart';
 import 'package:berisheba/routes/acceuil/acceuil_landscape.dart';
 import 'package:berisheba/routes/acceuil/acceuil_portrait.dart';
 import 'package:berisheba/routes/client/client_portrait.dart';
@@ -34,6 +35,7 @@ class _SquelleteState extends State<Squellete> {
   Widget build(BuildContext context) {
     final tabState = Provider.of<TabState>(context);
     final globalState = Provider.of<GlobalState>(context);
+
     final BottomNavigationBar _bottomNavBar = BottomNavigationBar(
       items: <BottomNavigationBarItem>[
         bottomNav("Acceuil", Config.navIcons["acceuil"]),
@@ -88,30 +90,38 @@ class _SquelleteState extends State<Squellete> {
     assert(_bottomNavBar.items.length == routesPortrait.length);
     assert(_bottomNavBar.items.length == routesLandscape.length);
 
-    return Scaffold(
-      resizeToAvoidBottomInset: false,
-      appBar: appBar[tabState.index],
-      body: OrientationBuilder(
-        builder: (BuildContext context, Orientation orientation) {
+    return Provider.of<GlobalState>(context).isConnected
+        ? Scaffold(
+            resizeToAvoidBottomInset: false,
+            appBar: appBar[tabState.index],
+            body: OrientationBuilder(
+              builder: (BuildContext context, Orientation orientation) {
 //          return orientation == Orientation.portrait
 //              ? routesPortrait[tabState.index]
 //              : routesLandscape[tabState.index];
 
-          return PageView(
-            children: orientation == Orientation.portrait
-                ? routesPortrait
-                : routesLandscape,
-            controller: TabState.controllerPage,
-            onPageChanged: (int tabIndex) {
-              tabState.changeIndex(tabIndex);
-            },
-          );
-        },
-      ),
-      drawer: MenuDrawer(),
-      bottomNavigationBar: globalState.hideBottomNavBar ? null : _bottomNavBar,
-      floatingActionButton: floatButtons[tabState.index],
-    );
+                return PageView(
+                  children: orientation == Orientation.portrait
+                      ? routesPortrait
+                      : routesLandscape,
+                  controller: TabState.controllerPage,
+                  onPageChanged: (int tabIndex) {
+                    tabState.changeIndex(tabIndex);
+                  },
+                );
+              },
+            ),
+            drawer: MenuDrawer(),
+            bottomNavigationBar:
+                globalState.hideBottomNavBar ? null : _bottomNavBar,
+            floatingActionButton: floatButtons[tabState.index],
+          )
+        : NoInternet();
+  }
+
+  @override
+  void initState() {
+    GlobalState().connect();
   }
 }
 
@@ -224,7 +234,6 @@ class _ParametresState extends State<Parametres> {
                             .then((sharedPreferences) {
                           sharedPreferences.setString("api", _apiUri);
                         });
-                        int i = 0;
                         Navigator.of(context).pop();
                       },
                     )

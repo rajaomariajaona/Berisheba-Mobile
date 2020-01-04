@@ -78,9 +78,9 @@ class MyApp extends StatelessWidget {
       theme: t,
       home: MultiProvider(
         providers: [
-          ChangeNotifierProvider<GlobalState>.value(value: GlobalState()),
-          ChangeNotifierProvider<TabState>.value(value: TabState()),
-          ChangeNotifierProvider<ClientState>.value(value: ClientState())
+          ChangeNotifierProvider(create: (_) => GlobalState()),
+          ChangeNotifierProvider(create: (_) => TabState()),
+          ChangeNotifierProvider(create: (_) => ClientState()),
         ],
         child: Squellete(),
       ),

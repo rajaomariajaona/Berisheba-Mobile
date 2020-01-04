@@ -5,6 +5,9 @@ class Config {
   static String _apiURI = "http://192.168.43.63:3000/api/";
   static String get apiURI => _apiURI;
 
+  static String get wsURI =>
+      _apiURI.replaceFirst("http", "ws").replaceFirst("/api/", "");
+
   static set apiURI(String value) {
     _apiURI = value;
   } //colors
