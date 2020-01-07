@@ -13,7 +13,7 @@ class GlobalState extends ChangeNotifier {
     _navigatorState = value;
   }
 
-  GlobalKey get navigatorState => _navigatorState;
+  GlobalKey<NavigatorState> get navigatorState => _navigatorState;
 
   // App State if the Websocket is connected or not
   bool _isConnected = false;
@@ -35,7 +35,6 @@ class GlobalState extends ChangeNotifier {
       GlobalState().isConnected = true;
       _channel.stream.listen(
               (msg) {
-            print("first stream $msg");
             _streamController.sink.add(msg);
           },
           onError: (error) {},

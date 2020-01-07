@@ -45,8 +45,12 @@ class _ClientListeState extends State<ClientListe> {
           ],
         ),
         contentPadding: EdgeInsets.fromLTRB(0, 5, 10, 5),
-        title: Text("${_client["nomClient"]} ${_client["prenomClient"]}",
-            style: TextStyle(fontSize: 16)),
+        title: Text(
+          "${_client["nomClient"]} ${_client["prenomClient"]}",
+          maxLines: 3,
+          overflow: TextOverflow.ellipsis,
+          style: TextStyle(fontSize: 16),
+        ),
         onTap: () {
           if (clientState.isDeleting) {
             setState(() {

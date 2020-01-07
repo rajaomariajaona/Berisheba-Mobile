@@ -101,7 +101,7 @@ class _ClientFormulaireState extends State<ClientFormulaire> {
             ),
             onPressed: () async {
               if (_formKey.currentState.validate()) {
-                modifier
+                dynamic result = modifier
                     ? await http.put(
                         Config.apiURI + "clients/${widget.client["idClient"]}",
                         body: {
@@ -120,9 +120,8 @@ class _ClientFormulaireState extends State<ClientFormulaire> {
                           "numTelClient": num
                         },
                       );
-                modifier
-                    ? GlobalState().channel.sink.add("clientWOindicator")
-                    : GlobalState().channel.sink.add("clientWindicator");
+                print(result);
+                GlobalState().channel.sink.add("client");
                 Navigator.of(context).pop(true);
               }
             },

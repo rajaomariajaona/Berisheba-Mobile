@@ -56,7 +56,7 @@ class ClientAppBar {
                     } on Exception catch (_) {
                       print("error deleting client");
                     } finally {
-                      GlobalState().channel.sink.add("clientWindicator");
+                      GlobalState().channel.sink.add("client");
                       _clientState.isDeleting = false;
                     }
                   },

@@ -20,11 +20,13 @@ class ClientDetail extends StatelessWidget {
         backgroundColor: Config.appBarBgColor,
         centerTitle: true,
         title: Text(
-          "${_client["nomClient"]}",
+          _client == null ? "Client" : _client["nomClient"],
           style: TextStyle(color: Config.appBarTextColor),
         ),
         iconTheme: IconThemeData(color: Config.primaryBlue),
-        actions: <Widget>[
+        actions: _client == null
+            ? null
+            : <Widget>[
           IconButton(
             icon: const Icon(Icons.call),
             onPressed: () {
@@ -36,9 +38,10 @@ class ClientDetail extends StatelessWidget {
             icon: const Icon(Icons.edit),
             onPressed: () async {
               var t = await Navigator.of(context).push(MaterialPageRoute(
-                builder: (context) => ClientFormulaire(
-                  client: _client,
-                ),
+                builder: (context) =>
+                    ClientFormulaire(
+                      client: _client,
+                    ),
               ));
             },
           ),
@@ -47,7 +50,11 @@ class ClientDetail extends StatelessWidget {
       body: SafeArea(
         bottom: true,
         maintainBottomViewPadding: true,
-        child: Flex(
+        child: _client == null
+            ? Center(
+          child: Text("Ce client vient d'etre supprimer"),
+        )
+            : Flex(
           direction: Axis.vertical,
           children: <Widget>[
             SizedBox(
@@ -76,8 +83,10 @@ class ClientDetail extends StatelessWidget {
                         ),
                         title: Text("${_client["numTelClient"]} "),
                         onTap: () {
-                          if (canLaunch("tel:${_client["numTelClient"]}") !=
-                              null) launch("tel:${_client["numTelClient"]}");
+                          if (canLaunch(
+                              "tel:${_client["numTelClient"]}") !=
+                              null)
+                            launch("tel:${_client["numTelClient"]}");
                         },
                       ),
                       ListTile(

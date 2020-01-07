@@ -157,13 +157,9 @@ class ClientState extends ChangeNotifier {
     });
     await getData();
     GlobalState().streamController.stream.listen((msg) {
+      //Reload data
       print(msg);
-      if (msg == "clientWindicator") {
-        _refreshState.currentState.show();
-      }
-
-      //Load data without refresh indicator
-      if (msg == "clientWOindicator") {
+      if (msg == "client") {
         getData();
       }
     });
