@@ -1,6 +1,6 @@
-import 'package:berisheba/config.dart';
-import 'package:berisheba/squellete.dart';
-import 'package:berisheba/states/client_state.dart';
+import 'package:berisheba/home_page/home_page.dart';
+import 'package:berisheba/routes/client/client_state.dart';
+import 'package:berisheba/states/config.dart';
 import 'package:berisheba/states/global_state.dart';
 import 'package:berisheba/states/tab_state.dart';
 import 'package:flutter/material.dart';
@@ -69,20 +69,26 @@ class MyApp extends StatelessWidget {
     highlightColor: Config.secondaryBlue,
     focusColor: Config.primaryBlue,
   );
+  final GlobalKey navigatorState = GlobalKey<NavigatorState>();
+
+  MyApp() {
+    GlobalState().navigatorState = navigatorState;
+  }
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Berisheba',
-      debugShowCheckedModeBanner: false,
-      theme: t,
-      home: MultiProvider(
-        providers: [
-          ChangeNotifierProvider(create: (_) => GlobalState()),
-          ChangeNotifierProvider(create: (_) => TabState()),
-          ChangeNotifierProvider(create: (_) => ClientState()),
-        ],
-        child: Squellete(),
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => GlobalState()),
+        ChangeNotifierProvider(create: (_) => TabState()),
+        ChangeNotifierProvider(create: (_) => ClientState()),
+      ],
+      child: MaterialApp(
+        navigatorKey: navigatorState,
+        title: 'Berisheba',
+        debugShowCheckedModeBanner: false,
+        theme: t,
+        home: Squellete(),
       ),
     );
   }

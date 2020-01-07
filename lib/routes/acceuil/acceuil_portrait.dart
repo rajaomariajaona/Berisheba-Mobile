@@ -1,5 +1,5 @@
-import 'package:berisheba/config.dart';
 import 'package:berisheba/routes/acceuil/acceuil_widgets.dart';
+import 'package:berisheba/states/config.dart';
 import 'package:berisheba/states/tab_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/painting.dart';

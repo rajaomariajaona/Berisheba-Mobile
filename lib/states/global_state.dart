@@ -1,13 +1,26 @@
 import 'dart:async';
 
-import 'package:berisheba/config.dart';
+import 'package:berisheba/home_page/no_internet.dart';
+import 'package:berisheba/states/config.dart';
 import 'package:flutter/material.dart';
 import 'package:web_socket_channel/io.dart';
 
 class GlobalState extends ChangeNotifier {
+  // The Matrial app Navigator State
+  GlobalKey<NavigatorState> _navigatorState;
+
+  set navigatorState(GlobalKey value) {
+    _navigatorState = value;
+  }
+
+  GlobalKey get navigatorState => _navigatorState;
+
+  // App State if the Websocket is connected or not
   bool _isConnected = false;
 
   bool get isConnected => _isConnected;
+
+  //WebSocket Channel (Listen for messages)
   IOWebSocketChannel _channel;
 
   IOWebSocketChannel get channel => _channel;
@@ -21,7 +34,8 @@ class GlobalState extends ChangeNotifier {
           pingInterval: Duration(seconds: 30));
       GlobalState().isConnected = true;
       _channel.stream.listen(
-          (msg) {
+              (msg) {
+            print("first stream $msg");
             _streamController.sink.add(msg);
           },
           onError: (error) {},
@@ -30,6 +44,7 @@ class GlobalState extends ChangeNotifier {
             _channel = null;
           });
     } on Exception catch (_) {
+      if (_channel != null) _channel.sink.close();
       GlobalState().isConnected = false;
     }
     return _channel;
@@ -39,6 +54,10 @@ class GlobalState extends ChangeNotifier {
     if (_isConnected != value) {
       _isConnected = value;
       notifyListeners();
+      if (!_isConnected)
+        _navigatorState.currentState.push(MaterialPageRoute(
+          builder: (_context) => NoInternet(),
+        ));
     }
   }
 
@@ -56,5 +75,6 @@ class GlobalState extends ChangeNotifier {
   factory GlobalState() {
     return _singleton;
   }
+
   GlobalState._internal();
 }
