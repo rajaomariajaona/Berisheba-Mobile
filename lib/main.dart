@@ -1,26 +1,29 @@
 import 'package:berisheba/home_page/home_page.dart';
 import 'package:berisheba/routes/client/client_state.dart';
+import 'package:berisheba/routes/reservation/reservation_state.dart';
 import 'package:berisheba/states/config.dart';
 import 'package:berisheba/states/global_state.dart';
 import 'package:berisheba/states/tab_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:intl/date_symbol_data_local.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
-  runApp(MyApp());
-  SharedPreferences.getInstance().then((sharedPreference) {
-    if (!sharedPreference.containsKey("api")) {
-      sharedPreference.setString("api", Config.apiURI);
-    } else {
-      Config.apiURI = sharedPreference.getString("api");
-    }
+  initializeDateFormatting().then((_) => runApp(MyApp())).then((_) {
+    SharedPreferences.getInstance().then((sharedPreference) {
+      if (!sharedPreference.containsKey("api")) {
+        sharedPreference.setString("api", Config.apiURI);
+      } else {
+        Config.apiURI = sharedPreference.getString("api");
+      }
+    });
+    final SystemUiOverlayStyle style = SystemUiOverlayStyle.light.copyWith(
+        statusBarColor: Config.primaryBlue,
+        systemNavigationBarColor: Config.secondaryBlue);
+    SystemChrome.setSystemUIOverlayStyle(style);
   });
-  final SystemUiOverlayStyle style = SystemUiOverlayStyle.light.copyWith(
-      statusBarColor: Config.primaryBlue,
-      systemNavigationBarColor: Config.secondaryBlue);
-  SystemChrome.setSystemUIOverlayStyle(style);
 }
 
 class MyApp extends StatelessWidget {
@@ -82,6 +85,7 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => GlobalState()),
         ChangeNotifierProvider(create: (_) => TabState()),
         ChangeNotifierProvider(create: (_) => ClientState()),
+        ChangeNotifierProvider(create: (_) => ReservationState()),
       ],
       child: MaterialApp(
         navigatorKey: navigatorState,

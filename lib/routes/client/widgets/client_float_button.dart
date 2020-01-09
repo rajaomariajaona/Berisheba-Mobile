@@ -6,7 +6,9 @@ import 'package:provider/provider.dart';
 class ClientFloatButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return Provider.of<ClientState>(context).isDeleting
+    return Provider
+        .of<ClientState>(context)
+        .isDeletingClient
         ? Container()
         : FloatingActionButton(
             child: Icon(Icons.group_add),

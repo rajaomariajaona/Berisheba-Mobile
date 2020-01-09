@@ -4,24 +4,24 @@ import 'package:berisheba/states/config.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-class ClientListe extends StatefulWidget {
+class ClientItem extends StatefulWidget {
   final int _idClient;
 
-  const ClientListe(
+  const ClientItem(
     this._idClient, {
     Key key,
   }) : super(key: key);
 
   @override
-  State createState() => _ClientListeState();
+  State createState() => _ClientItemState();
 }
 
-class _ClientListeState extends State<ClientListe> {
+class _ClientItemState extends State<ClientItem> {
   @override
   Widget build(BuildContext context) {
     final ClientState clientState = Provider.of<ClientState>(context);
     Map<String, dynamic> _client =
-        clientState.clientsById["${widget._idClient}"];
+    clientState.listClientByIdClient["${widget._idClient}"];
     return Card(
       margin: EdgeInsets.symmetric(horizontal: 20, vertical: 4),
       child: ListTile(
@@ -52,7 +52,7 @@ class _ClientListeState extends State<ClientListe> {
           style: TextStyle(fontSize: 16),
         ),
         onTap: () {
-          if (clientState.isDeleting) {
+          if (clientState.isDeletingClient) {
             setState(() {
               if (clientState.isSelected(_client["idClient"]))
                 clientState.deleteSelected(_client["idClient"]);
@@ -66,12 +66,12 @@ class _ClientListeState extends State<ClientListe> {
           }
         },
         onLongPress: () {
-          clientState.isDeleting = true;
+          clientState.isDeletingClient = true;
           setState(() {
             clientState.addSelected(_client["idClient"]);
           });
         },
-        trailing: clientState.isDeleting
+        trailing: clientState.isDeletingClient
             ? Checkbox(
                 value: clientState.isSelected(_client["idClient"]),
                 onChanged: (val) {

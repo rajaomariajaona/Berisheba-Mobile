@@ -42,7 +42,7 @@ class GlobalState extends ChangeNotifier {
             GlobalState().isConnected = false;
             _channel = null;
           });
-    } on Exception catch (_) {
+    } catch (_) {
       if (_channel != null) _channel.sink.close();
       GlobalState().isConnected = false;
     }

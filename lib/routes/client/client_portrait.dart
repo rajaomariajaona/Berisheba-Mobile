@@ -13,8 +13,8 @@ class ClientPortrait extends StatelessWidget {
 
     return WillPopScope(
       onWillPop: () async {
-        if (clientState.isDeleting) {
-          clientState.isDeleting = false;
+        if (clientState.isDeletingClient) {
+          clientState.isDeletingClient = false;
           return false;
         }
         return true;
@@ -54,14 +54,14 @@ class ClientPortrait extends StatelessWidget {
           ),
           Expanded(
             child: RefreshIndicator(
-              key: clientState.refreshState,
+              key: clientState.refreshIndicatorStateClient,
               onRefresh: () async {
-                clientState.getData();
+                clientState.fetchData();
               },
               child: Scrollbar(
                   child: ListView.builder(
                     itemBuilder: (BuildContext ctx, int item) {
-                      return ClientListe(clientState.liste[item]["idClient"]);
+                      return ClientItem(clientState.liste[item]["idClient"]);
                     },
                     itemCount: clientState.liste.length,
                   )),

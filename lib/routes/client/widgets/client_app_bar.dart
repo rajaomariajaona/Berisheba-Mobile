@@ -14,7 +14,7 @@ class ClientAppBar {
   AppBar get appbar {
     TabState _tabState = Provider.of<TabState>(_context);
     ClientState _clientState = Provider.of<ClientState>(_context);
-    return _clientState.isDeleting
+    return _clientState.isDeletingClient
         ? AppBar(
             backgroundColor: Colors.grey,
             actionsIconTheme: const IconThemeData(
@@ -26,7 +26,7 @@ class ClientAppBar {
             leading: IconButton(
               icon: Icon(Icons.arrow_back),
               onPressed: () {
-                _clientState.isDeleting = false;
+                _clientState.isDeletingClient = false;
               },
             ),
             actions: <Widget>[
@@ -51,13 +51,13 @@ class ClientAppBar {
                   onPressed: () async {
                     try {
                       await http.post(Config.apiURI + "clients", body: {
-                        "deleteList": _clientState.selected.toString()
+                        "deleteList": _clientState.idClientSelected.toString()
                       });
                     } on Exception catch (_) {
                       print("error deleting client");
                     } finally {
                       GlobalState().channel.sink.add("client");
-                      _clientState.isDeleting = false;
+                      _clientState.isDeletingClient = false;
                     }
                   },
                 )

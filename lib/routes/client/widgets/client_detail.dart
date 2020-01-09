@@ -13,7 +13,8 @@ class ClientDetail extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     ClientState clientState = Provider.of<ClientState>(context);
-    Map<String, dynamic> _client = clientState.clientsById["${_idClient}"];
+    Map<String, dynamic> _client = clientState
+        .listClientByIdClient["${_idClient}"];
     return Scaffold(
       resizeToAvoidBottomInset: false,
       appBar: AppBar(
@@ -28,11 +29,10 @@ class ClientDetail extends StatelessWidget {
             ? null
             : <Widget>[
           IconButton(
-            icon: const Icon(Icons.call),
-            onPressed: () {
-              if (canLaunch("tel:${_client["numTelClient"]}") != null)
-                launch("tel:${_client["numTelClient"]}");
-            },
+            icon: const Icon(
+              Icons.delete,
+            ),
+            onPressed: () {},
           ),
           IconButton(
             icon: const Icon(Icons.edit),
@@ -96,6 +96,25 @@ class ClientDetail extends StatelessWidget {
                         ),
                         title: Text("${_client["adresseClient"]} "),
                       ),
+                      Divider(),
+                      Flex(
+                        direction: Axis.horizontal,
+                        children: <Widget>[
+                          IconButton(
+                            icon: const Icon(Icons.call),
+                            onPressed: () {
+                              if (canLaunch(
+                                  "tel:${_client["numTelClient"]}") !=
+                                  null)
+                                launch("tel:${_client["numTelClient"]}");
+                            },
+                          ),
+                          IconButton(
+                            icon: const Icon(Icons.calendar_today),
+                            onPressed: () {},
+                          ),
+                        ],
+                      )
                     ],
                   ),
                 ),
