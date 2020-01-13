@@ -97,6 +97,13 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
+  flutter_cupertino_localizations:
+    dependency: "direct main"
+    description:
+      name: flutter_cupertino_localizations
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "1.0.1"
   flutter_keyboard_visibility:
     dependency: transitive
     description:
@@ -111,6 +118,11 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "0.8.4+3"
+  flutter_localizations:
+    dependency: "direct main"
+    description: flutter
+    source: sdk
+    version: "0.0.0"
   flutter_secure_storage:
     dependency: "direct main"
     description:
@@ -211,7 +223,7 @@ packages:
       name: intl
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.16.1"
+    version: "0.16.0"
   intro_slider:
     dependency: "direct main"
     description:
@@ -219,6 +231,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "2.2.8"
+  jiffy:
+    dependency: "direct main"
+    description:
+      name: jiffy
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "2.2.0"
   lists:
     dependency: transitive
     description:
@@ -240,6 +259,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.1.8"
+  month_picker_dialog:
+    dependency: "direct main"
+    description:
+      name: month_picker_dialog
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.3.0"
   nested:
     dependency: transitive
     description:
@@ -338,6 +364,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "2.0.5"
+  rxdart:
+    dependency: transitive
+    description:
+      name: rxdart
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.22.6"
   shared_preferences:
     dependency: "direct main"
     description:

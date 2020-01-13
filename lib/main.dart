@@ -6,24 +6,23 @@ import 'package:berisheba/states/global_state.dart';
 import 'package:berisheba/states/tab_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:intl/date_symbol_data_local.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
-  initializeDateFormatting().then((_) => runApp(MyApp())).then((_) {
-    SharedPreferences.getInstance().then((sharedPreference) {
-      if (!sharedPreference.containsKey("api")) {
-        sharedPreference.setString("api", Config.apiURI);
-      } else {
-        Config.apiURI = sharedPreference.getString("api");
-      }
-    });
-    final SystemUiOverlayStyle style = SystemUiOverlayStyle.light.copyWith(
-        statusBarColor: Config.primaryBlue,
-        systemNavigationBarColor: Config.secondaryBlue);
-    SystemChrome.setSystemUIOverlayStyle(style);
+  runApp(MyApp());
+  SharedPreferences.getInstance().then((sharedPreference) {
+    if (!sharedPreference.containsKey("api")) {
+      sharedPreference.setString("api", Config.apiURI);
+    } else {
+      Config.apiURI = sharedPreference.getString("api");
+    }
   });
+  final SystemUiOverlayStyle style = SystemUiOverlayStyle.light.copyWith(
+      statusBarColor: Config.primaryBlue,
+      systemNavigationBarColor: Config.secondaryBlue);
+  SystemChrome.setSystemUIOverlayStyle(style);
 }
 
 class MyApp extends StatelessWidget {
@@ -88,6 +87,15 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => ReservationState()),
       ],
       child: MaterialApp(
+        localizationsDelegates: [
+          // ... app-specific localization delegate[s] here
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        supportedLocales: [
+          Locale("fr"),
+        ],
         navigatorKey: navigatorState,
         title: 'Berisheba',
         debugShowCheckedModeBanner: false,

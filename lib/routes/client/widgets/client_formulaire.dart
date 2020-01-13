@@ -1,7 +1,7 @@
-import 'package:berisheba/formatters/CaseInputFormatter.dart';
-import 'package:berisheba/formatters/NumTelInputFormatter.dart';
 import 'package:berisheba/states/config.dart';
 import 'package:berisheba/states/global_state.dart';
+import 'package:berisheba/tools/formatters/CaseInputFormatter.dart';
+import 'package:berisheba/tools/formatters/NumTelInputFormatter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;

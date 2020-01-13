@@ -105,6 +105,18 @@ class ClientState extends ChangeNotifier {
     }
   }
 
+  Future<bool> removeDataInDatabase() async {
+    http.Response response = await http.delete(Config.apiURI + "clients",
+        headers: {"deletelist": _listIdClientSelected.toString()});
+    if (response.statusCode == 204) {
+      return true;
+    } else {
+      print(response.statusCode);
+      print(response.body);
+      return false;
+    }
+  }
+
   Future<void> sort() async {
     _clientsFiltered.sort((dynamic a, dynamic b) {
       return this._isNotReverse

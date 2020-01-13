@@ -1,9 +1,7 @@
 import 'package:berisheba/routes/client/client_state.dart';
-import 'package:berisheba/states/config.dart';
 import 'package:berisheba/states/global_state.dart';
 import 'package:berisheba/states/tab_state.dart';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
 
 class ClientAppBar {
@@ -50,9 +48,8 @@ class ClientAppBar {
                   icon: Icon(Icons.delete),
                   onPressed: () async {
                     try {
-                      await http.post(Config.apiURI + "clients", body: {
-                        "deleteList": _clientState.idClientSelected.toString()
-                      });
+                      if (!(await _clientState.removeDataInDatabase()))
+                        throw Exception("Client not deleted");
                     } on Exception catch (_) {
                       print("error deleting client");
                     } finally {
