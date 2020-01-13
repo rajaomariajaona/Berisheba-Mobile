@@ -25,8 +25,6 @@ class _ReservationSemaineState extends State<ReservationSemaine> {
           reservationState.reservationsById[idReservation]);
     }).toList()
         : [];
-    print(reservationState.selectedDay);
-    print(reservationState.events);
     return Flex(
       direction: Axis.vertical,
       mainAxisAlignment: MainAxisAlignment.start,
