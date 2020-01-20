@@ -107,7 +107,7 @@ class _SquelleteState extends State<Squellete> {
     assert(_bottomNavBar.items.length == routesPortrait.length);
     assert(_bottomNavBar.items.length == routesLandscape.length);
     assert(_bottomNavBar.items.length == appBar.length);
-
+    
     return Scaffold(
       resizeToAvoidBottomInset: false,
       //fix render flex
