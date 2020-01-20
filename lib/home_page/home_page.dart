@@ -133,7 +133,7 @@ class _SquelleteState extends State<Squellete> {
       ),
 
       //Drawer is Menu on the Left side
-      drawer: MenuDrawer(),
+      drawer: const MenuDrawer(),
       bottomNavigationBar: globalState.hideBottomNavBar ? null : _bottomNavBar,
       floatingActionButton: floatButtons[tabState.index],
     );
