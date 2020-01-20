@@ -88,7 +88,6 @@ class MyApp extends StatelessWidget {
       ],
       child: MaterialApp(
         localizationsDelegates: [
-          // ... app-specific localization delegate[s] here
           GlobalMaterialLocalizations.delegate,
           GlobalWidgetsLocalizations.delegate,
           GlobalCupertinoLocalizations.delegate,

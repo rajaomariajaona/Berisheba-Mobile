@@ -1,3 +1,4 @@
+import 'package:berisheba/routes/reservation/widget/reservation_details.dart';
 import 'package:flutter/material.dart';
 
 class ReservationItem extends StatefulWidget {
@@ -8,8 +9,10 @@ class ReservationItem extends StatefulWidget {
 }
 
 class _ReservationItemState extends State<ReservationItem> {
-  void _watch() {
-    print(widget._reservation["idReservation"]);
+  void _watch(BuildContext context) {
+    Navigator.of(context).push(MaterialPageRoute(builder: (ctx) {
+     return ReservationDetails(widget._reservation["idReservation"]);
+    }));
   }
 
   @override
@@ -28,7 +31,7 @@ class _ReservationItemState extends State<ReservationItem> {
                 : Colors.green,
           ),
         ),
-        onTap: _watch,
+        onTap:() => _watch(context),
         contentPadding: EdgeInsets.fromLTRB(25, 10, 10, 10),
         title: Row(
           children: <Widget>[
@@ -50,13 +53,13 @@ class _ReservationItemState extends State<ReservationItem> {
               Row(
                 children: <Widget>[
                   const Text("Date Entree: "),
-                  Text("${widget._reservation["DateEntree"]}"),
+                  Text("${widget._reservation["DateEntree"]} ${widget._reservation["TypeDemiJourneeEntree"]}"),
                 ],
               ),
               Row(
                 children: <Widget>[
                   const Text("Date Sortie: "),
-                  Text("${widget._reservation["DateSortie"]}"),
+                  Text("${widget._reservation["DateSortie"]} ${widget._reservation["TypeDemiJourneeSortie"]}"),
                 ],
               ),
             ],

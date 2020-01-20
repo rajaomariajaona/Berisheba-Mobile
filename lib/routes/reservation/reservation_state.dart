@@ -38,6 +38,7 @@ class ReservationState extends ChangeNotifier {
         .get("${Config.apiURI}/reservations", headers: {"range": weekRange});
     if (response.statusCode == 200) {
       _reservationsById = jsonDecode(response.body)["data"];
+      notifyListeners();
       this.generateEvents();
     } else {
       throw Exception("Error while fetching data");
@@ -45,6 +46,7 @@ class ReservationState extends ChangeNotifier {
   }
 
   void generateEvents() {
+    _events.clear();
     _reservationsById.forEach((String idReservation, dynamic reservation) {
       DateTime currentDate = DateTime.parse(reservation["DateEntree"]);
       do {

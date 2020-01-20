@@ -14,7 +14,7 @@ class ClientDetail extends StatelessWidget {
   Widget build(BuildContext context) {
     ClientState clientState = Provider.of<ClientState>(context);
     Map<String, dynamic> _client = clientState
-        .listClientByIdClient["${_idClient}"];
+        .listClientByIdClient["$_idClient"];
     return Scaffold(
       resizeToAvoidBottomInset: false,
       appBar: AppBar(
@@ -37,7 +37,7 @@ class ClientDetail extends StatelessWidget {
           IconButton(
             icon: const Icon(Icons.edit),
             onPressed: () async {
-              var t = await Navigator.of(context).push(MaterialPageRoute(
+              await Navigator.of(context).push(MaterialPageRoute(
                 builder: (context) =>
                     ClientFormulaire(
                       client: _client,

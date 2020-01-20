@@ -6,7 +6,12 @@ import 'package:flutter/material.dart';
 import 'package:web_socket_channel/io.dart';
 
 class GlobalState extends ChangeNotifier {
+  GlobalKey _client = GlobalKey();
+
+  GlobalKey get client => _client;
+
   // The Matrial app Navigator State
+
   GlobalKey<NavigatorState> _navigatorState;
 
   set navigatorState(GlobalKey value) {
@@ -34,7 +39,7 @@ class GlobalState extends ChangeNotifier {
           pingInterval: Duration(seconds: 30));
       GlobalState().isConnected = true;
       _channel.stream.listen(
-              (msg) {
+          (msg) {
             _streamController.sink.add(msg);
           },
           onError: (error) {},

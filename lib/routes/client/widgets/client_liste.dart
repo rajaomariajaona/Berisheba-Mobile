@@ -1,6 +1,7 @@
 import 'package:berisheba/routes/client/client_state.dart';
 import 'package:berisheba/routes/client/widgets/client_detail.dart';
 import 'package:berisheba/states/config.dart';
+import 'package:berisheba/states/tab_state.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -20,8 +21,9 @@ class _ClientItemState extends State<ClientItem> {
   @override
   Widget build(BuildContext context) {
     final ClientState clientState = Provider.of<ClientState>(context);
+    final TabState tabState = Provider.of<TabState>(context);
     Map<String, dynamic> _client =
-    clientState.listClientByIdClient["${widget._idClient}"];
+        clientState.listClientByIdClient["${widget._idClient}"];
     return Card(
       margin: EdgeInsets.symmetric(horizontal: 20, vertical: 4),
       child: ListTile(
@@ -52,17 +54,21 @@ class _ClientItemState extends State<ClientItem> {
           style: TextStyle(fontSize: 16),
         ),
         onTap: () {
-          if (clientState.isDeletingClient) {
-            setState(() {
-              if (clientState.isSelected(_client["idClient"]))
-                clientState.deleteSelected(_client["idClient"]);
-              else
-                clientState.addSelected(_client["idClient"]);
-            });
-          } else {
-            Navigator.of(context).push(MaterialPageRoute(builder: (context) {
-              return ClientDetail(widget._idClient);
-            }));
+          if (tabState.index == 1) {
+            if (clientState.isDeletingClient) {
+              setState(() {
+                if (clientState.isSelected(_client["idClient"]))
+                  clientState.deleteSelected(_client["idClient"]);
+                else
+                  clientState.addSelected(_client["idClient"]);
+              });
+            } else {
+              Navigator.of(context).push(MaterialPageRoute(builder: (context) {
+                return ClientDetail(widget._idClient);
+              }));
+            }
+          }else{
+            Navigator.of(context).pop(_client["idClient"]);
           }
         },
         onLongPress: () {

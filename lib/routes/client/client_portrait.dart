@@ -1,6 +1,7 @@
 import 'package:berisheba/routes/client/client_state.dart';
 import 'package:berisheba/routes/client/widgets/client_liste.dart';
 import 'package:berisheba/states/config.dart';
+import 'package:berisheba/states/global_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
@@ -59,6 +60,7 @@ class ClientPortrait extends StatelessWidget {
                 clientState.fetchData();
               },
               child: Scrollbar(
+                  key: Provider.of<GlobalState>(context).client,
                   child: ListView.builder(
                     itemBuilder: (BuildContext ctx, int item) {
                       return ClientItem(clientState.liste[item]["idClient"]);

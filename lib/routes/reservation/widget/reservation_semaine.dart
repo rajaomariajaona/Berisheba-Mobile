@@ -80,7 +80,7 @@ class _CalendrierState extends State<Calendrier> {
             List<Widget> _markers = events.take(4).map((idReservation) {
               return Container(
                 decoration: BoxDecoration(
-                    color: reservationState.reservationsById[idReservation]
+                    color: reservationState.reservationsById[idReservation] != null && reservationState.reservationsById[idReservation]
                     ["couleur"] !=
                         null &&
                         int.tryParse(reservationState
