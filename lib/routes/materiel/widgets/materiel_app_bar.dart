@@ -1,3 +1,4 @@
+import 'package:berisheba/routes/materiel/materiel_portrait.dart';
 import 'package:berisheba/routes/materiel/materiel_state.dart';
 import 'package:berisheba/states/global_state.dart';
 import 'package:berisheba/states/tab_state.dart';
@@ -37,7 +38,7 @@ class MaterielAppBar {
             actions: <Widget>[
                 IconButton(
                   icon: Icon(Icons.search),
-                  onPressed: () async {
+                  onPressed: () {
                     _materielState.isSearching = true;
                   },
                 )
