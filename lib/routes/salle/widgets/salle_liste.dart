@@ -40,7 +40,7 @@ class _SalleItemState extends State<SalleItem> {
                           width: 1))),
               padding: EdgeInsets.symmetric(horizontal: 17, vertical: 3),
               child: Icon(
-                Icons.contact_phone,
+                Icons.location_on,
                 size: 30,
               ),
             )
@@ -48,7 +48,7 @@ class _SalleItemState extends State<SalleItem> {
         ),
         contentPadding: EdgeInsets.fromLTRB(0, 5, 10, 5),
         title: Text(
-          "${_salle["nomSalle"]} ${_salle["prenomSalle"]}",
+          "${_salle["nomSalle"]}",
           maxLines: 3,
           overflow: TextOverflow.ellipsis,
           style: TextStyle(fontSize: 16),

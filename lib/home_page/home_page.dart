@@ -7,6 +7,8 @@ import 'package:berisheba/routes/client/widgets/client_float_button.dart';
 import 'package:berisheba/routes/clients.dart';
 import 'package:berisheba/routes/reservation/reservation_portrait.dart';
 import 'package:berisheba/routes/reservation/widget/reservation_float_button.dart';
+import 'package:berisheba/routes/salle/salle_portrait.dart';
+import 'package:berisheba/routes/salle/widgets/salle_float_button.dart';
 import 'package:berisheba/states/config.dart';
 import 'package:berisheba/states/global_state.dart';
 import 'package:berisheba/states/tab_state.dart';
@@ -45,7 +47,7 @@ class _SquelleteState extends State<Squellete> {
     AcceuilPortrait(),
     ClientPortrait(),
     ReservationPortrait(),
-    Clients(),
+    SallePortrait(),
     Clients(),
     Clients(),
     Clients(),
@@ -65,7 +67,7 @@ class _SquelleteState extends State<Squellete> {
     null,
     ClientFloatButton(),
     ReservationFloatButton(),
-    ClientFloatButton(),
+    SalleFloatButton(),
     ClientFloatButton(),
     ClientFloatButton(),
     ClientFloatButton(),

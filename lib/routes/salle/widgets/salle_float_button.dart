@@ -11,7 +11,7 @@ class SalleFloatButton extends StatelessWidget {
         .isDeletingSalle
         ? Container()
         : FloatingActionButton(
-            child: Icon(Icons.group_add),
+            child: Icon(Icons.add_location),
             onPressed: () async {
               var t = await Navigator.of(context).push(MaterialPageRoute(
                 builder: (context) => SalleFormulaire(),

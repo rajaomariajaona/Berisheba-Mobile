@@ -60,7 +60,6 @@ class ClientPortrait extends StatelessWidget {
                 clientState.fetchData();
               },
               child: Scrollbar(
-                  key: Provider.of<GlobalState>(context).client,
                   child: ListView.builder(
                     itemBuilder: (BuildContext ctx, int item) {
                       return ClientItem(clientState.liste[item]["idClient"]);

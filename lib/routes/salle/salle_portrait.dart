@@ -60,7 +60,6 @@ class SallePortrait extends StatelessWidget {
                 salleState.fetchData();
               },
               child: Scrollbar(
-                  key: Provider.of<GlobalState>(context).salle,
                   child: ListView.builder(
                     itemBuilder: (BuildContext ctx, int item) {
                       return SalleItem(salleState.liste[item]["idSalle"]);

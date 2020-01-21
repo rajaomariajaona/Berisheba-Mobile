@@ -1,6 +1,7 @@
 import 'package:berisheba/home_page/home_page.dart';
 import 'package:berisheba/routes/client/client_state.dart';
 import 'package:berisheba/routes/reservation/reservation_state.dart';
+import 'package:berisheba/routes/salle/salle_state.dart';
 import 'package:berisheba/states/config.dart';
 import 'package:berisheba/states/global_state.dart';
 import 'package:berisheba/states/tab_state.dart';
@@ -85,6 +86,7 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => TabState()),
         ChangeNotifierProvider(create: (_) => ClientState()),
         ChangeNotifierProvider(create: (_) => ReservationState()),
+        ChangeNotifierProvider(create: (_) => SalleState()),
       ],
       child: MaterialApp(
         localizationsDelegates: [
