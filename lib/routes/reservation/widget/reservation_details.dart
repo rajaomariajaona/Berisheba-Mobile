@@ -1,5 +1,6 @@
 import 'package:berisheba/routes/reservation/reservation_state.dart';
 import 'package:berisheba/states/config.dart';
+import 'package:berisheba/states/global_state.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:http/http.dart' as http;
@@ -26,7 +27,8 @@ class ReservationDetails extends StatelessWidget {
                 result = response;
               }).then((_) {
                 if (result.statusCode == 204) {
-                  Navigator.of(context).pop();
+                  Navigator.of(context).pop(true);
+                  GlobalState().streamController.sink.add("reservation");
                 } else {
                   //TODO: Handle error deleting
                   print(result.statusCode);

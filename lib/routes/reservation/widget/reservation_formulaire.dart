@@ -1,6 +1,7 @@
 import 'package:berisheba/routes/client/client_portrait.dart';
 import 'package:berisheba/states/config.dart';
 import 'package:berisheba/routes/client/client_state.dart';
+import 'package:berisheba/states/global_state.dart';
 import 'package:berisheba/tools/date.dart';
 import 'package:berisheba/tools/formatters/CaseInputFormatter.dart';
 import 'package:date_range_picker/date_range_picker.dart' as DateRangePicker;
@@ -136,7 +137,10 @@ class _ReservationFormulaireState extends State<ReservationFormulaire> {
                         onPressed: () async {
                           _formKey.currentState.save();
                           if (_formKey.currentState.validate()) {
-                            await _saveToDatabase();
+                            _saveToDatabase().then((_){
+                              GlobalState().streamController.sink.add("reservation");
+                              Navigator.of(context).pop(true);
+                            });
                           }
                         },
                       ),

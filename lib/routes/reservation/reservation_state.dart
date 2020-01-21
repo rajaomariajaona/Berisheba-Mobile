@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:berisheba/states/config.dart';
+import 'package:berisheba/states/global_state.dart';
 import 'package:berisheba/tools/date.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -65,4 +66,10 @@ class ReservationState extends ChangeNotifier {
   Map<DateTime, List<dynamic>> _events = {};
 
   Map<DateTime, List<dynamic>> get events => _events;
+  ReservationState(){
+    GlobalState().streamController.stream.listen((msg){
+      if(msg == "reservation")
+        this.fetchData("1-53");
+    });
+  }
 }

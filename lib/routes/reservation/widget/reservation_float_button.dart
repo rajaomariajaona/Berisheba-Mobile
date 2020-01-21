@@ -17,7 +17,6 @@ class ReservationFloatButton extends StatelessWidget {
       child: _buttonIcon,
       onPressed: () async {
         await this._showForm(context);
-        Provider.of<ReservationState>(context).fetchData("1-53");
       },
     );
   }

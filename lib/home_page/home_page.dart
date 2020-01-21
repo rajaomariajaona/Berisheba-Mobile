@@ -9,6 +9,7 @@ import 'package:berisheba/routes/clients.dart';
 import 'package:berisheba/routes/materiel/materiel_portrait.dart';
 import 'package:berisheba/routes/materiel/widgets/materiel_app_bar.dart';
 import 'package:berisheba/routes/reservation/reservation_portrait.dart';
+import 'package:berisheba/routes/reservation/widget/reservation_app_bar.dart';
 import 'package:berisheba/routes/reservation/widget/reservation_float_button.dart';
 import 'package:berisheba/routes/salle/salle_portrait.dart';
 import 'package:berisheba/routes/salle/widgets/salle_app_bar.dart';
@@ -103,7 +104,7 @@ class _SquelleteState extends State<Squellete> {
       //TODO: APP BARS
       AcceuilAppBar(context).appbar,
       ClientAppBar(context).appbar,
-      ClientAppBar(context).appbar,
+      ReservationAppBar(context).appbar,
       SalleAppBar(context).appbar,
       MaterielAppBar(context).appbar,
       ClientAppBar(context).appbar,
