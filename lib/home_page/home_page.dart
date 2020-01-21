@@ -1,4 +1,5 @@
 import 'package:berisheba/home_page/menu_drawer.dart';
+import 'package:berisheba/routes/acceuil/acceuil_app_bar.dart';
 import 'package:berisheba/routes/acceuil/acceuil_landscape.dart';
 import 'package:berisheba/routes/acceuil/acceuil_portrait.dart';
 import 'package:berisheba/routes/client/client_portrait.dart';
@@ -100,7 +101,7 @@ class _SquelleteState extends State<Squellete> {
     //App bar
     final List<PreferredSizeWidget> appBar = [
       //TODO: APP BARS
-      ClientAppBar(context).appbar,
+      AcceuilAppBar(context).appbar,
       ClientAppBar(context).appbar,
       ClientAppBar(context).appbar,
       SalleAppBar(context).appbar,
