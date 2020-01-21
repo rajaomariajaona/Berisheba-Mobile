@@ -53,6 +53,7 @@ dependencies:
   intl: ^0.16.0
   jiffy: ^2.2.0
   flutter_colorpicker: ^0.2.6
+  expandable: ^4.0.2
 
 
   # The following adds the Cupertino Icons font to your application.
