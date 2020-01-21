@@ -53,7 +53,7 @@ class ClientState extends ChangeNotifier {
     notifyListeners();
   }
 
-  bool allSelected() => this._clients.length == _listIdClientSelected.length;
+  bool allSelected() => this._clientsFiltered.length == _listIdClientSelected.length;
 
   bool emptySelected() => _listIdClientSelected.isEmpty;
 
@@ -69,6 +69,20 @@ class ClientState extends ChangeNotifier {
   }
 
   bool get isDeletingClient => _isDeletingClient;
+
+
+bool _isSearchingClient = false;
+
+  set isSearchingClient(bool value) {
+    _isSearchingClient = value;
+    if(!_isSearchingClient){
+      this.searchData("");
+    }
+    notifyListeners();
+  }
+
+  bool get isSearchingClient => _isSearchingClient;
+
 
   bool _isNotReverse = false;
 
