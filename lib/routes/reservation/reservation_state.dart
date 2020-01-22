@@ -67,8 +67,13 @@ class ReservationState extends ChangeNotifier {
 
   Map<DateTime, List<dynamic>> get events => _events;
   ReservationState(){
-    GlobalState().streamController.stream.listen((msg){
+    this.fetchData("1-53");
+    GlobalState().externalStreamController.stream.listen((msg){
       if(msg == "reservation")
+        this.fetchData("1-53");
+    });
+    GlobalState().internalStreamController.stream.listen((msg){
+      if(msg == "refresh")
         this.fetchData("1-53");
     });
   }

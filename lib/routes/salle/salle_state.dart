@@ -164,7 +164,7 @@ class SalleState extends ChangeNotifier {
       this._isNotReverse = _sharedPreferences.getBool(Parametres.salleSort);
     });
     await fetchData();
-    GlobalState().streamController.stream.listen((msg) {
+    GlobalState().externalStreamController.stream.listen((msg) {
       //Reload data
       print(msg);
       if (msg == "salle") {

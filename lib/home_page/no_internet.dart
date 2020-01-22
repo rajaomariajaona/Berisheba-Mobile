@@ -15,8 +15,11 @@ class NoInternet extends StatelessWidget {
             child: RaisedButton(
               child: Text("Refresh"),
               onPressed: () {
-                GlobalState().connect();
-                if (GlobalState().isConnected) Navigator.of(context).pop();
+                GlobalState globalState = GlobalState();
+                globalState.connect();
+                if (globalState.isConnected) {
+                  Navigator.of(context).pop();
+                }
               },
             ),
           ),

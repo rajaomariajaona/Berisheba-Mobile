@@ -28,7 +28,7 @@ class ReservationDetails extends StatelessWidget {
               }).then((_) {
                 if (result.statusCode == 204) {
                   Navigator.of(context).pop(true);
-                  GlobalState().streamController.sink.add("reservation");
+                  GlobalState().externalStreamController.sink.add("reservation");
                 } else {
                   //TODO: Handle error deleting
                   print(result.statusCode);

@@ -16,7 +16,7 @@ class ClientFormulaire extends StatefulWidget {
 
 class _ClientFormulaireState extends State<ClientFormulaire> {
   final _formKey = GlobalKey<FormState>();
-
+  bool isPostingData = false;
   String nom;
   String prenom;
   String adresse;
@@ -99,7 +99,10 @@ class _ClientFormulaireState extends State<ClientFormulaire> {
               Icons.check,
               color: Config.primaryBlue,
             ),
-            onPressed: () async {
+            onPressed: isPostingData ? null : () async {
+              setState(() {
+                isPostingData = true;
+              });
               _formKey.currentState.save();
               if (_formKey.currentState.validate()) {
                 dynamic result = modifier
@@ -124,6 +127,10 @@ class _ClientFormulaireState extends State<ClientFormulaire> {
                 print(result);
                 GlobalState().channel.sink.add("client");
                 Navigator.of(context).pop(true);
+              }else{
+                setState(() {
+                isPostingData = false;
+              });
               }
             },
           ),

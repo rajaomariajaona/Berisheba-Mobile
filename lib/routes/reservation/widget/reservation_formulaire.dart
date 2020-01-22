@@ -31,7 +31,7 @@ class _ReservationFormulaireState extends State<ReservationFormulaire> {
   TypeDemiJournee typeDemiJourneeEntree = TypeDemiJournee.jour;
 
   TypeDemiJournee typeDemiJourneeSortie = TypeDemiJournee.jour;
-
+  bool isPostingData = false;
   int idClient;
   var _client = TextEditingController();
   Color couleur = Color(4294198070);
@@ -47,7 +47,7 @@ class _ReservationFormulaireState extends State<ReservationFormulaire> {
     super.initState();
   }
 
-  Future<void> _saveToDatabase() async {
+  Future<http.Response> _saveToDatabase() async {
     Map<String, dynamic> data = {
       "nomReservation": nomReservation,
       "dateEntree": dateEntree,
@@ -62,9 +62,9 @@ class _ReservationFormulaireState extends State<ReservationFormulaire> {
       "couleur": couleur.value.toString(),
       //TODO: ADD Color picker
       "etatReservation": etatReservation.toString(),
+      "nbPersonneIdentique": true.toString()
     };
-    print(data);
-    var result = await http.post(
+    return http.post(
       Config.apiURI + "reservations",
       body: data,
     );
@@ -134,15 +134,31 @@ class _ReservationFormulaireState extends State<ReservationFormulaire> {
                             color: Colors.white,
                           ),
                         ),
-                        onPressed: () async {
-                          _formKey.currentState.save();
-                          if (_formKey.currentState.validate()) {
-                            _saveToDatabase().then((_){
-                              GlobalState().streamController.sink.add("reservation");
-                              Navigator.of(context).pop(true);
-                            });
-                          }
-                        },
+                        onPressed: isPostingData
+                            ? null
+                            : () async {
+                                setState(() {
+                                  isPostingData = true;
+                                });
+                                _formKey.currentState.save();
+                                if (_formKey.currentState.validate()) {
+                                  _saveToDatabase().then((result) {
+                                    if (result.statusCode == 201) {
+                                      GlobalState()
+                                          .externalStreamController
+                                          .sink
+                                          .add("reservation");
+                                      Navigator.of(context).pop(true);
+                                    } else {
+                                      print(result.statusCode);
+                                    }
+                                  });
+                                } else {
+                                  setState(() {
+                                    isPostingData = false;
+                                  });
+                                }
+                              },
                       ),
                     ],
                   ),
@@ -263,7 +279,7 @@ class _ReservationFormulaireState extends State<ReservationFormulaire> {
                 flex: 1,
                 child: FocusScope(
                   canRequestFocus: false,
-                                  child: TextFormField(
+                  child: TextFormField(
                     controller: _dateEntree,
                     readOnly: true,
                     decoration: InputDecoration(
@@ -300,7 +316,7 @@ class _ReservationFormulaireState extends State<ReservationFormulaire> {
                     ),
                     onSaved: (val) {
                       setState(() {
-                        dateEntree = val;
+                        dateSortie = val;
                       });
                     },
                   ),

@@ -178,10 +178,13 @@ bool _isSearchingClient = false;
       this._isNotReverse = _sharedPreferences.getBool(Parametres.clientSort);
     });
     await fetchData();
-    GlobalState().streamController.stream.listen((msg) {
-      //Reload data
-      print(msg);
+    GlobalState().externalStreamController.stream.listen((msg) {
       if (msg == "client") {
+        fetchData();
+      }
+    });
+    GlobalState().internalStreamController.stream.listen((msg) {
+      if (msg == "refresh") {
         fetchData();
       }
     });
