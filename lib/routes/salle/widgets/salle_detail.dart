@@ -1,31 +1,31 @@
-import 'package:berisheba/routes/client/client_state.dart';
-import 'package:berisheba/routes/client/widgets/client_formulaire.dart';
+import 'package:berisheba/routes/salle/salle_state.dart';
+import 'package:berisheba/routes/salle/widgets/salle_formulaire.dart';
 import 'package:berisheba/states/config.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-class ClientDetail extends StatelessWidget {
-  final int _idClient;
+class SalleDetail extends StatelessWidget {
+  final int _idSalle;
 
-  const ClientDetail(this._idClient);
+  const SalleDetail(this._idSalle);
 
   @override
   Widget build(BuildContext context) {
-    ClientState clientState = Provider.of<ClientState>(context);
-    Map<String, dynamic> _client = clientState
-        .listClientByIdClient["$_idClient"];
+    SalleState salleState = Provider.of<SalleState>(context);
+    Map<String, dynamic> _salle = salleState
+        .listSalleByIdSalle["$_idSalle"];
     return Scaffold(
       resizeToAvoidBottomInset: false,
       appBar: AppBar(
         backgroundColor: Config.appBarBgColor,
         centerTitle: true,
         title: Text(
-          _client == null ? "Client" : _client["nomClient"],
+          _salle == null ? "Salle" : _salle["nomSalle"],
           style: TextStyle(color: Config.appBarTextColor),
         ),
         iconTheme: IconThemeData(color: Config.primaryBlue),
-        actions: _client == null
+        actions: _salle == null
             ? null
             : <Widget>[
           IconButton(
@@ -39,8 +39,8 @@ class ClientDetail extends StatelessWidget {
             onPressed: () async {
               await Navigator.of(context).push(MaterialPageRoute(
                 builder: (context) =>
-                    ClientFormulaire(
-                      client: _client,
+                    SalleFormulaire(
+                      salle: _salle,
                     ),
               ));
             },
@@ -50,9 +50,9 @@ class ClientDetail extends StatelessWidget {
       body: SafeArea(
         bottom: true,
         maintainBottomViewPadding: true,
-        child: _client == null
+        child: _salle == null
             ? Center(
-          child: Text("Ce client vient d'etre supprimer"),
+          child: Text("Ce salle vient d'etre supprimer"),
         )
             : Flex(
           direction: Axis.vertical,
@@ -74,19 +74,19 @@ class ClientDetail extends StatelessWidget {
                           onPressed: () {},
                         ),
                         title: Text(
-                            "${_client["nomClient"]} ${_client["prenomClient"]}"),
+                            "${_salle["nomSalle"]} ${_salle["prenomSalle"]}"),
                       ),
                       ListTile(
                         leading: IconButton(
                           icon: Icon(Icons.smartphone),
                           onPressed: () {},
                         ),
-                        title: Text("${_client["numTelClient"]} "),
+                        title: Text("${_salle["numTelSalle"]} "),
                         onTap: () {
                           if (canLaunch(
-                              "tel:${_client["numTelClient"]}") !=
+                              "tel:${_salle["numTelSalle"]}") !=
                               null)
-                            launch("tel:${_client["numTelClient"]}");
+                            launch("tel:${_salle["numTelSalle"]}");
                         },
                       ),
                       ListTile(
@@ -94,7 +94,7 @@ class ClientDetail extends StatelessWidget {
                           icon: Icon(Icons.location_on),
                           onPressed: () {},
                         ),
-                        title: Text("${_client["adresseClient"]} "),
+                        title: Text("${_salle["adresseSalle"]} "),
                       ),
                       Divider(),
                       Flex(
@@ -104,9 +104,9 @@ class ClientDetail extends StatelessWidget {
                             icon: const Icon(Icons.call),
                             onPressed: () {
                               if (canLaunch(
-                                  "tel:${_client["numTelClient"]}") !=
+                                  "tel:${_salle["numTelSalle"]}") !=
                                   null)
-                                launch("tel:${_client["numTelClient"]}");
+                                launch("tel:${_salle["numTelSalle"]}");
                             },
                           ),
                           IconButton(

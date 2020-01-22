@@ -11,67 +11,79 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ClientState extends ChangeNotifier {
-  //List of Client sort by idClient
-  Map<String, dynamic> _clientsBrut = {};
+  Map<String, dynamic> _listClientByIdClient = {};
 
-  Map<String, dynamic> get clientsById => _clientsBrut;
+  Map<String, dynamic> get listClientByIdClient => _listClientByIdClient;
 
   //Global key for Indicator state use for refresh data
-  final _refreshState = GlobalKey<RefreshIndicatorState>();
+  final _refreshIndicatorStateClient = GlobalKey<RefreshIndicatorState>();
 
-  get refreshState => _refreshState;
+  get refreshIndicatorStateClient => _refreshIndicatorStateClient;
 
   //Client id List of Selected;
-  List<int> _clientSelected = [];
+  List<int> _listIdClientSelected = [];
 
-  List<int> get selected => _clientSelected;
+  List<int> get idClientSelected => _listIdClientSelected;
 
   //Add Id Client to Selected List
   void addSelected(int idClient) {
-    if (!_clientSelected.contains(idClient)) _clientSelected.add(idClient);
+    if (!_listIdClientSelected.contains(idClient))
+      _listIdClientSelected.add(idClient);
     notifyListeners();
   }
 
   //TODO : clean search
 
   void deleteSelected(int idClient) {
-    if (_clientSelected.contains(idClient)) _clientSelected.remove(idClient);
+    if (_listIdClientSelected.contains(idClient))
+      _listIdClientSelected.remove(idClient);
     notifyListeners();
   }
 
   void deleteAllSelected() {
-    _clientSelected.clear();
+    _listIdClientSelected.clear();
     notifyListeners();
   }
 
   void addAllSelected() {
-    _clientSelected.clear();
+    _listIdClientSelected.clear();
     this._clients.forEach((v) {
-      _clientSelected.add(v["idClient"]);
+      _listIdClientSelected.add(v["idClient"]);
     });
     notifyListeners();
   }
 
-  // State selection
-  bool allSelected() => this._clients.length == _clientSelected.length;
+  bool allSelected() => this._clientsFiltered.length == _listIdClientSelected.length;
 
-  bool emptySelected() => _clientSelected.isEmpty;
+  bool emptySelected() => _listIdClientSelected.isEmpty;
 
-  bool isSelected(int idClient) => _clientSelected.contains(idClient);
+  bool isSelected(int idClient) => _listIdClientSelected.contains(idClient);
 
-  //Mode deleting state
-  bool _isDeleting = false;
+  bool _isDeletingClient = false;
 
-  set isDeleting(bool value) {
+  set isDeletingClient(bool value) {
     if (!value) deleteAllSelected();
-    _isDeleting = value;
-    GlobalState().hideBottomNavBar = _isDeleting;
+    _isDeletingClient = value;
+    GlobalState().hideBottomNavBar = _isDeletingClient;
     notifyListeners();
   }
 
-  bool get isDeleting => _isDeleting;
+  bool get isDeletingClient => _isDeletingClient;
 
-  //State Sorting direction
+
+bool _isSearchingClient = false;
+
+  set isSearchingClient(bool value) {
+    _isSearchingClient = value;
+    if(!_isSearchingClient){
+      this.searchData("");
+    }
+    notifyListeners();
+  }
+
+  bool get isSearchingClient => _isSearchingClient;
+
+
   bool _isNotReverse = false;
 
   bool get isNotReverse => _isNotReverse;
@@ -90,12 +102,11 @@ class ClientState extends ChangeNotifier {
   List<dynamic> _clients = [];
   List<dynamic> _clientsFiltered = [];
 
-  //Method for Fetching data from server
-  Future<void> getData() async {
+  Future<void> fetchData() async {
     try {
-      _clientsBrut = await jsonDecode(
+      _listClientByIdClient = await jsonDecode(
           (await http.get(Config.apiURI + "clients")).body)["data"];
-      _clients = _clientsBrut.values.toList();
+      _clients = _listClientByIdClient.values.toList();
       _clientsFiltered = _clients;
       await this.sort();
       GlobalState().isConnected = true;
@@ -108,7 +119,18 @@ class ClientState extends ChangeNotifier {
     }
   }
 
-  //Method for Sorting data
+  Future<bool> removeDataInDatabase() async {
+    http.Response response = await http.delete(Config.apiURI + "clients",
+        headers: {"deletelist": _listIdClientSelected.toString()});
+    if (response.statusCode == 204) {
+      return true;
+    } else {
+      print(response.statusCode);
+      print(response.body);
+      return false;
+    }
+  }
+
   Future<void> sort() async {
     _clientsFiltered.sort((dynamic a, dynamic b) {
       return this._isNotReverse
@@ -155,12 +177,15 @@ class ClientState extends ChangeNotifier {
     }).then((_) {
       this._isNotReverse = _sharedPreferences.getBool(Parametres.clientSort);
     });
-    await getData();
-    GlobalState().streamController.stream.listen((msg) {
-      //Reload data
-      print(msg);
+    await fetchData();
+    GlobalState().externalStreamController.stream.listen((msg) {
       if (msg == "client") {
-        getData();
+        fetchData();
+      }
+    });
+    GlobalState().internalStreamController.stream.listen((msg) {
+      if (msg == "refresh") {
+        fetchData();
       }
     });
   }

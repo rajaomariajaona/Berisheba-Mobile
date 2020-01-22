@@ -1,29 +1,29 @@
-import 'package:berisheba/routes/client/client_state.dart';
-import 'package:berisheba/routes/client/widgets/client_detail.dart';
+import 'package:berisheba/routes/salle/salle_state.dart';
+import 'package:berisheba/routes/salle/widgets/salle_detail.dart';
 import 'package:berisheba/states/config.dart';
 import 'package:berisheba/states/tab_state.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-class ClientItem extends StatefulWidget {
-  final int _idClient;
+class SalleItem extends StatefulWidget {
+  final int _idSalle;
 
-  const ClientItem(
-    this._idClient, {
+  const SalleItem(
+    this._idSalle, {
     Key key,
   }) : super(key: key);
 
   @override
-  State createState() => _ClientItemState();
+  State createState() => _SalleItemState();
 }
 
-class _ClientItemState extends State<ClientItem> {
+class _SalleItemState extends State<SalleItem> {
   @override
   Widget build(BuildContext context) {
-    final ClientState clientState = Provider.of<ClientState>(context);
+    final SalleState salleState = Provider.of<SalleState>(context);
     final TabState tabState = Provider.of<TabState>(context);
-    Map<String, dynamic> _client =
-        clientState.listClientByIdClient["${widget._idClient}"];
+    Map<String, dynamic> _salle =
+        salleState.listSalleByIdSalle["${widget._idSalle}"];
     return Card(
       margin: EdgeInsets.symmetric(horizontal: 20, vertical: 4),
       child: ListTile(
@@ -40,7 +40,7 @@ class _ClientItemState extends State<ClientItem> {
                           width: 1))),
               padding: EdgeInsets.symmetric(horizontal: 17, vertical: 3),
               child: Icon(
-                Icons.contact_phone,
+                Icons.location_on,
                 size: 30,
               ),
             )
@@ -48,44 +48,44 @@ class _ClientItemState extends State<ClientItem> {
         ),
         contentPadding: EdgeInsets.fromLTRB(0, 5, 10, 5),
         title: Text(
-          "${_client["nomClient"]} ${_client["prenomClient"]}",
+          "${_salle["nomSalle"]}",
           maxLines: 3,
           overflow: TextOverflow.ellipsis,
           style: TextStyle(fontSize: 16),
         ),
         onTap: () {
           if (tabState.index == 1) {
-            if (clientState.isDeletingClient) {
+            if (salleState.isDeletingSalle) {
               setState(() {
-                if (clientState.isSelected(_client["idClient"]))
-                  clientState.deleteSelected(_client["idClient"]);
+                if (salleState.isSelected(_salle["idSalle"]))
+                  salleState.deleteSelected(_salle["idSalle"]);
                 else
-                  clientState.addSelected(_client["idClient"]);
+                  salleState.addSelected(_salle["idSalle"]);
               });
             } else {
               Navigator.of(context).push(MaterialPageRoute(builder: (context) {
-                return ClientDetail(widget._idClient);
+                return SalleDetail(widget._idSalle);
               }));
             }
           }else{
-            Navigator.of(context).pop(_client["idClient"]);
+            Navigator.of(context).pop(_salle["idSalle"]);
           }
         },
         onLongPress: () {
-          clientState.isDeletingClient = true;
+          salleState.isDeletingSalle = true;
           setState(() {
-            clientState.addSelected(_client["idClient"]);
+            salleState.addSelected(_salle["idSalle"]);
           });
         },
-        trailing: clientState.isDeletingClient
+        trailing: salleState.isDeletingSalle
             ? Checkbox(
-                value: clientState.isSelected(_client["idClient"]),
+                value: salleState.isSelected(_salle["idSalle"]),
                 onChanged: (val) {
                   setState(() {
                     if (val)
-                      clientState.addSelected(_client["idClient"]);
+                      salleState.addSelected(_salle["idSalle"]);
                     else
-                      clientState.deleteSelected(_client["idClient"]);
+                      salleState.deleteSelected(_salle["idSalle"]);
                   });
                 },
               )

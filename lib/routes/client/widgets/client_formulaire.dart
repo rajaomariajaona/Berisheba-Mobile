@@ -1,7 +1,7 @@
-import 'package:berisheba/formatters/CaseInputFormatter.dart';
-import 'package:berisheba/formatters/NumTelInputFormatter.dart';
 import 'package:berisheba/states/config.dart';
 import 'package:berisheba/states/global_state.dart';
+import 'package:berisheba/tools/formatters/CaseInputFormatter.dart';
+import 'package:berisheba/tools/formatters/NumTelInputFormatter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
@@ -16,7 +16,7 @@ class ClientFormulaire extends StatefulWidget {
 
 class _ClientFormulaireState extends State<ClientFormulaire> {
   final _formKey = GlobalKey<FormState>();
-
+  bool isPostingData = false;
   String nom;
   String prenom;
   String adresse;
@@ -99,30 +99,38 @@ class _ClientFormulaireState extends State<ClientFormulaire> {
               Icons.check,
               color: Config.primaryBlue,
             ),
-            onPressed: () async {
+            onPressed: isPostingData ? null : () async {
+              setState(() {
+                isPostingData = true;
+              });
+              _formKey.currentState.save();
               if (_formKey.currentState.validate()) {
                 dynamic result = modifier
                     ? await http.put(
-                        Config.apiURI + "clients/${widget.client["idClient"]}",
-                        body: {
-                          "nomClient": nom,
-                          "prenomClient": prenom,
-                          "adresseClient": adresse,
-                          "numTelClient": num
-                        },
-                      )
+                  Config.apiURI + "clients/${widget.client["idClient"]}",
+                  body: {
+                    "nomClient": nom,
+                    "prenomClient": prenom,
+                    "adresseClient": adresse,
+                    "numTelClient": num
+                  },
+                )
                     : await http.post(
-                        Config.apiURI + "clients",
-                        body: {
-                          "nomClient": nom,
-                          "prenomClient": prenom,
-                          "adresseClient": adresse,
-                          "numTelClient": num
-                        },
-                      );
+                  Config.apiURI + "clients",
+                  body: {
+                    "nomClient": nom,
+                    "prenomClient": prenom,
+                    "adresseClient": adresse,
+                    "numTelClient": num
+                  },
+                );
                 print(result);
                 GlobalState().channel.sink.add("client");
                 Navigator.of(context).pop(true);
+              }else{
+                setState(() {
+                isPostingData = false;
+              });
               }
             },
           ),
@@ -145,7 +153,7 @@ class _ClientFormulaireState extends State<ClientFormulaire> {
                     labelText: "Nom",
                   ),
                   initialValue: modifier ? widget.client["nomClient"] : "",
-                  onChanged: (val) {
+                  onSaved: (val) {
                     setState(() {
                       nom = val;
                     });
@@ -160,7 +168,7 @@ class _ClientFormulaireState extends State<ClientFormulaire> {
                     labelText: "Prenom",
                   ),
                   initialValue: modifier ? widget.client["prenomClient"] : "",
-                  onChanged: (val) {
+                  onSaved: (val) {
                     setState(() {
                       prenom = val;
                     });
@@ -175,7 +183,7 @@ class _ClientFormulaireState extends State<ClientFormulaire> {
                     labelText: "Num telephone",
                   ),
                   initialValue: modifier ? widget.client["numTelClient"] : "",
-                  onChanged: (val) {
+                  onSaved: (val) {
                     setState(() {
                       num = val;
                     });
@@ -192,7 +200,7 @@ class _ClientFormulaireState extends State<ClientFormulaire> {
                     labelText: "Adresse",
                   ),
                   initialValue: modifier ? widget.client["adresseClient"] : "",
-                  onChanged: (val) {
+                  onSaved: (val) {
                     setState(() {
                       adresse = val;
                     });

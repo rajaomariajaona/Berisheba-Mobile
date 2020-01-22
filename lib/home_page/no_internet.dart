@@ -2,6 +2,7 @@ import 'package:berisheba/states/global_state.dart';
 import 'package:flutter/material.dart';
 
 class NoInternet extends StatelessWidget {
+  const NoInternet({Key key}): super(key : key);
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -14,8 +15,11 @@ class NoInternet extends StatelessWidget {
             child: RaisedButton(
               child: Text("Refresh"),
               onPressed: () {
-                GlobalState().connect();
-                if (GlobalState().isConnected) Navigator.of(context).pop();
+                GlobalState globalState = GlobalState();
+                globalState.connect();
+                if (globalState.isConnected) {
+                  Navigator.of(context).pop();
+                }
               },
             ),
           ),

@@ -1,20 +1,20 @@
-import 'package:berisheba/routes/client/client_state.dart';
-import 'package:berisheba/routes/client/widgets/client_formulaire.dart';
+import 'package:berisheba/routes/salle/salle_state.dart';
+import 'package:berisheba/routes/salle/widgets/salle_formulaire.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-class ClientFloatButton extends StatelessWidget {
+class SalleFloatButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Provider
-        .of<ClientState>(context)
-        .isDeletingClient
+        .of<SalleState>(context)
+        .isDeletingSalle
         ? Container()
         : FloatingActionButton(
-            child: Icon(Icons.group_add),
+            child: Icon(Icons.add_location),
             onPressed: () async {
               var t = await Navigator.of(context).push(MaterialPageRoute(
-                builder: (context) => ClientFormulaire(),
+                builder: (context) => SalleFormulaire(),
               ));
               //TODO Handle Navigator after changes
               print(t);

@@ -1,30 +1,19 @@
-// This is a basic Flutter widget test.
-//
-// To perform an interaction with a widget in your test, use the WidgetTester
-// utility that Flutter provides. For example, you can send tap and scroll
-// gestures. You can also use WidgetTester to find child widgets in the widget
-// tree, read text, and verify that the values of widget properties are correct.
-
-import 'package:flutter/material.dart';
-import 'package:flutter_test/flutter_test.dart';
-
-import 'package:berisheba/main.dart';
+import 'package:berisheba/tools/date.dart';
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(MyApp());
+  testIsoWeekNumber();
+}
 
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
-
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
-    await tester.pump();
-
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
-  });
+void testIsoWeekNumber() {
+  print(isoWeekNumber(DateTime(2019, 12, 28)));
+  print(isoWeekNumber(DateTime(2019, 12, 29)));
+  print(isoWeekNumber(DateTime(2019, 12, 30)));
+  print(isoWeekNumber(DateTime(2019, 12, 31)));
+  print(isoWeekNumber(DateTime(2020, 01, 01)));
+  print(isoWeekNumber(DateTime(2020, 01, 02)));
+  print(isoWeekNumber(DateTime(2020, 01, 03)));
+  print(isoWeekNumber(DateTime(2020, 01, 04)));
+  print(isoWeekNumber(DateTime(2020, 01, 05)));
+  print(isoWeekNumber(DateTime(2020, 01, 06)));
+  print(isoWeekNumber(DateTime(2020, 01, 07)));
 }

@@ -1,10 +1,14 @@
 import 'package:berisheba/home_page/home_page.dart';
 import 'package:berisheba/routes/client/client_state.dart';
+import 'package:berisheba/routes/materiel/materiel_state.dart';
+import 'package:berisheba/routes/reservation/reservation_state.dart';
+import 'package:berisheba/routes/salle/salle_state.dart';
 import 'package:berisheba/states/config.dart';
 import 'package:berisheba/states/global_state.dart';
 import 'package:berisheba/states/tab_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -82,8 +86,19 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => GlobalState()),
         ChangeNotifierProvider(create: (_) => TabState()),
         ChangeNotifierProvider(create: (_) => ClientState()),
+        ChangeNotifierProvider(create: (_) => ReservationState()),
+        ChangeNotifierProvider(create: (_) => SalleState()),
+        ChangeNotifierProvider(create: (_) => MaterielState()),
       ],
       child: MaterialApp(
+        localizationsDelegates: [
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        supportedLocales: [
+          Locale("fr"),
+        ],
         navigatorKey: navigatorState,
         title: 'Berisheba',
         debugShowCheckedModeBanner: false,
