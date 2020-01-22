@@ -53,17 +53,15 @@ class Calendrier extends StatefulWidget {
 }
 
 class _CalendrierState extends State<Calendrier> {
-  CalendarController _calendarController;
+  
 
   @override
   void initState() {
-    _calendarController = CalendarController();
     super.initState();
   }
 
   @override
   void dispose() {
-    _calendarController.dispose();
     super.dispose();
   }
 
@@ -106,12 +104,11 @@ class _CalendrierState extends State<Calendrier> {
           }),
       locale: 'fr_FR',
       startDay: DateTime(2019),
-      calendarController: _calendarController,
+      calendarController: reservationState.calendarController,
       availableCalendarFormats: {CalendarFormat.week: "Semaine"},
       initialCalendarFormat: CalendarFormat.week,
       events: reservationState.events,
       onDaySelected: (DateTime dateTime, List<dynamic> reservations) {
-        _calendarController.setSelectedDay(dateTime);
         reservationState.selectedDay =
             DateTime.parse(generateDateString(dateTime));
       },
@@ -127,7 +124,7 @@ class _CalendrierState extends State<Calendrier> {
         );
         if (result != null) {
           setState(() {
-            _calendarController.setSelectedDay(result);
+            reservationState.selectedDay = result;
           });
         }
       },

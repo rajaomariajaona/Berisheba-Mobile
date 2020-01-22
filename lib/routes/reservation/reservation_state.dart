@@ -5,14 +5,19 @@ import 'package:berisheba/states/global_state.dart';
 import 'package:berisheba/tools/date.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:table_calendar/table_calendar.dart';
 
 class ReservationState extends ChangeNotifier {
+  CalendarController _calendarController;
+  CalendarController get calendarController => _calendarController;
+
   DateTime _selectedDay = DateTime.parse(generateDateString(DateTime.now()));
 
   DateTime get selectedDay => _selectedDay;
 
   set selectedDay(DateTime value) {
     _selectedDay = value;
+    _calendarController.setSelectedDay(value);
     notifyListeners();
   }
 
@@ -67,6 +72,7 @@ class ReservationState extends ChangeNotifier {
 
   Map<DateTime, List<dynamic>> get events => _events;
   ReservationState(){
+    _calendarController = CalendarController();
     this.fetchData("1-53");
     GlobalState().externalStreamController.stream.listen((msg){
       if(msg == "reservation")

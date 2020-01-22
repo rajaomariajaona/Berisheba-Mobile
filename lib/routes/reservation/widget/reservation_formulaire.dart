@@ -1,4 +1,7 @@
+import 'dart:convert';
+
 import 'package:berisheba/routes/client/client_portrait.dart';
+import 'package:berisheba/routes/reservation/widget/reservation_details.dart';
 import 'package:berisheba/states/config.dart';
 import 'package:berisheba/routes/client/client_state.dart';
 import 'package:berisheba/states/global_state.dart';
@@ -60,7 +63,6 @@ class _ReservationFormulaireState extends State<ReservationFormulaire> {
       "nbPersonne": nbPersonne.toString(),
       "idClient": idClient.toString(),
       "couleur": couleur.value.toString(),
-      //TODO: ADD Color picker
       "etatReservation": etatReservation.toString(),
       "nbPersonneIdentique": true.toString()
     };
@@ -148,8 +150,11 @@ class _ReservationFormulaireState extends State<ReservationFormulaire> {
                                           .externalStreamController
                                           .sink
                                           .add("reservation");
-                                      Navigator.of(context).pop(true);
+                                      Navigator.of(context).pop(dateEntree);
                                     } else {
+                                      setState(() {
+                                        isPostingData = false;
+                                      });
                                       print(result.statusCode);
                                     }
                                   });

@@ -13,10 +13,16 @@ class ReservationFloatButton extends StatelessWidget {
   final Icon _buttonIcon = const Icon(Icons.calendar_today);
 
   FloatingActionButton _buildButton(BuildContext context) {
+    final ReservationState reservationState =
+        Provider.of<ReservationState>(context);
     return FloatingActionButton(
       child: _buttonIcon,
       onPressed: () async {
-        await this._showForm(context);
+        this._showForm(context).then((result) {
+          if (result != null) {
+            reservationState.selectedDay = DateTime.parse(result);
+          }
+        });
       },
     );
   }
