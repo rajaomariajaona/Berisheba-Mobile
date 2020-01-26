@@ -16,8 +16,10 @@ import 'package:provider/provider.dart';
 import 'package:http/http.dart' as http;
 
 class ReservationFormulaire extends StatefulWidget {
-  ReservationFormulaire({Key key}) : super(key: key);
-
+  ReservationFormulaire({Key key, this.idClient, this.nomClient})
+      : super(key: key);
+  final int idClient;
+  final String nomClient;
   @override
   _ReservationFormulaireState createState() => _ReservationFormulaireState();
 }
@@ -44,9 +46,10 @@ class _ReservationFormulaireState extends State<ReservationFormulaire> {
 
   @override
   void initState() {
+    idClient = widget.idClient;
     _dateEntree.text = dateEntree;
     _dateSortie.text = dateSortie;
-    _client.text = "";
+    _client.text = widget.nomClient ?? "";
     super.initState();
   }
 

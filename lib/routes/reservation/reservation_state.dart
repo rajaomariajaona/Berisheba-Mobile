@@ -40,6 +40,8 @@ class ReservationState extends ChangeNotifier {
   Map<String, dynamic> get reservationsById => _reservationsById;
 
   void fetchData(String weekRange) async {
+    try{
+
     http.Response response = await http
         .get("${Config.apiURI}/reservations", headers: {"range": weekRange});
     if (response.statusCode == 200) {
@@ -48,6 +50,9 @@ class ReservationState extends ChangeNotifier {
       this.generateEvents();
     } else {
       throw Exception("Error while fetching data");
+    }
+    }catch(err){
+      GlobalState().isConnected = false;
     }
   }
 
