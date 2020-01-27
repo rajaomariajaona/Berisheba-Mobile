@@ -27,6 +27,7 @@ class _ClientItemState extends State<ClientItem> {
     return Card(
       margin: EdgeInsets.symmetric(horizontal: 20, vertical: 4),
       child: ListTile(
+        selected: clientState.isSelected(_client["idClient"]),
         leading: Flex(
           direction: Axis.vertical,
           mainAxisAlignment: MainAxisAlignment.center,
