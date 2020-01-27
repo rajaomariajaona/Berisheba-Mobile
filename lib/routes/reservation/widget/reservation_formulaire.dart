@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:berisheba/routes/client/client_portrait.dart';
 import 'package:berisheba/routes/reservation/widget/reservation_details.dart';
+import 'package:berisheba/routes/reservation/constituer_state.dart';
 import 'package:berisheba/states/config.dart';
 import 'package:berisheba/routes/client/client_state.dart';
 import 'package:berisheba/states/global_state.dart';
@@ -23,8 +24,6 @@ class ReservationFormulaire extends StatefulWidget {
   @override
   _ReservationFormulaireState createState() => _ReservationFormulaireState();
 }
-
-enum TypeDemiJournee { jour, nuit }
 
 class _ReservationFormulaireState extends State<ReservationFormulaire> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
