@@ -53,13 +53,13 @@ class _ReservationItemState extends State<ReservationItem> {
               Row(
                 children: <Widget>[
                   const Text("Date Entree: "),
-                  Text("${widget._reservation["DateEntree"]} ${widget._reservation["TypeDemiJourneeEntree"]}"),
+                  Text("${widget._reservation["dateEntree"]} ${widget._reservation["typeDemiJourneeEntree"]}"),
                 ],
               ),
               Row(
                 children: <Widget>[
                   const Text("Date Sortie: "),
-                  Text("${widget._reservation["DateSortie"]} ${widget._reservation["TypeDemiJourneeSortie"]}"),
+                  Text("${widget._reservation["dateSortie"]} ${widget._reservation["typeDemiJourneeSortie"]}"),
                 ],
               ),
             ],

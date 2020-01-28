@@ -59,7 +59,7 @@ class ReservationState extends ChangeNotifier {
   void generateEvents() {
     _events.clear();
     _reservationsById.forEach((String idReservation, dynamic reservation) {
-      DateTime currentDate = DateTime.parse(reservation["DateEntree"]);
+      DateTime currentDate = DateTime.parse(reservation["dateEntree"]);
       do {
         if (!_events.containsKey(currentDate)) {
           _events[currentDate] = [];
@@ -68,7 +68,7 @@ class ReservationState extends ChangeNotifier {
           _events[currentDate].add(idReservation);
         }
         currentDate = currentDate.add(Duration(days: 1));
-      } while (!currentDate.isAfter(DateTime.parse(reservation["DateSortie"])));
+      } while (!currentDate.isAfter(DateTime.parse(reservation["dateSortie"])));
     });
     notifyListeners();
   }

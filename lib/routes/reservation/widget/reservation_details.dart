@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:berisheba/routes/reservation/constituer_state.dart';
 import 'package:berisheba/routes/reservation/reservation_state.dart';
 import 'package:berisheba/states/config.dart';
@@ -5,6 +7,7 @@ import 'package:berisheba/states/global_state.dart';
 import 'package:berisheba/tools/date.dart';
 import 'package:expandable/expandable.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:http/http.dart' as http;
 import 'package:date_range_picker/date_range_picker.dart' as DateRangePicker;
@@ -76,6 +79,7 @@ class _ReservationGlobalDetails extends StatefulWidget {
 
 class _ReservationGlobalDetailsState extends State<_ReservationGlobalDetails> {
   bool editMode = false;
+
   @override
   Widget build(BuildContext context) {
     final ReservationState reservationState =
@@ -118,12 +122,11 @@ class _ReservationDemiJournee extends StatefulWidget {
 class _ReservationDemiJourneeState extends State<_ReservationDemiJournee> {
   Map<DemiJournee, int> _modifiedDemijournee = {};
   bool _editMode = false;
+    bool _isPosting = false;
   bool get editMode => _editMode;
   void setEditMode(bool v, {Map<DemiJournee, int> currentDemiJournees}) {
     _editMode = v;
-    if(!v)
-      _modifiedDemijournee.clear();
-    if(currentDemiJournees != null && v && _modifiedDemijournee.isEmpty){
+    if (currentDemiJournees != null && v && _modifiedDemijournee.isEmpty) {
       _modifiedDemijournee = currentDemiJournees;
     }
   }
@@ -226,7 +229,7 @@ class _ReservationDemiJourneeState extends State<_ReservationDemiJournee> {
       typeDemiJournee: type,
     );
     if (!rangePickerData["remplaceAll"]) {
-      var demiJournees = Provider.of<ConstituerState>(context).demiJournees;
+      Map<DemiJournee,int> demiJournees = Provider.of<ConstituerState>(context).demiJourneesByReservation[widget._idReservation];
       if (demiJournees.containsKey(currentDemiJournee)) {
         _modifiedDemijournee.putIfAbsent(
             currentDemiJournee, () => demiJournees[currentDemiJournee]);
@@ -248,86 +251,102 @@ class _ReservationDemiJourneeState extends State<_ReservationDemiJournee> {
         reservationState.reservationsById["${widget._idReservation}"];
     final ConstituerState constituerState =
         Provider.of<ConstituerState>(context);
-    final Map<DemiJournee, int> demiJournees = constituerState.demiJournees;
+    final Map<DemiJournee, int> demiJournees = constituerState.demiJourneesByReservation[widget._idReservation];
     final Map<String, dynamic> stat = constituerState.stats;
     List<Widget> listDemiJournees = [];
-    if(editMode)
-      constituerState.controllers.clear();
-    editMode ?
-    _modifiedDemijournee.forEach((DemiJournee demiJournee, int nbPersonne) {
-      TextEditingController controller = TextEditingController();
-      
-      listDemiJournees.add(ListTile(
-        leading:Checkbox(
-                value: true,
-        ),
-        dense: true,
-        title: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: <Widget>[
-            Flexible(
-              child: Row(
+    if (editMode) constituerState.controllers.clear();
+    print(demiJournees);
+    editMode
+        ? _modifiedDemijournee
+            .forEach((DemiJournee demiJournee, int nbPersonne) {
+            TextEditingController controller = TextEditingController();
+            listDemiJournees.add(ListTile(
+              leading: Checkbox(
+                value: constituerState.isSelected(demiJournee),
+                onChanged: (val) {
+                  setState(() {
+                    if (val)
+                      constituerState.addSelected(demiJournee);
+                    else
+                      constituerState.deleteSelected(demiJournee);
+                  });
+                },
+              ),
+              dense: true,
+              title: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: <Widget>[
-                  Text("${demiJournee.date}"),
                   Flexible(
-                    child: Icon(Icons.wb_sunny,
-                        color:
-                            demiJournee.typeDemiJournee == TypeDemiJournee.jour
-                                ? Colors.yellow
-                                : Colors.grey),
+                    child: Row(
+                      children: <Widget>[
+                        Text("${demiJournee.date}"),
+                        Flexible(
+                          child: Icon(Icons.wb_sunny,
+                              color: demiJournee.typeDemiJournee ==
+                                      TypeDemiJournee.jour
+                                  ? Colors.yellow
+                                  : Colors.grey),
+                        )
+                      ],
+                    ),
+                  ),
+                  Flexible(
+                      child: TextField(
+                    keyboardType: TextInputType.number,
+                    inputFormatters: [
+                      WhitelistingTextInputFormatter(
+                        RegExp("[0-9]+")
+                        )
+                      ],
+                    controller: controller,
+                    onChanged: (value) {
+                      if (constituerState.demiJourneeSelected.length > 1) {
+                        constituerState.demiJourneeSelected.forEach((dj) {
+                          _modifiedDemijournee[dj] = int.parse(value);
+                        });
+                      }
+                      _modifiedDemijournee[demiJournee] = int.parse(value);
+                      setState(() {});
+                    },
+                  ))
+                ],
+              ),
+            ));
+            listDemiJournees.add(Divider());
+            controller.text = "$nbPersonne";
+            controller.selection =
+                TextSelection.collapsed(offset: controller.text.length);
+            constituerState.controllers
+                .putIfAbsent(demiJournee, () => controller);
+          })
+        : demiJournees.forEach((DemiJournee demiJournee, int nbPersonne) {
+            listDemiJournees.add(ListTile(
+              dense: true,
+              title: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: <Widget>[
+                  Flexible(
+                    child: Row(
+                      children: <Widget>[
+                        Text("${demiJournee.date}"),
+                        Flexible(
+                          child: Icon(Icons.wb_sunny,
+                              color: demiJournee.typeDemiJournee ==
+                                      TypeDemiJournee.jour
+                                  ? Colors.yellow
+                                  : Colors.grey),
+                        )
+                      ],
+                    ),
+                  ),
+                  Flexible(
+                    child: Text("$nbPersonne personnes"),
                   )
                 ],
               ),
-            ),
-            Flexible(
-              child:TextField(
-                controller: controller,
-              )
-            )
-          ],
-        ),
-      ));
-      listDemiJournees.add(Divider());
-      controller.text = "$nbPersonne";
-      constituerState.controllers.putIfAbsent(demiJournee, () => controller);
-    }) : demiJournees.forEach((DemiJournee demiJournee, int nbPersonne) {
-      listDemiJournees.add(ListTile(
-        dense: true,
-        title: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: <Widget>[
-            Flexible(
-              child: Row(
-                children: <Widget>[
-                  Text("${demiJournee.date}"),
-                  Flexible(
-                    child: Icon(Icons.wb_sunny,
-                        color:
-                            demiJournee.typeDemiJournee == TypeDemiJournee.jour
-                                ? Colors.yellow
-                                : Colors.grey),
-                  )
-                ],
-              ),
-            ),
-            Flexible(
-              child:
-               Text("$nbPersonne personnes"),
-
-
-              /**
-               * 
-               * Selected DemiJournee Selected
-               * choix 1 : DemiJournee Map <Controller>
-               * Choix 2 : DemiJournee
-               * choix 3 : Hanamboarana Classe 1 TextField de a sa Creation manamboatra Controller izay afaka gettena... 
-               */
-            )
-          ],
-        ),
-      ));
-      listDemiJournees.add(Divider());
-    });
+            ));
+            listDemiJournees.add(Divider());
+          });
 
     return ExpandableNotifier(
         child: ScrollOnExpand(
@@ -359,11 +378,11 @@ class _ReservationDemiJourneeState extends State<_ReservationDemiJournee> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
                     Text(
-                      "Date Entree : ${reservation["DateEntree"]} ${reservation["TypeDemiJourneeEntree"]}",
+                      "Date Entree : ${reservation["dateEntree"]} ${reservation["typeDemiJourneeEntree"]}",
                       overflow: TextOverflow.ellipsis,
                     ),
                     Text(
-                      "Date Sortie : ${reservation["DateSortie"]} ${reservation["TypeDemiJourneeSortie"]}",
+                      "Date Sortie : ${reservation["dateSortie"]} ${reservation["typeDemiJourneeSortie"]}",
                       overflow: TextOverflow.ellipsis,
                     ),
                     Text(
@@ -391,13 +410,14 @@ class _ReservationDemiJourneeState extends State<_ReservationDemiJournee> {
                       ),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.end,
-                        children: !editMode
+                        children: !_editMode
                             ? <Widget>[
                                 IconButton(
                                   icon: Icon(Icons.edit),
                                   onPressed: () {
                                     setState(() {
-                                      setEditMode(true, currentDemiJournees: demiJournees);
+                                      setEditMode(true,
+                                          currentDemiJournees: demiJournees);
                                     });
                                   },
                                 ),
@@ -412,16 +432,16 @@ class _ReservationDemiJourneeState extends State<_ReservationDemiJournee> {
                                                     "${stat != null ? stat["nbMoyennePersonne"] : "0"}")
                                                 .floor(),
                                             dateEntree:
-                                                "${reservation["DateEntree"]}",
+                                                "${reservation["dateEntree"]}",
                                             typeDemiJourneeEntree: reservation[
-                                                        "TypeDemiJourneeEntree"] ==
+                                                        "typeDemiJourneeEntree"] ==
                                                     'Jour'
                                                 ? TypeDemiJournee.jour
                                                 : TypeDemiJournee.nuit,
                                             dateSortie:
-                                                "${reservation["DateSortie"]}",
+                                                "${reservation["dateSortie"]}",
                                             typeDemiJourneeSortie: reservation[
-                                                        "TypeDemiJourneeSortie"] ==
+                                                        "typeDemiJourneeSortie"] ==
                                                     'Jour'
                                                 ? TypeDemiJournee.jour
                                                 : TypeDemiJournee.nuit,
@@ -440,6 +460,24 @@ class _ReservationDemiJourneeState extends State<_ReservationDemiJournee> {
                               ]
                             : <Widget>[
                                 IconButton(
+                                  icon: constituerState.emptySelected()
+                                      ? const Icon(
+                                          Icons.check_box_outline_blank)
+                                      : constituerState.allSelected()
+                                          ? const Icon(Icons.check_box)
+                                          : const Icon(
+                                              Icons.indeterminate_check_box),
+                                  onPressed: () async {
+                                    if (constituerState.emptySelected()) {
+                                      constituerState.addAllSelected();
+                                    } else if (constituerState.allSelected()) {
+                                      constituerState.deleteAllSelected();
+                                    } else {
+                                      constituerState.deleteAllSelected();
+                                    }
+                                  },
+                                ),
+                                IconButton(
                                   icon: Icon(Icons.close),
                                   onPressed: () {
                                     setState(() {
@@ -449,7 +487,29 @@ class _ReservationDemiJourneeState extends State<_ReservationDemiJournee> {
                                 ),
                                 IconButton(
                                   icon: Icon(Icons.check),
-                                  onPressed: () {},
+                                  onPressed: _isPosting? null  : () async {
+                                    setState((){
+                                      _isPosting = true;
+                                    });
+                                    List<Map<String, String>> datas = []; 
+                                    constituerState.controllers.forEach((dj, ctrl){
+                                      Map<String, String> data = {};
+                                      data["nbPersonne"] = ctrl.text;
+                                      data["date"] = dj.date;
+                                      data["typeDemiJournee"] = dj.typeDemiJournee == TypeDemiJournee.jour ? "Jour" : "Nuit";
+                                      datas.add(data);
+                                    });
+                                  http.Response result = await http.put("${Config.apiURI}constituers/${widget._idReservation}",body: {"data" : json.encode(datas)});
+                                  if(result.statusCode == 200){
+                                    GlobalState().channel.sink.add("constituer ${widget._idReservation}");
+                                    setState((){
+                                      _editMode = false;
+                                    });
+                                  }
+                                  setState((){
+                                    _isPosting = false;
+                                  });
+                                  },
                                 )
                               ],
                       )
