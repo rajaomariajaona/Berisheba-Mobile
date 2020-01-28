@@ -1,7 +1,5 @@
-import 'dart:convert';
 
 import 'package:berisheba/routes/client/client_portrait.dart';
-import 'package:berisheba/routes/reservation/widget/reservation_details.dart';
 import 'package:berisheba/routes/reservation/constituer_state.dart';
 import 'package:berisheba/states/config.dart';
 import 'package:berisheba/routes/client/client_state.dart';
@@ -12,10 +10,11 @@ import 'package:date_range_picker/date_range_picker.dart' as DateRangePicker;
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_colorpicker/block_picker.dart';
-import 'package:flutter_colorpicker/material_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:http/http.dart' as http;
 
+
+//TODO: Randomize color at reservation creation
 class ReservationFormulaire extends StatefulWidget {
   ReservationFormulaire({Key key, this.idClient, this.nomClient})
       : super(key: key);
