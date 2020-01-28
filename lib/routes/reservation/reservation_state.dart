@@ -7,6 +7,8 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:table_calendar/table_calendar.dart';
 
+
+//Lazy loading (ByReservation de alaina amnin xD) Contrainte (Semaine xD) {PAR ID + PAR SEMAINE}
 class ReservationState extends ChangeNotifier {
   CalendarController _calendarController;
   CalendarController get calendarController => _calendarController;

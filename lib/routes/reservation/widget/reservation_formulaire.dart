@@ -1,3 +1,4 @@
+import 'dart:math';
 
 import 'package:berisheba/routes/client/client_portrait.dart';
 import 'package:berisheba/routes/reservation/constituer_state.dart';
@@ -13,9 +14,29 @@ import 'package:flutter_colorpicker/block_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:http/http.dart' as http;
 
-
-//TODO: Randomize color at reservation creation
 class ReservationFormulaire extends StatefulWidget {
+  final List<Color> _colors = [
+  Colors.red,
+  Colors.pink,
+  Colors.purple,
+  Colors.deepPurple,
+  Colors.indigo,
+  Colors.blue,
+  Colors.lightBlue,
+  Colors.cyan,
+  Colors.teal,
+  Colors.green,
+  Colors.lightGreen,
+  Colors.lime,
+  Colors.yellow,
+  Colors.amber,
+  Colors.orange,
+  Colors.deepOrange,
+  Colors.brown,
+  Colors.grey,
+  Colors.blueGrey,
+  Colors.black,
+];
   ReservationFormulaire({Key key, this.idClient, this.nomClient})
       : super(key: key);
   final int idClient;
@@ -37,13 +58,14 @@ class _ReservationFormulaireState extends State<ReservationFormulaire> {
   bool isPostingData = false;
   int idClient;
   var _client = TextEditingController();
-  Color couleur = Color(4294198070);
+  Color couleur;
   double prixPersonne;
   final bool etatReservation = false;
   int nbPersonne;
 
   @override
   void initState() {
+    couleur = widget._colors[Random().nextInt(widget._colors.length)];
     idClient = widget.idClient;
     _dateEntree.text = dateEntree;
     _dateSortie.text = dateSortie;
@@ -217,6 +239,7 @@ class _ReservationFormulaireState extends State<ReservationFormulaire> {
           child: FocusScope(
             canRequestFocus: false,
             child: TextFormField(
+              validator: _isOneClientSelected,
               controller: _client,
               readOnly: true,
               decoration: InputDecoration(
@@ -257,6 +280,7 @@ class _ReservationFormulaireState extends State<ReservationFormulaire> {
 
   TextFormField _nomReservation() {
     return TextFormField(
+      validator: _isValidNomReservation,
       textCapitalization: TextCapitalization.characters,
       inputFormatters: [
         CapitalizeWordsInputFormatter(),
@@ -460,5 +484,19 @@ class _ReservationFormulaireState extends State<ReservationFormulaire> {
         ],
       ),
     );
+  }
+
+  String _isOneClientSelected(String value) {
+    if (value == "") {
+      return "Veuillez selectionner un client";
+    }
+    return null;
+  }
+
+  String _isValidNomReservation(String value) {
+    if (value == "") {
+      return "Champ vide";
+    }
+    return null;
   }
 }
