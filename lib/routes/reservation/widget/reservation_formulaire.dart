@@ -179,6 +179,7 @@ class _ReservationFormulaireState extends State<ReservationFormulaire> {
 
   TextFormField _prixPersonne() {
     return TextFormField(
+      initialValue: "10000",
       keyboardType: TextInputType.numberWithOptions(decimal: true),
       decoration: InputDecoration(
         border: UnderlineInputBorder(),
