@@ -10,14 +10,14 @@ enum TypeDemiJournee { jour, nuit }
 class ConstituerState extends ChangeNotifier {
   Map<String, dynamic> get stats => _stats;
   Map<String, dynamic> _stats = {};
-  Map<int,Map<DemiJournee, int>> _demiJournees = {};
-  Map<int,Map<DemiJournee, int>> get demiJourneesByReservation => _demiJournees;
+  Map<int, Map<DemiJournee, int>> _demiJournees = {};
+  Map<int, Map<DemiJournee, int>> get demiJourneesByReservation =>
+      _demiJournees;
 
   Map<DemiJournee, TextEditingController> _controllers = {};
   Map<DemiJournee, TextEditingController> get controllers => _controllers;
 
-
-List<DemiJournee> _listDemiJourneeSelected = [];
+  List<DemiJournee> _listDemiJourneeSelected = [];
 
   List<DemiJournee> get demiJourneeSelected => _listDemiJourneeSelected;
 
@@ -49,39 +49,51 @@ List<DemiJournee> _listDemiJourneeSelected = [];
     notifyListeners();
   }
 
-  bool allSelected() => this._controllers.length == _listDemiJourneeSelected.length;
+  bool allSelected() =>
+      this._controllers.length == _listDemiJourneeSelected.length;
 
   bool emptySelected() => _listDemiJourneeSelected.isEmpty;
 
-  bool isSelected(DemiJournee demiJournee) => _listDemiJourneeSelected.contains(demiJournee);
-
+  bool isSelected(DemiJournee demiJournee) =>
+      _listDemiJourneeSelected.contains(demiJournee);
 
   fetchData(int idReservation) async {
     try {
       _demiJournees[idReservation] = {};
-      Map<String, dynamic> _data = json.decode(
-          (await http.get("${Config.apiURI}/constituers/$idReservation")).body);
-      (_data["data"] as List<dynamic>).forEach((value) {
-        _demiJournees[idReservation].putIfAbsent(
-            DemiJournee(
-                date: value["demiJournee"]["date"],
-                typeDemiJournee:
-                    value["demiJournee"]["typeDemiJournee"] == 'Jour'
-                        ? TypeDemiJournee.jour
-                        : TypeDemiJournee.nuit),
-            () => value["nbPersonne"]);
+      http.get("${Config.apiURI}/constituers/$idReservation").then((result) {
+        if (result.statusCode == 200) {
+          Map<String, dynamic> _data = json.decode(result.body);
+          (_data["data"] as List<dynamic>).forEach((value) {
+            _demiJournees[idReservation].putIfAbsent(
+                DemiJournee(
+                    date: value["demiJournee"]["date"],
+                    typeDemiJournee:
+                        value["demiJournee"]["typeDemiJournee"] == 'Jour'
+                            ? TypeDemiJournee.jour
+                            : TypeDemiJournee.nuit),
+                () => value["nbPersonne"]);
+          });
+          //TODO: Send This to server to add performance to app
+          _stats = _data["stat"];
+          notifyListeners();
+        }
+        else{
+          print(result.statusCode);
+          print(result.body);
+        }
       });
-      //TODO: Send This to server to add performance to app
-      _stats = _data["stat"];
-      notifyListeners();
     } catch (err) {
       print(err);
     }
   }
-  ConstituerState(){
-    GlobalState().externalStreamController.stream.listen((msg){
-      if(msg.contains("constituer")){
-       this.fetchData(int.parse(msg.split(" ")[1]));
+
+  ConstituerState() {
+    this.addListener(() {
+      print(this.demiJourneesByReservation);
+    });
+    GlobalState().externalStreamController.stream.listen((msg) {
+      if (msg.contains("constituer")) {
+        this.fetchData(int.parse(msg.split(" ")[1]));
       }
     });
   }

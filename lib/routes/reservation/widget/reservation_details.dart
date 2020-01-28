@@ -14,14 +14,22 @@ class ReservationDetails extends StatelessWidget {
   ConstituerState _constituerState;
   ReservationDetails(this._idReservation, {Key key}) {
     _constituerState = ConstituerState();
-    _constituerState.fetchData(_idReservation);
+    if(!_constituerState.demiJourneesByReservation.containsKey(_idReservation))
+      _constituerState.fetchData(_idReservation);
   }
 
   @override
   Widget build(BuildContext context) {
     final ReservationState reservationState =
         Provider.of<ReservationState>(context);
-    return Scaffold(
+    return reservationState.reservationsById["$_idReservation"] == null ?
+      Scaffold(
+        appBar: AppBar(),
+        body: Center(
+          child: Text("La reservation a été supprimée"),
+        ),
+      )
+     : Scaffold(
       appBar: AppBar(
         title: Text(
             "${reservationState.reservationsById["$_idReservation"]["nomReservation"]}"),

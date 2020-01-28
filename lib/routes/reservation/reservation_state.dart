@@ -80,7 +80,7 @@ class ReservationState extends ChangeNotifier {
     _calendarController = CalendarController();
     this.fetchData("1-53");
     GlobalState().externalStreamController.stream.listen((msg){
-      if(msg == "reservation")
+      if(msg == "reservation" || msg.split(" ")[0] == "constituer")
         this.fetchData("1-53");
     });
     GlobalState().internalStreamController.stream.listen((msg){

@@ -10,7 +10,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:http/http.dart' as http;
-
+//TODO: resolve tsy hita tampoka izy rht xD
 class ReservationDemiJournee extends StatefulWidget {
   final int _idReservation;
   ReservationDemiJournee(this._idReservation, {Key key}) : super(key: key);
@@ -25,7 +25,7 @@ class _ReservationDemiJourneeState extends State<ReservationDemiJournee> {
   bool get editMode => _editMode;
   void setEditMode(bool v, {Map<DemiJournee, int> currentDemiJournees}) {
     _editMode = v;
-    if (currentDemiJournees != null && v && _modifiedDemijournee.isEmpty) {
+    if (currentDemiJournees != null && v) {
       _modifiedDemijournee = currentDemiJournees;
     }
   }
@@ -199,7 +199,7 @@ class _ReservationDemiJourneeState extends State<ReservationDemiJournee> {
                       ],
                     controller: controller,
                     onChanged: (value) {
-                      if (constituerState.demiJourneeSelected.length > 1) {
+                      if (constituerState.demiJourneeSelected.length > 0) {
                         constituerState.demiJourneeSelected.forEach((dj) {
                           _modifiedDemijournee[dj] = int.parse(value);
                         });
@@ -398,15 +398,17 @@ class _ReservationDemiJourneeState extends State<ReservationDemiJournee> {
                                       data["typeDemiJournee"] = dj.typeDemiJournee == TypeDemiJournee.jour ? "Jour" : "Nuit";
                                       datas.add(data);
                                     });
-                                  http.Response result = await http.put("${Config.apiURI}constituers/${widget._idReservation}",body: {"data" : json.encode(datas)});
+                                  http.put("${Config.apiURI}constituers/${widget._idReservation}",body: {"data" : json.encode(datas)})
+                                  .then((result){
                                   if(result.statusCode == 200){
                                     GlobalState().channel.sink.add("constituer ${widget._idReservation}");
                                     setState((){
-                                      _editMode = false;
+                                      setEditMode(false);
                                     });
                                   }
                                   setState((){
                                     _isPosting = false;
+                                  });
                                   });
                                   },
                                 )
