@@ -38,7 +38,7 @@ class ReservationDetails extends StatelessWidget {
                 if (result.statusCode == 204) {
                   Navigator.of(context).pop(true);
                   GlobalState()
-                      .externalStreamController
+                      .channel
                       .sink
                       .add("reservation");
                 } else {

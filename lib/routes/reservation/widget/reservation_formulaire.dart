@@ -148,7 +148,7 @@ class _ReservationFormulaireState extends State<ReservationFormulaire> {
                                   _saveToDatabase().then((result) {
                                     if (result.statusCode == 201) {
                                       GlobalState()
-                                          .externalStreamController
+                                          .channel
                                           .sink
                                           .add("reservation");
                                       Navigator.of(context).pop(dateEntree);
