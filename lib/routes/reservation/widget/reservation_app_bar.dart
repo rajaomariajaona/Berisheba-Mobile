@@ -7,12 +7,15 @@ class ReservationAppBar {
 
   ReservationAppBar(this._context);
   AppBar get appbar {
-    TabState _tabState = Provider.of<TabState>(_context);
     return AppBar(
       centerTitle: true,
-      title: Text(
-        _tabState.titleAppBar,
-      ),
+          title: Consumer<TabState>(
+            builder: (_, _tabState, __) {
+              return Text(
+                _tabState.titleAppBar,
+              );
+            },
+          ),
     );
   }
 }
