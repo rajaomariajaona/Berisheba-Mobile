@@ -35,7 +35,7 @@ class _ReservationSemaineState extends State<ReservationSemaine> {
           child: reservationState.isLoading ? const Loading() : RefreshIndicator(
             key: reservationState.refreshIndicatorStateReservation,
             onRefresh: () async {
-              reservationState.fetchData("1-53");
+              reservationState.fetchDataByWeekRange("1-53");
             },
             child: Scrollbar(
                 child: ListView(

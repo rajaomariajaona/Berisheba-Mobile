@@ -47,17 +47,35 @@ class ReservationState extends ChangeNotifier {
     _isDeletingReservation = value;
   }
 
-  Map<String, dynamic> _reservationsById = {};
+  Map<int, dynamic> _reservationsById = {};
 
-  Map<String, dynamic> get reservationsById => _reservationsById;
+  Map<int, dynamic> get reservationsById => _reservationsById;
 
-  void fetchData(String weekRange) async {
+  Future fetchDataByWeekRange(String weekRange) async {
     try{
     _isLoading = true;
     http.Response response = await http
         .get("${Config.apiURI}/reservations", headers: {"range": weekRange});
     if (response.statusCode == 200) {
-      _reservationsById = jsonDecode(response.body)["data"];
+      _reservationsById = (jsonDecode(response.body)["data"]).map<int, dynamic>((key, value) => MapEntry<int, dynamic>(int.parse(key),value));
+      notifyListeners();
+      this.generateEvents();
+    } else {
+      throw Exception("Error while fetching data ${response.statusCode}");
+    }
+    }catch(err){
+      GlobalState().isConnected = false;
+    }finally{
+      _isLoading = false;
+    }
+  }
+  Future fetchDataByIdReservation(int idReservation) async {
+    try{
+    _isLoading = true;
+    http.Response response = await http
+        .get("${Config.apiURI}/reservations/$idReservation");
+    if (response.statusCode == 200) {
+      _reservationsById[idReservation] = jsonDecode(response.body)["data"];
       notifyListeners();
       this.generateEvents();
     } else {
@@ -72,7 +90,7 @@ class ReservationState extends ChangeNotifier {
 
   void generateEvents() {
     _events.clear();
-    _reservationsById.forEach((String idReservation, dynamic reservation) {
+    _reservationsById.forEach((int idReservation, dynamic reservation) {
       DateTime currentDate = DateTime.parse(reservation["dateEntree"]);
       do {
         if (!_events.containsKey(currentDate)) {
@@ -92,14 +110,18 @@ class ReservationState extends ChangeNotifier {
   Map<DateTime, List<dynamic>> get events => _events;
   ReservationState(){
     _calendarController = CalendarController();
-    this.fetchData("1-53");
+    this.fetchDataByWeekRange("1-53");
     GlobalState().externalStreamController.stream.listen((msg){
-      if(msg == "reservation" || msg.split(" ")[0] == "constituer")
-        this.fetchData("1-53");
+      if(msg == "reservation")
+        this.fetchDataByWeekRange("1-53");
+      else if(msg.split(" ")[0] == "reservation")
+        this.fetchDataByIdReservation(int.parse(msg.split(" ")[1]));
+      if(msg.split(" ")[0] == "constituer")
+        this.fetchDataByIdReservation(int.parse(msg.split(" ")[1]));
     });
     GlobalState().internalStreamController.stream.listen((msg){
       if(msg == "refresh")
-        this.fetchData("1-53");
+        this.fetchDataByWeekRange("1-53");
     });
   }
 }

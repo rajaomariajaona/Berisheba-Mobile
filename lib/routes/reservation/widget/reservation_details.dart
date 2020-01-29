@@ -22,7 +22,7 @@ class ReservationDetails extends StatelessWidget {
   Widget build(BuildContext context) {
     final ReservationState reservationState =
         Provider.of<ReservationState>(context);
-    return reservationState.reservationsById["$_idReservation"] == null ?
+    return reservationState.reservationsById[_idReservation] == null ?
       Scaffold(
         appBar: AppBar(),
         body: Center(
@@ -32,7 +32,7 @@ class ReservationDetails extends StatelessWidget {
      : Scaffold(
       appBar: AppBar(
         title: Text(
-            "${reservationState.reservationsById["$_idReservation"]["nomReservation"]}"),
+            "${reservationState.reservationsById[_idReservation]["nomReservation"]}"),
         actions: <Widget>[
           IconButton(
             icon: Icon(Icons.delete),

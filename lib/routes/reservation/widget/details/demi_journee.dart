@@ -148,7 +148,7 @@ class _ReservationDemiJourneeState extends State<ReservationDemiJournee> {
     final ReservationState reservationState =
         Provider.of<ReservationState>(context);
     final Map<String, dynamic> reservation =
-        reservationState.reservationsById["${widget._idReservation}"];
+        reservationState.reservationsById[widget._idReservation];
     final ConstituerState constituerState =
         Provider.of<ConstituerState>(context);
     final Map<DemiJournee, int> demiJournees = constituerState.demiJourneesByReservation[widget._idReservation];
