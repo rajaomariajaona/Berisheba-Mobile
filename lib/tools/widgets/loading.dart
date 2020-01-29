@@ -10,10 +10,13 @@ class Loading extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Center(
-      child: SpinKitDualRing(
-        color: Config.primaryBlue,
-        size: 20,
-        lineWidth: 3,
+      child: Padding(
+        padding: const EdgeInsets.all(15.0),
+        child: SpinKitDualRing(
+          color: Config.primaryBlue,
+          size: 20,
+          lineWidth: 3,
+        ),
       ),
     );
   }
