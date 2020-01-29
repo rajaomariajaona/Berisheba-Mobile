@@ -16,7 +16,6 @@ class _ParametresState extends State<Parametres> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     _apiUri = Config.apiURI;
   }

@@ -3,9 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 class AcceuilAppBar {
-  final BuildContext _context;
-
-  AcceuilAppBar(this._context);
   AppBar get appbar {
     return AppBar(
       centerTitle: true,

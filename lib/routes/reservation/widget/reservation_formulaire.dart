@@ -179,6 +179,7 @@ class _ReservationFormulaireState extends State<ReservationFormulaire> {
                                         isPostingData = false;
                                       });
                                       print(result.statusCode);
+                                      //TODO: Handle deleted client
                                     }
                                   });
                                 } else {

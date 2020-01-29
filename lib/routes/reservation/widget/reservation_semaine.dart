@@ -2,6 +2,7 @@ import 'package:berisheba/routes/reservation/reservation_state.dart';
 import 'package:berisheba/routes/reservation/widget/reservation_item.dart';
 import 'package:berisheba/states/config.dart';
 import 'package:berisheba/tools/date.dart';
+import 'package:berisheba/tools/widgets/loading.dart';
 import 'package:flutter/material.dart';
 import 'package:month_picker_dialog/month_picker_dialog.dart';
 import 'package:provider/provider.dart';
@@ -31,7 +32,7 @@ class _ReservationSemaineState extends State<ReservationSemaine> {
       children: <Widget>[
         Calendrier(),
         Expanded(
-          child: RefreshIndicator(
+          child: reservationState.isLoading ? const Loading() : RefreshIndicator(
             key: reservationState.refreshIndicatorStateReservation,
             onRefresh: () async {
               reservationState.fetchData("1-53");

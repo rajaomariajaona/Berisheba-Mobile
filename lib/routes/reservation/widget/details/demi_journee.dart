@@ -5,6 +5,7 @@ import 'package:berisheba/routes/reservation/reservation_state.dart';
 import 'package:berisheba/routes/reservation/widget/details/change_dates_dialog.dart';
 import 'package:berisheba/states/config.dart';
 import 'package:berisheba/states/global_state.dart';
+import 'package:berisheba/tools/widgets/loading.dart';
 import 'package:expandable/expandable.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -143,7 +144,7 @@ class _ReservationDemiJourneeState extends State<ReservationDemiJournee> {
     return currentDate.add(Duration(days: 1));
   }
 
-  ExpandableNotifier _body(BuildContext context) {
+  Widget _body(BuildContext context) {
     final ReservationState reservationState =
         Provider.of<ReservationState>(context);
     final Map<String, dynamic> reservation =
@@ -263,16 +264,16 @@ class _ReservationDemiJourneeState extends State<ReservationDemiJournee> {
               child: ExpandablePanel(
                 tapHeaderToExpand: true,
                 tapBodyToCollapse: false,
-                theme: ExpandableThemeData(
+                theme: const ExpandableThemeData(
                   headerAlignment: ExpandablePanelHeaderAlignment.center,
                 ),
                 header: Padding(
-                    padding: EdgeInsets.all(10),
+                    padding: const EdgeInsets.all(10),
                     child: Text(
                       "Dates et nombres de personne",
                       style: Theme.of(context).textTheme.body2,
                     )),
-                collapsed: Column(
+                collapsed: constituerState.isLoading == widget._idReservation ? const Loading() : Column(
                   mainAxisAlignment: MainAxisAlignment.start,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
@@ -296,7 +297,7 @@ class _ReservationDemiJourneeState extends State<ReservationDemiJournee> {
                 ),
                 expanded: Container(
                   height: 250,
-                  child: Column(
+                  child: constituerState.isLoading == widget._idReservation ? const Loading() : Column(
                     children: <Widget>[
                       Expanded(
                         child: SingleChildScrollView(
@@ -419,11 +420,11 @@ class _ReservationDemiJourneeState extends State<ReservationDemiJournee> {
                 ),
                 builder: (_, collapsed, expanded) {
                   return Padding(
-                    padding: EdgeInsets.all(10),
+                    padding: const EdgeInsets.all(10),
                     child: Expandable(
-                      collapsed: collapsed,
+                      collapsed:collapsed,
                       expanded: expanded,
-                      theme: ExpandableThemeData(crossFadePoint: 0),
+                      theme: const ExpandableThemeData(crossFadePoint: 0),
                     ),
                   );
                 },

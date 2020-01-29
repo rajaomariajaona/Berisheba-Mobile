@@ -8,6 +8,13 @@ import 'package:http/http.dart' as http;
 enum TypeDemiJournee { jour, nuit }
 
 class ConstituerState extends ChangeNotifier {
+  int __isLoading = 0;
+  int get isLoading => __isLoading;
+  set _isLoading(int val) {
+    __isLoading = val;
+    notifyListeners();
+  }
+
   Map<String, dynamic> get stats => _stats;
   Map<String, dynamic> _stats = {};
   Map<int, Map<DemiJournee, int>> _demiJournees = {};
@@ -59,6 +66,7 @@ class ConstituerState extends ChangeNotifier {
 
   fetchData(int idReservation) async {
     try {
+      _isLoading = idReservation;
       _demiJournees[idReservation] = {};
       http.get("${Config.apiURI}/constituers/$idReservation").then((result) {
         if (result.statusCode == 200) {
@@ -76,11 +84,12 @@ class ConstituerState extends ChangeNotifier {
           //TODO: Send This to server to add performance to app
           _stats = _data["stat"];
           notifyListeners();
-        }
-        else{
+        } else {
           print(result.statusCode);
           print(result.body);
         }
+      }).then((_){
+      _isLoading = 0;
       });
     } catch (err) {
       print(err);
@@ -92,7 +101,8 @@ class ConstituerState extends ChangeNotifier {
       print(this.demiJourneesByReservation);
     });
     GlobalState().externalStreamController.stream.listen((msg) {
-      if (msg.contains("constituer")) {
+      if (msg.contains("constituer") &&
+          _demiJournees.containsKey(int.parse(msg.split(" ")[1]))) {
         this.fetchData(int.parse(msg.split(" ")[1]));
       }
     });

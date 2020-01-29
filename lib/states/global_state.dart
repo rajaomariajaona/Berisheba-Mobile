@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:berisheba/home_page/no_internet.dart';
+import 'package:berisheba/tools/widgets/no_internet.dart';
 import 'package:berisheba/states/config.dart';
 import 'package:flutter/material.dart';
 import 'package:web_socket_channel/io.dart';

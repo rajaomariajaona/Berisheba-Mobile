@@ -102,9 +102,9 @@ class _SquelleteState extends State<Squellete> {
     //App bar
     final List<PreferredSizeWidget> appBar = [
       //TODO: APP BARS
-      AcceuilAppBar(context).appbar,
+      AcceuilAppBar().appbar,
       ClientAppBar(context).appbar,
-      ReservationAppBar(context).appbar,
+      ReservationAppBar().appbar,
       SalleAppBar(context).appbar,
       MaterielAppBar(context).appbar,
       ClientAppBar(context).appbar,

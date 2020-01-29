@@ -11,6 +11,15 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ClientState extends ChangeNotifier {
+  bool __isLoading = false;
+  bool get isLoading => __isLoading;
+  set _isLoading(bool val) {
+    if (val != __isLoading) {
+      __isLoading = val;
+      notifyListeners();
+    }
+  }
+
   Map<String, dynamic> _listClientByIdClient = {};
 
   Map<String, dynamic> get listClientByIdClient => _listClientByIdClient;
@@ -53,7 +62,8 @@ class ClientState extends ChangeNotifier {
     notifyListeners();
   }
 
-  bool allSelected() => this._clientsFiltered.length == _listIdClientSelected.length;
+  bool allSelected() =>
+      this._clientsFiltered.length == _listIdClientSelected.length;
 
   bool emptySelected() => _listIdClientSelected.isEmpty;
 
@@ -70,19 +80,17 @@ class ClientState extends ChangeNotifier {
 
   bool get isDeletingClient => _isDeletingClient;
 
-
-bool _isSearchingClient = false;
+  bool _isSearchingClient = false;
 
   set isSearchingClient(bool value) {
     _isSearchingClient = value;
-    if(!_isSearchingClient){
+    if (!_isSearchingClient) {
       this.searchData("");
     }
     notifyListeners();
   }
 
   bool get isSearchingClient => _isSearchingClient;
-
 
   bool _isNotReverse = false;
 
@@ -104,6 +112,7 @@ bool _isSearchingClient = false;
 
   Future<void> fetchData() async {
     try {
+      _isLoading = true;
       _listClientByIdClient = await jsonDecode(
           (await http.get(Config.apiURI + "clients")).body)["data"];
       _clients = _listClientByIdClient.values.toList();
@@ -115,6 +124,7 @@ bool _isSearchingClient = false;
     } on Exception catch (_) {
       print(_.toString());
     } finally {
+      _isLoading = false;
       notifyListeners();
     }
   }
@@ -136,15 +146,15 @@ bool _isSearchingClient = false;
       return this._isNotReverse
           ? a["nomClient"].toLowerCase().compareTo(b["nomClient"].toLowerCase())
           : b["nomClient"]
-          .toLowerCase()
-          .compareTo(a["nomClient"].toLowerCase());
+              .toLowerCase()
+              .compareTo(a["nomClient"].toLowerCase());
     });
     _clients.sort((dynamic a, dynamic b) {
       return this._isNotReverse
           ? a["nomClient"].toLowerCase().compareTo(b["nomClient"].toLowerCase())
           : b["nomClient"]
-          .toLowerCase()
-          .compareTo(a["nomClient"].toLowerCase());
+              .toLowerCase()
+              .compareTo(a["nomClient"].toLowerCase());
     });
     notifyListeners();
   }
@@ -155,9 +165,9 @@ bool _isSearchingClient = false;
     if (search.isNotEmpty)
       _clientsFiltered = _clients.where((v) {
         return v["nomClient"]
-            .toString()
-            .toLowerCase()
-            .contains(search.toLowerCase()) ||
+                .toString()
+                .toLowerCase()
+                .contains(search.toLowerCase()) ||
             v["prenomClient"]
                 .toString()
                 .toLowerCase()

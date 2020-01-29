@@ -10,6 +10,16 @@ import 'package:table_calendar/table_calendar.dart';
 
 //Lazy loading (ByReservation de alaina amnin xD) Contrainte (Semaine xD) {PAR ID + PAR SEMAINE}
 class ReservationState extends ChangeNotifier {
+
+  bool __isLoading = false;
+  bool get isLoading => __isLoading;
+  set _isLoading(bool val) {
+    if (val != __isLoading) {
+      __isLoading = val;
+      notifyListeners();
+    }
+  }
+
   CalendarController _calendarController;
   CalendarController get calendarController => _calendarController;
 
@@ -43,7 +53,7 @@ class ReservationState extends ChangeNotifier {
 
   void fetchData(String weekRange) async {
     try{
-
+    _isLoading = true;
     http.Response response = await http
         .get("${Config.apiURI}/reservations", headers: {"range": weekRange});
     if (response.statusCode == 200) {
@@ -51,10 +61,12 @@ class ReservationState extends ChangeNotifier {
       notifyListeners();
       this.generateEvents();
     } else {
-      throw Exception("Error while fetching data");
+      throw Exception("Error while fetching data ${response.statusCode}");
     }
     }catch(err){
       GlobalState().isConnected = false;
+    }finally{
+      _isLoading = false;
     }
   }
 
