@@ -82,6 +82,9 @@ class _ChangeDatesDialogState extends State<ChangeDatesDialog> {
                     border: UnderlineInputBorder(),
                     labelText: "Nombre de Personne",
                   ),
+                  onSaved:(val) {
+                    nbPersonne = int.parse(val);
+                  },
                 ),
               ),
               Flexible(

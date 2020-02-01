@@ -16,27 +16,27 @@ import 'package:http/http.dart' as http;
 
 class ReservationFormulaire extends StatefulWidget {
   final List<Color> _colors = [
-  Colors.red,
-  Colors.pink,
-  Colors.purple,
-  Colors.deepPurple,
-  Colors.indigo,
-  Colors.blue,
-  Colors.lightBlue,
-  Colors.cyan,
-  Colors.teal,
-  Colors.green,
-  Colors.lightGreen,
-  Colors.lime,
-  Colors.yellow,
-  Colors.amber,
-  Colors.orange,
-  Colors.deepOrange,
-  Colors.brown,
-  Colors.grey,
-  Colors.blueGrey,
-  Colors.black,
-];
+    Colors.red,
+    Colors.pink,
+    Colors.purple,
+    Colors.deepPurple,
+    Colors.indigo,
+    Colors.blue,
+    Colors.lightBlue,
+    Colors.cyan,
+    Colors.teal,
+    Colors.green,
+    Colors.lightGreen,
+    Colors.lime,
+    Colors.yellow,
+    Colors.amber,
+    Colors.orange,
+    Colors.deepOrange,
+    Colors.brown,
+    Colors.grey,
+    Colors.blueGrey,
+    Colors.black,
+  ];
   ReservationFormulaire({Key key, this.idClient, this.nomClient})
       : super(key: key);
   final int idClient;
@@ -49,15 +49,15 @@ class _ReservationFormulaireState extends State<ReservationFormulaire> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   String nomReservation;
   String dateEntree = generateDateString(DateTime.now());
-  var _dateEntree = TextEditingController();
+  TextEditingController _dateEntree = TextEditingController();
   String dateSortie = generateDateString(DateTime.now());
-  var _dateSortie = TextEditingController();
+  TextEditingController _dateSortie = TextEditingController();
   TypeDemiJournee typeDemiJourneeEntree = TypeDemiJournee.jour;
 
   TypeDemiJournee typeDemiJourneeSortie = TypeDemiJournee.jour;
   bool isPostingData = false;
   int idClient;
-  var _client = TextEditingController();
+  TextEditingController _client = TextEditingController();
   Color couleur;
   double prixPersonne;
   final bool etatReservation = false;
@@ -111,33 +111,7 @@ class _ReservationFormulaireState extends State<ReservationFormulaire> {
                   mainAxisSize: MainAxisSize.max,
                   children: <Widget>[
                     Expanded(child: _nomReservation()),
-                    IconButton(
-                      padding: EdgeInsets.all(0),
-                      color: couleur,
-                      icon: Icon(Icons.color_lens),
-                      onPressed: () {
-                        showDialog(
-                          context: context,
-                          builder: (BuildContext context) {
-                            return AlertDialog(
-                              titlePadding: const EdgeInsets.all(0.0),
-                              contentPadding: const EdgeInsets.all(0.0),
-                              content: SingleChildScrollView(
-                                child: BlockPicker(
-                                  pickerColor: couleur,
-                                  onColorChanged: (newCouleur) {
-                                    print(newCouleur.value.toString());
-                                    setState(() {
-                                      couleur = newCouleur;
-                                    });
-                                  },
-                                ),
-                              ),
-                            );
-                          },
-                        );
-                      },
-                    ),
+                    _colorPicker(context),
                   ],
                 ),
                 _clientSelector(context),
@@ -200,6 +174,36 @@ class _ReservationFormulaireState extends State<ReservationFormulaire> {
     );
   }
 
+  IconButton _colorPicker(BuildContext context) {
+    return IconButton(
+      padding: EdgeInsets.all(0),
+      color: couleur,
+      icon: Icon(Icons.color_lens),
+      onPressed: () {
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              titlePadding: const EdgeInsets.all(0.0),
+              contentPadding: const EdgeInsets.all(0.0),
+              content: SingleChildScrollView(
+                child: BlockPicker(
+                  pickerColor: couleur,
+                  onColorChanged: (newCouleur) {
+                    print(newCouleur.value.toString());
+                    setState(() {
+                      couleur = newCouleur;
+                    });
+                  },
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
   TextFormField _prixPersonne() {
     return TextFormField(
       initialValue: "10000",
@@ -247,11 +251,6 @@ class _ReservationFormulaireState extends State<ReservationFormulaire> {
                 border: UnderlineInputBorder(),
                 labelText: "Client",
               ),
-              onSaved: (val) {
-                setState(() {
-                  dateEntree = val;
-                });
-              },
             ),
           ),
         ),

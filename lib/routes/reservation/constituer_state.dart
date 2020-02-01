@@ -69,18 +69,20 @@ class ConstituerState extends ChangeNotifier {
       _isLoading = idReservation;
       _demiJournees[idReservation] = {};
       http.get("${Config.apiURI}/constituers/$idReservation").then((result) {
+        print(result.toString());
         if (result.statusCode == 200) {
           Map<String, dynamic> _data = json.decode(result.body);
-          (_data["data"] as List<dynamic>).forEach((value) {
-            _demiJournees[idReservation].putIfAbsent(
-                DemiJournee(
+
+          _demiJournees[idReservation] = (_data["data"] as List<dynamic>).asMap().map<DemiJournee, int>((int index,dynamic value) {
+                return MapEntry<DemiJournee, int>(DemiJournee(
                     date: value["demiJournee"]["date"],
                     typeDemiJournee:
                         value["demiJournee"]["typeDemiJournee"] == 'Jour'
                             ? TypeDemiJournee.jour
                             : TypeDemiJournee.nuit),
-                () => value["nbPersonne"]);
+                value["nbPersonne"]);
           });
+
           //TODO: Send This to server to add performance to app
           _stats = _data["stat"];
           notifyListeners();
@@ -97,9 +99,6 @@ class ConstituerState extends ChangeNotifier {
   }
 
   ConstituerState() {
-    this.addListener(() {
-      print(this.demiJourneesByReservation);
-    });
     GlobalState().externalStreamController.stream.listen((msg) {
       if (msg.contains("constituer") &&
           _demiJournees.containsKey(int.parse(msg.split(" ")[1]))) {
@@ -112,7 +111,7 @@ class ConstituerState extends ChangeNotifier {
 class DemiJournee {
   final String date;
   final TypeDemiJournee typeDemiJournee;
-  DemiJournee({@required this.date, @required this.typeDemiJournee});
+  const DemiJournee({@required this.date, @required this.typeDemiJournee});
 
   bool operator ==(demiJournee) =>
       demiJournee is DemiJournee &&

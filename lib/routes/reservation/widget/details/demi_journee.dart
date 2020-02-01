@@ -20,21 +20,21 @@ class ReservationDemiJournee extends StatefulWidget {
 }
 
 class _ReservationDemiJourneeState extends State<ReservationDemiJournee> {
-  Map<DemiJournee, int> _modifiedDemijournee = {};
+  Map<DemiJournee, int> _modifiedDemiJournee = {};
   bool _editMode = false;
     bool _isPosting = false;
   bool get editMode => _editMode;
   void setEditMode(bool v, {Map<DemiJournee, int> currentDemiJournees}) {
     _editMode = v;
     if (currentDemiJournees != null && v) {
-      _modifiedDemijournee = currentDemiJournees;
+      _modifiedDemiJournee = currentDemiJournees;
     }
   }
 
   Future generateDemiJourneesFromDateRangePicker(
       Map<String, dynamic> rangePickerData, BuildContext context) async {
     DateTime currentDate = DateTime.parse(rangePickerData["dateEntree"]);
-    _modifiedDemijournee.clear();
+    _modifiedDemiJournee.clear();
     while (_isOnInterval(currentDate, rangePickerData)) {
       if (_isOnSortieAndNotEntree(currentDate, rangePickerData)) {
         _cursorOnDateSortie(currentDate, rangePickerData);
@@ -50,7 +50,6 @@ class _ReservationDemiJourneeState extends State<ReservationDemiJournee> {
         currentDate = _incrementDateOneDay(currentDate);
       }
     }
-    print(_modifiedDemijournee);
   }
 
   bool _isOnInterval(
@@ -124,20 +123,27 @@ class _ReservationDemiJourneeState extends State<ReservationDemiJournee> {
 
   void _addNewDemiJournee(DateTime dateToAdd, TypeDemiJournee type,
       Map<String, dynamic> rangePickerData, BuildContext context) {
+    ConstituerState constituerState = Provider.of<ConstituerState>(context);
     DemiJournee currentDemiJournee = DemiJournee(
       date: "${dateToAdd.toIso8601String().substring(0, 10)}",
       typeDemiJournee: type,
     );
+
     if (!rangePickerData["remplaceAll"]) {
-      Map<DemiJournee,int> demiJournees = Provider.of<ConstituerState>(context).demiJourneesByReservation[widget._idReservation];
+      Map<DemiJournee,int> demiJournees = constituerState.demiJourneesByReservation[widget._idReservation];
       if (demiJournees.containsKey(currentDemiJournee)) {
-        _modifiedDemijournee.putIfAbsent(
+        _modifiedDemiJournee.putIfAbsent(
             currentDemiJournee, () => demiJournees[currentDemiJournee]);
         return;
       }
     }
-    _modifiedDemijournee.putIfAbsent(
+    _modifiedDemiJournee.putIfAbsent(
         currentDemiJournee, () => rangePickerData["nbPersonne"]);
+    if(constituerState.controllers[currentDemiJournee] == null){
+      constituerState.controllers[currentDemiJournee] = TextEditingController();
+    }
+    constituerState.controllers[currentDemiJournee].text = "${_modifiedDemiJournee[currentDemiJournee]}";
+    
   }
 
   DateTime _incrementDateOneDay(DateTime currentDate) {
@@ -155,11 +161,11 @@ class _ReservationDemiJourneeState extends State<ReservationDemiJournee> {
     final Map<String, dynamic> stat = constituerState.stats;
     List<Widget> listDemiJournees = [];
     if (editMode) constituerState.controllers.clear();
-    print(demiJournees);
     editMode
-        ? _modifiedDemijournee
+        ? _modifiedDemiJournee
             .forEach((DemiJournee demiJournee, int nbPersonne) {
-            TextEditingController controller = TextEditingController();
+            if(constituerState.controllers[demiJournee] == null)
+            constituerState.controllers[demiJournee] = TextEditingController();
             listDemiJournees.add(ListTile(
               leading: Checkbox(
                 value: constituerState.isSelected(demiJournee),
@@ -198,14 +204,14 @@ class _ReservationDemiJourneeState extends State<ReservationDemiJournee> {
                         RegExp("[0-9]+")
                         )
                       ],
-                    controller: controller,
+                    controller: constituerState.controllers[demiJournee],
                     onChanged: (value) {
                       if (constituerState.demiJourneeSelected.length > 0) {
                         constituerState.demiJourneeSelected.forEach((dj) {
-                          _modifiedDemijournee[dj] = int.parse(value);
+                          _modifiedDemiJournee[dj] = int.parse(value);
                         });
                       }
-                      _modifiedDemijournee[demiJournee] = int.parse(value);
+                      _modifiedDemiJournee[demiJournee] = int.parse(value);
                       setState(() {});
                     },
                   ))
@@ -213,11 +219,11 @@ class _ReservationDemiJourneeState extends State<ReservationDemiJournee> {
               ),
             ));
             listDemiJournees.add(Divider());
-            controller.text = "$nbPersonne";
-            controller.selection =
-                TextSelection.collapsed(offset: controller.text.length);
+            constituerState.controllers[demiJournee].text = "$nbPersonne";
+            constituerState.controllers[demiJournee].selection =
+                TextSelection.collapsed(offset: constituerState.controllers[demiJournee].text.length);
             constituerState.controllers
-                .putIfAbsent(demiJournee, () => controller);
+                .putIfAbsent(demiJournee, () => constituerState.controllers[demiJournee]);
           })
         : demiJournees.forEach((DemiJournee demiJournee, int nbPersonne) {
             listDemiJournees.add(ListTile(

@@ -1,5 +1,4 @@
 
-import 'package:berisheba/routes/reservation/constituer_state.dart';
 import 'package:berisheba/routes/reservation/reservation_state.dart';
 import 'package:berisheba/routes/reservation/widget/details/demi_journee.dart';
 import 'package:berisheba/routes/reservation/widget/details/globaldetails.dart';
@@ -11,12 +10,7 @@ import 'package:http/http.dart' as http;
 
 class ReservationDetails extends StatelessWidget {
   final int _idReservation;
-  ConstituerState _constituerState;
-  ReservationDetails(this._idReservation, {Key key}) {
-    _constituerState = ConstituerState();
-    if(!_constituerState.demiJourneesByReservation.containsKey(_idReservation))
-      _constituerState.fetchData(_idReservation);
-  }
+  ReservationDetails(this._idReservation, {Key key}) : super(key : key);
 
   @override
   Widget build(BuildContext context) {
@@ -37,12 +31,9 @@ class ReservationDetails extends StatelessWidget {
           IconButton(
             icon: Icon(Icons.delete),
             onPressed: () {
-              http.Response result;
               http
                   .delete("${Config.apiURI}reservations/$_idReservation")
-                  .then((response) {
-                result = response;
-              }).then((_) {
+                  .then((result) {
                 if (result.statusCode == 204) {
                   Navigator.of(context).pop(true);
                   GlobalState()
@@ -63,10 +54,7 @@ class ReservationDetails extends StatelessWidget {
         child: Column(
           children: <Widget>[
             ReservationGlobalDetails(_idReservation),
-            ChangeNotifierProvider.value(
-              value: _constituerState,
-              child: ReservationDemiJournee(_idReservation),
-            )
+            ReservationDemiJournee(_idReservation)
           ],
         ),
       ),
