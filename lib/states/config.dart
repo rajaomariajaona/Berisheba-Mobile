@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 class Config {
   //api
+  static String get baseURI => _apiURI.replaceFirst("/api/", "");
   static String _apiURI = "http://192.168.43.63:3000/api/";
   static String get apiURI => _apiURI;
 
