@@ -1,11 +1,29 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:berisheba/tools/widgets/no_internet.dart';
 import 'package:berisheba/states/config.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:imei_plugin/imei_plugin.dart';
 import 'package:web_socket_channel/io.dart';
+import 'package:http/http.dart' as http;
 
 class GlobalState extends ChangeNotifier {
+
+  Future requestToken() async {
+    http.post("${Config.baseURI}/device",
+      body: {"deviceid" : "${await ImeiPlugin.getImei()}"}
+    ).then((result) {
+        var storage = FlutterSecureStorage();
+      if(result.statusCode == 200){
+        storage.write(key: "token", value: json.decode(result.body)["token"]);
+      }else{
+        storage.delete(key: "token");
+      }
+    });
+  }
+
   GlobalKey<NavigatorState> _navigatorState;
 
   set navigatorState(GlobalKey value) {

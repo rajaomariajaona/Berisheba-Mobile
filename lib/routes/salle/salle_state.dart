@@ -89,20 +89,20 @@ class SalleState extends ChangeNotifier {
   List<dynamic> _sallesFiltered = [];
 
   Future<void> fetchData() async {
-    try {
-      _listSalleByIdSalle = await jsonDecode(
-          (await http.get(Config.apiURI + "salles")).body)["data"];
-      _salles = _listSalleByIdSalle.values.toList();
-      _sallesFiltered = _salles;
-      await this.sort();
-      GlobalState().isConnected = true;
-    } on SocketException catch (_) {
-      GlobalState().isConnected = false;
-    } on Exception catch (_) {
-      print(_.toString());
-    } finally {
-      notifyListeners();
-    }
+    // try {
+    //   _listSalleByIdSalle = await jsonDecode(
+    //       (await http.get(Config.apiURI + "salles")).body)["data"];
+    //   _salles = _listSalleByIdSalle.values.toList();
+    //   _sallesFiltered = _salles;
+    //   await this.sort();
+    //   GlobalState().isConnected = true;
+    // } on SocketException catch (_) {
+    //   GlobalState().isConnected = false;
+    // } on Exception catch (_) {
+    //   print(_.toString());
+    // } finally {
+    //   notifyListeners();
+    // }
   }
 
   Future<bool> removeDataInDatabase() async {

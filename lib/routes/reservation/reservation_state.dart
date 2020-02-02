@@ -52,40 +52,40 @@ class ReservationState extends ChangeNotifier {
   Map<int, dynamic> get reservationsById => _reservationsById;
 
   Future fetchDataByWeekRange(String weekRange) async {
-    try{
-    _isLoading = true;
-    http.Response response = await http
-        .get("${Config.apiURI}/reservations", headers: {"range": weekRange});
-    if (response.statusCode == 200) {
-      _reservationsById = (jsonDecode(response.body)["data"]).map<int, dynamic>((key, value) => MapEntry<int, dynamic>(int.parse(key),value));
-      notifyListeners();
-      this.generateEvents();
-    } else {
-      throw Exception("Error while fetching data ${response.statusCode}");
-    }
-    }catch(err){
-      GlobalState().isConnected = false;
-    }finally{
-      _isLoading = false;
-    }
+    // try{
+    // _isLoading = true;
+    // http.Response response = await http
+    //     .get("${Config.apiURI}/reservations", headers: {"range": weekRange});
+    // if (response.statusCode == 200) {
+    //   _reservationsById = (jsonDecode(response.body)["data"]).map<int, dynamic>((key, value) => MapEntry<int, dynamic>(int.parse(key),value));
+    //   notifyListeners();
+    //   this.generateEvents();
+    // } else {
+    //   throw Exception("Error while fetching data ${response.statusCode}");
+    // }
+    // }catch(err){
+    //   GlobalState().isConnected = false;
+    // }finally{
+    //   _isLoading = false;
+    // }
   }
   Future fetchDataByIdReservation(int idReservation) async {
-    try{
-    _isLoading = true;
-    http.Response response = await http
-        .get("${Config.apiURI}/reservations/$idReservation");
-    if (response.statusCode == 200) {
-      _reservationsById[idReservation] = jsonDecode(response.body)["data"];
-      notifyListeners();
-      this.generateEvents();
-    } else {
-      throw Exception("Error while fetching data ${response.statusCode}");
-    }
-    }catch(err){
-      GlobalState().isConnected = false;
-    }finally{
-      _isLoading = false;
-    }
+    // try{
+    // _isLoading = true;
+    // http.Response response = await http
+    //     .get("${Config.apiURI}/reservations/$idReservation");
+    // if (response.statusCode == 200) {
+    //   _reservationsById[idReservation] = jsonDecode(response.body)["data"];
+    //   notifyListeners();
+    //   this.generateEvents();
+    // } else {
+    //   throw Exception("Error while fetching data ${response.statusCode}");
+    // }
+    // }catch(err){
+    //   GlobalState().isConnected = false;
+    // }finally{
+    //   _isLoading = false;
+    // }
   }
 
   void generateEvents() {

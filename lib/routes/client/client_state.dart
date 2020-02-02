@@ -6,8 +6,8 @@ import 'dart:io';
 import 'package:berisheba/states/config.dart';
 import 'package:berisheba/states/global_state.dart';
 import 'package:berisheba/states/parametres.dart';
+import 'package:berisheba/tools/http/request.dart';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ClientState extends ChangeNotifier {
@@ -113,8 +113,9 @@ class ClientState extends ChangeNotifier {
   Future<void> fetchData() async {
     try {
       _isLoading = true;
-      _listClientByIdClient = await jsonDecode(
-          (await http.get(Config.apiURI + "clients")).body)["data"];
+      // RestRequest().getData(url: "${Config.apiURI}clients").then((decoded) {
+      //   _listClientByIdClient = decoded["data"];
+      // });
       _clients = _listClientByIdClient.values.toList();
       _clientsFiltered = _clients;
       await this.sort();
@@ -130,15 +131,15 @@ class ClientState extends ChangeNotifier {
   }
 
   Future<bool> removeDataInDatabase() async {
-    http.Response response = await http.delete(Config.apiURI + "clients",
-        headers: {"deletelist": _listIdClientSelected.toString()});
-    if (response.statusCode == 204) {
-      return true;
-    } else {
-      print(response.statusCode);
-      print(response.body);
-      return false;
-    }
+    // http.Response response = await http.delete(Config.apiURI + "clients",
+    //     headers: {"deletelist": _listIdClientSelected.toString()});
+    // if (response.statusCode == 204) {
+    //   return true;
+    // } else {
+    //   print(response.statusCode);
+    //   print(response.body);
+    //   return false;
+    // }
   }
 
   Future<void> sort() async {
