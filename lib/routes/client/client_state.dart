@@ -137,17 +137,28 @@ class ClientState extends ChangeNotifier {
     }
   }
 
-  Future<bool> removeDataInDatabase() async {
-    // http.Response response = await http.delete(Config.apiURI + "clients",
-    //     headers: {"deletelist": _listIdClientSelected.toString()});
-    // if (response.statusCode == 204) {
-    //   return true;
-    // } else {
-    //   print(response.statusCode);
-    //   print(response.body);
-    //   return false;
-    // }
+  Future<bool> removeData() async {
+    await RestRequest().getDioInstance().then((_dio) async {
+      _dio.options.headers["deletelist"] = json.encode(_listIdClientSelected);
+      await _dio.delete("/clients").then((response) {
+        return true;
+      }).catchError((error) {
+        return false;
+      });
+    });
   }
+
+  Future<bool> saveData() async {
+    await RestRequest().getDioInstance().then((_dio) async {
+      _dio.options.headers["deletelist"] = json.encode(_listIdClientSelected);
+      await _dio.delete("/clients").then((response) {
+        return true;
+      }).catchError((error) {
+        return false;
+      });
+    });
+  }
+
 
   Future<void> sort() async {
     _clientsFiltered.sort((dynamic a, dynamic b) {

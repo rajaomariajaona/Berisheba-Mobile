@@ -5,7 +5,7 @@ import 'package:berisheba/states/global_state.dart';
 import 'package:dio/dio.dart';
 import 'package:imei_plugin/imei_plugin.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-//TODO: Make Athorized page
+
 class RestRequest {
   static final BaseOptions _options = BaseOptions(
     baseUrl: "${Config.apiURI}",
@@ -38,13 +38,18 @@ class RestRequest {
         if (error?.response?.statusCode != 401) {
           return error.response.data;
         } else {
-          RequestOptions options = error.response.request;
-          await _refreshToken(options).catchError((error){
-            if(error is DioError){
-              GlobalState().isAuthorized = false;
-              _dio.resolve({});
-            }
-          });
+          RequestOptions options = error?.response?.request;
+          if ((error?.response?.data["message"] as String)
+              .contains("expired")) {
+            await _refreshToken(options).catchError((error) {
+              if (error is DioError) {
+                GlobalState().isAuthorized = false;
+                _dio.resolve({});
+              }
+            });
+          } else {
+            _dio.reject(error);
+          }
         }
       }),
     );

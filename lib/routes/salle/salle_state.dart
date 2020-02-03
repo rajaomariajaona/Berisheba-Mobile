@@ -105,7 +105,7 @@ class SalleState extends ChangeNotifier {
     // }
   }
 
-  Future<bool> removeDataInDatabase() async {
+  Future<bool> removeData() async {
     http.Response response = await http.delete(Config.apiURI + "salles",
         headers: {"deletelist": _listIdSalleSelected.toString()});
     if (response.statusCode == 204) {

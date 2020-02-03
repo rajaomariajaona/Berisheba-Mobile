@@ -46,7 +46,7 @@ class ClientAppBar {
               icon: Icon(Icons.delete),
               onPressed: () async {
                 try {
-                  if (!(await _clientState.removeDataInDatabase()))
+                  if (!(await _clientState.removeData()))
                     throw Exception("Client not deleted");
                 } on Exception catch (_) {
                   print("error deleting client");

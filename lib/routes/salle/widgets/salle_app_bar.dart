@@ -48,7 +48,7 @@ class SalleAppBar {
                   icon: Icon(Icons.delete),
                   onPressed: () async {
                     try {
-                      if (!(await _salleState.removeDataInDatabase()))
+                      if (!(await _salleState.removeData()))
                         throw Exception("Salle not deleted");
                     } on Exception catch (_) {
                       print("error deleting salle");
