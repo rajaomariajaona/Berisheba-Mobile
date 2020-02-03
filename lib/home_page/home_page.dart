@@ -17,6 +17,7 @@ import 'package:berisheba/routes/salle/widgets/salle_float_button.dart';
 import 'package:berisheba/states/config.dart';
 import 'package:berisheba/states/global_state.dart';
 import 'package:berisheba/states/tab_state.dart';
+import 'package:berisheba/tools/widgets/not_authorized.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -116,7 +117,7 @@ class _SquelleteState extends State<Squellete> {
     assert(_bottomNavBar.items.length == routesLandscape.length);
     assert(_bottomNavBar.items.length == appBar.length);
     
-    return Scaffold(
+    return globalState.isAuthorized? Scaffold(
       resizeToAvoidBottomInset: false,
       //fix render flex
       appBar: appBar[tabState.index],
@@ -144,6 +145,6 @@ class _SquelleteState extends State<Squellete> {
       drawer: const MenuDrawer(),
       bottomNavigationBar: globalState.hideBottomNavBar ? null : _bottomNavBar,
       floatingActionButton: floatButtons[tabState.index],
-    );
+    ) : NotAuthorized();
   }
 }

@@ -7,6 +7,7 @@ import 'package:berisheba/states/config.dart';
 import 'package:berisheba/states/global_state.dart';
 import 'package:berisheba/states/parametres.dart';
 import 'package:berisheba/tools/http/request.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -113,9 +114,15 @@ class ClientState extends ChangeNotifier {
   Future<void> fetchData() async {
     try {
       _isLoading = true;
-      // RestRequest().getData(url: "${Config.apiURI}clients").then((decoded) {
-      //   _listClientByIdClient = decoded["data"];
-      // });
+      await RestRequest().getDioInstance().then((Dio _dio) async {
+        await _dio.get("/clients").then((response) {
+          _listClientByIdClient = response.data["data"];
+        }).catchError((error) {
+          if (error is DioError) {
+            return;
+          }
+        });
+      });
       _clients = _listClientByIdClient.values.toList();
       _clientsFiltered = _clients;
       await this.sort();
