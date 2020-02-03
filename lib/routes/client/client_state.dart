@@ -145,7 +145,9 @@ class ClientState extends ChangeNotifier {
       }).catchError((error) {
         return false;
       });
+      return false;
     });
+    return false;
   }
 
   Future<bool> saveData() async {
