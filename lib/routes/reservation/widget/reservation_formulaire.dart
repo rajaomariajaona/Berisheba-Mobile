@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:berisheba/routes/client/client_portrait.dart';
+import 'package:berisheba/routes/client/widgets/client_selector.dart';
 import 'package:berisheba/routes/reservation/states/constituer_state.dart';
 import 'package:berisheba/routes/reservation/states/reservation_state.dart';
 import 'package:berisheba/states/config.dart';
@@ -10,6 +11,7 @@ import 'package:berisheba/tools/date.dart';
 import 'package:berisheba/tools/formatters/CaseInputFormatter.dart';
 import 'package:date_range_picker/date_range_picker.dart' as DateRangePicker;
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_colorpicker/block_picker.dart';
 import 'package:provider/provider.dart';
@@ -226,6 +228,9 @@ class _ReservationFormulaireState extends State<ReservationFormulaire> {
         border: UnderlineInputBorder(),
         labelText: "Nombre de Personne",
       ),
+      inputFormatters: [
+        WhitelistingTextInputFormatter(RegExp("[0-9]+"))
+      ],
       onSaved: (val) {
         setState(() {
           nbPersonne = int.tryParse(val) ?? 0;
@@ -264,10 +269,7 @@ class _ReservationFormulaireState extends State<ReservationFormulaire> {
   Future<void> _showClientSelector(BuildContext context) async {
     var result =
         await Navigator.of(context).push(MaterialPageRoute(builder: (ctx) {
-      return Scaffold(
-        appBar: AppBar(),
-        body: ClientPortrait(),
-      );
+      return ClientSelectorBody();
     }));
     if (result != null && int.tryParse("$result") != null) {
       idClient = int.parse("$result");

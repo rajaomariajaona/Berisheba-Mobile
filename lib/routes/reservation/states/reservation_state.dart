@@ -146,19 +146,24 @@ class ReservationState extends ChangeNotifier {
   Map<DateTime, List<dynamic>> _events = {};
 
   Map<DateTime, List<dynamic>> get events => _events;
-  ReservationState() {
-    _calendarController = CalendarController();
-    this.fetchDataByWeekRange("1-53");
+  static final ReservationState _singleton = ReservationState._internal();
+
+  factory ReservationState() {
+    _singleton._calendarController = CalendarController();
+    _singleton.fetchDataByWeekRange("1-53");
     GlobalState().externalStreamController.stream.listen((msg) {
       if (msg == "reservation")
-        this.fetchDataByWeekRange("1-53");
+        _singleton.fetchDataByWeekRange("1-53");
       else if (msg.split(" ")[0] == "reservation")
-        this.fetchDataByIdReservation(int.parse(msg.split(" ")[1]));
+        _singleton.fetchDataByIdReservation(int.parse(msg.split(" ")[1]));
       if (msg.split(" ")[0] == "constituer")
-        this.fetchDataByIdReservation(int.parse(msg.split(" ")[1]));
+        _singleton.fetchDataByIdReservation(int.parse(msg.split(" ")[1]));
     });
     GlobalState().internalStreamController.stream.listen((msg) {
-      if (msg == "refresh") this.fetchDataByWeekRange("1-53");
+      if (msg == "refresh") _singleton.fetchDataByWeekRange("1-53");
     });
+    return _singleton;
   }
+
+  ReservationState._internal();
 }

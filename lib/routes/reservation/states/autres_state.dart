@@ -12,9 +12,9 @@ class AutresState extends ChangeNotifier {
   }
 
   Map<int, Map<String, dynamic>> _stats = {};
-  Map<int, Map<Appareil, int>> _autres = {};
+  Map<int, Map<Autre, double>> _autres = {};
   Map<int, Map<String, dynamic>> get statsByIdReservation => _stats;
-  Map<int, Map<Appareil, int>> get autresByIdReservation => _autres;
+  Map<int, Map<Autre, double>> get autresByIdReservation => _autres;
   Future fetchData(int idReservation) async {
 
     Dio _dio = await RestRequest().getDioInstance();
@@ -24,13 +24,11 @@ class AutresState extends ChangeNotifier {
       _stats[idReservation] = response.data["stats"];
       _autres[idReservation] = {};
        (response.data["data"] as List<dynamic>).forEach((dynamic item) {
-           _autres[idReservation][Appareil(
-              id: item["appareilIdAppareil"]["idAppareil"],
-              nom: item["appareilIdAppareil"]["nomAppareil"],
-              puissance: item["appareilIdAppareil"]["puissance"] + 0.0,
+           _autres[idReservation][Autre(
+              id: item["autreIdAutre"]["idAutre"],
+              motif: item["autreIdAutre"]["motif"],
           )] = 
-            item["duree"];
-         print(_autres[idReservation]);
+            item["prixAutre"] + 0.0;
       });
       notifyListeners();
       _isLoading = 0;
@@ -67,10 +65,10 @@ class AutresState extends ChangeNotifier {
     }
   }
 
-  static Future<bool> removeData({@required idAppareil,@required idReservation}) async {
+  static Future<bool> removeData({@required idAutre,@required idReservation}) async {
     Dio _dio = await RestRequest().getDioInstance();
     try {
-      await _dio.delete("/autres/$idAppareil");
+      await _dio.delete("/autres/$idAutre");
       _refresh(idReservation);
       return true;
     } catch (error) {
@@ -91,17 +89,15 @@ class AutresState extends ChangeNotifier {
   }
 }
 
-class Appareil {
-  final String nom;
-  final double puissance;
+class Autre {
+  final String motif;
   final int id;
-  const Appareil(
-      {@required this.nom, @required this.puissance, @required this.id});
+  const Autre(
+      {@required this.motif, @required this.id});
 
-  bool operator ==(appareil) =>
-      appareil is Appareil &&
-      appareil.id == id &&
-      appareil.nom == nom &&
-      appareil.puissance == puissance;
-  int get hashCode => nom.hashCode ^ puissance.hashCode ^ id.hashCode;
+  bool operator ==(autre) =>
+      autre is Autre &&
+      autre.id == id &&
+      autre.motif == motif;
+  int get hashCode => id.hashCode ^ motif.hashCode;
 }

@@ -13,11 +13,11 @@ class ReservationAutres extends StatelessWidget {
   Widget build(BuildContext context) {
     final AutresState autresState = Provider.of<AutresState>(context);
     List<Widget> _listAutres = [];
-    (autresState.autresByIdReservation[_idReservation])
-        .forEach((Appareil appareil, int duree) {
+    (autresState.autresByIdReservation[_idReservation] ?? {})
+        .forEach((Autre autre, double prixAutre) {
       _listAutres.add(_AutresItem(
-        appareil: appareil,
-        duree: duree,
+        autre: autre,
+        prixAutre: prixAutre,
         idReservation: _idReservation,
       ));
       _listAutres.add(const Divider());
@@ -44,12 +44,12 @@ class ReservationAutres extends StatelessWidget {
                 header: Padding(
                     padding: const EdgeInsets.all(10),
                     child: Text(
-                      "JIRAMA",
+                      "Autres",
                       style: Theme.of(context).textTheme.body2,
                     )),
                 collapsed: autresState.isLoading == _idReservation ? const Loading() : Container(
                   child:
-                      Text("Consommation: ${autresState.statsByIdReservation[_idReservation]["consommation"] ?? 0} kw"),
+                      Text("Prix: ${autresState.statsByIdReservation[_idReservation]["somme"] ?? 0}"),
                 ),
                 expanded: Container(
                   height: autresState.autresByIdReservation[_idReservation].length > 0 ? 250: 50,
@@ -106,42 +106,22 @@ class ReservationAutres extends StatelessWidget {
 class _AutresItem extends StatelessWidget {
   const _AutresItem({
     Key key,
-    @required this.appareil,
-    @required this.duree,
+    @required this.autre,
+    @required this.prixAutre,
     @required this.idReservation,
   }) : super(key: key);
   final int idReservation;
-  final Appareil appareil;
-  final int duree;
+  final Autre autre;
+  final double prixAutre;
   @override
   Widget build(BuildContext context) {
     return ListTile(
       dense: true,
       title: Text(
-        "${appareil.nom} ",
+        "${autre.motif} ",
         overflow: TextOverflow.ellipsis,
       ),
-      subtitle: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: <Widget>[
-          Flexible(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 4.0),
-                  child: Text("Puissance: ${appareil.puissance} w", overflow: TextOverflow.ellipsis),
-                ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 4.0),
-                  child: Text("duree: $duree s",overflow: TextOverflow.ellipsis,),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
+      subtitle: Text("prixAutre: $prixAutre",overflow: TextOverflow.ellipsis,),
       trailing: PopupMenuButton(
         padding: EdgeInsets.all(0),
         itemBuilder: (BuildContext context) {
@@ -158,13 +138,13 @@ class _AutresItem extends StatelessWidget {
         },
         onSelected: (dynamic value) {
           if (value == "delete") {
-            AutresState.removeData(idAppareil: appareil.id, idReservation: idReservation);
+            AutresState.removeData(idAutre: autre.id, idReservation: idReservation);
           } else if (value == "edit") {
             showDialog(
                 builder: (BuildContext context) {
                   return _AutresDialog(
-                    appareil: appareil,
-                    duree: duree,
+                    autre: autre,
+                    prixAutre: prixAutre,
                     idReservation: idReservation,
                   );
                 },
@@ -176,25 +156,21 @@ class _AutresItem extends StatelessWidget {
   }
 }
 
-enum Puissance { watt, ampere }
-
 class _AutresDialog extends StatefulWidget {
-  _AutresDialog({this.appareil, this.duree, @required this.idReservation}) {
-    modifier = appareil != null && duree != null;
+  _AutresDialog({this.autre, this.prixAutre, @required this.idReservation}) {
+    modifier = autre != null && prixAutre != null;
   }
   final int idReservation;
-  final Appareil appareil;
-  final int duree;
+  final Autre autre;
+  final double prixAutre;
   bool modifier;
   @override
   State<StatefulWidget> createState() => _AutresDialogState();
 }
 
 class _AutresDialogState extends State<_AutresDialog> {
-  Puissance _puissance = Puissance.watt;
-  String _nom;
-  double _puissanceValue;
-  int _duree;
+  String _motif;
+  int _prixAutre;
   final GlobalKey<FormState> _formState = GlobalKey<FormState>();
   @override
   Widget build(BuildContext context) {
@@ -213,7 +189,7 @@ class _AutresDialogState extends State<_AutresDialog> {
                     children: <Widget>[
                       TextFormField(
                         initialValue:
-                            widget.modifier ? "${widget.appareil.nom}" : "",
+                            widget.modifier ? "${widget.autre.motif}" : "",
                         textCapitalization: TextCapitalization.characters,
                         inputFormatters: <TextInputFormatter>[
                           WhitelistingTextInputFormatter(RegExp("[A-Za-z ]")),
@@ -222,63 +198,24 @@ class _AutresDialogState extends State<_AutresDialog> {
                         ],
                         decoration: InputDecoration(
                           border: UnderlineInputBorder(),
-                          labelText: "Nom de l'appareil",
+                          labelText: "Motif",
                         ),
                         onSaved: (val) {
-                          _nom = val;
+                          _motif = val;
                         },
                       ),
-                      Row(
-                        mainAxisSize: MainAxisSize.max,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: <Widget>[
-                          Expanded(
-                            child: TextFormField(
-                              initialValue: widget.modifier
-                                  ? "${widget.appareil.puissance}"
-                                  : "",
-                              keyboardType: TextInputType.number,
-                              decoration: InputDecoration(
-                                border: UnderlineInputBorder(),
-                                labelText: "Puissance",
-                              ),
-                              onSaved: (val) {
-                                _puissanceValue = double.parse(val);
-                              },
-                            ),
-                          ),
-                          DropdownButton(
-                            value: _puissance,
-                            items: <DropdownMenuItem>[
-                              DropdownMenuItem(
-                                child: Text("Watt"),
-                                value: Puissance.watt,
-                              ),
-                              DropdownMenuItem(
-                                child: Text("Ampere"),
-                                value: Puissance.ampere,
-                              ),
-                            ],
-                            onChanged: (value) {
-                              setState(() {
-                                _puissance = value;
-                              });
-                            },
-                          ),
-                        ],
-                      ),
                       TextFormField(
-                        initialValue: widget.modifier ? "${widget.duree}" : "",
+                        initialValue: widget.modifier ? "${widget.prixAutre}" : "",
                         keyboardType: TextInputType.number,
                         inputFormatters: [
                           WhitelistingTextInputFormatter(RegExp("[0-9]+")),
                         ],
                         decoration: InputDecoration(
                           border: UnderlineInputBorder(),
-                          labelText: "Duree",
+                          labelText: "Prix",
                         ),
                         onSaved: (val) {
-                          _duree = int.parse(val);
+                          _prixAutre = int.parse(val);
                         },
                       ),
                       //TODO: Switch to Time picker
@@ -304,19 +241,13 @@ class _AutresDialogState extends State<_AutresDialog> {
                         _formState.currentState.save();
                         widget.modifier
                             ? AutresState.modifyData({
-                                "idAppareil": widget.appareil.id.toString(),
-                                "nomAppareil": _nom,
-                                "puissance": _puissanceValue.toString(),
-                                "puissanceType":
-                                    _puissance == Puissance.watt ? "w" : "a",
-                                "duree": _duree.toString()
+                                "idAutre": widget.autre.id.toString(),
+                                "motif": _motif,
+                                "prixAutre": _prixAutre.toString()
                               }, idReservation: widget.idReservation)
                             : AutresState.saveData({
-                                "nomAppareil": _nom,
-                                "puissance": _puissanceValue.toString(),
-                                "puissanceType":
-                                    _puissance == Puissance.watt ? "w" : "a",
-                                "duree": _duree.toString()
+                                "motif": _motif,
+                                "prixAutre": _prixAutre.toString()
                               }, idReservation: widget.idReservation);
                         Navigator.of(context).pop(null);
                       }

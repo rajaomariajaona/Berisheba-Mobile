@@ -1,4 +1,5 @@
 import 'package:berisheba/routes/reservation/states/reservation_state.dart';
+import 'package:berisheba/routes/reservation/widget/details/autres.dart';
 import 'package:berisheba/routes/reservation/widget/details/demi_journee.dart';
 import 'package:berisheba/routes/reservation/widget/details/globaldetails.dart';
 import 'package:berisheba/routes/reservation/widget/details/jirama.dart';
@@ -63,6 +64,7 @@ class ReservationDetails extends StatelessWidget {
                   ReservationGlobalDetails(_idReservation),
                   ReservationDemiJournee(_idReservation),
                   ReservationJirama(_idReservation),
+                  ReservationAutres(_idReservation),
                 ],
               ),
             ),

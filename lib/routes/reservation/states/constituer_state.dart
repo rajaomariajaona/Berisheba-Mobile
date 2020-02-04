@@ -1,3 +1,4 @@
+import 'package:berisheba/routes/reservation/states/reservation_state.dart';
 import 'package:berisheba/states/global_state.dart';
 import 'package:berisheba/tools/http/request.dart';
 import 'package:dio/dio.dart';
@@ -88,7 +89,12 @@ class ConstituerState extends ChangeNotifier {
         _isLoading = 0;
         return true;
       } catch (error) {
+        if(error?.response?.data["error"] == "This Reservation not found"){
+          ReservationState().reservationsById[idReservation] = null;
+        }else{
         print(error?.response?.data);
+        }
+
         _isLoading = 0;
         return false;
       }

@@ -1,3 +1,4 @@
+import 'package:berisheba/routes/reservation/states/autres_state.dart';
 import 'package:berisheba/routes/reservation/states/constituer_state.dart';
 import 'package:berisheba/routes/reservation/states/jirama_state.dart';
 import 'package:berisheba/routes/reservation/widget/reservation_details.dart';
@@ -13,15 +14,19 @@ class ReservationItem extends StatefulWidget {
 
 class _ReservationItemState extends State<ReservationItem> {
   void _watch(BuildContext context) async {
-    ConstituerState _constituerState = Provider.of<ConstituerState>(context,listen: false);
+    ConstituerState _constituerState =
+        Provider.of<ConstituerState>(context, listen: false);
     JiramaState _jiramaState = Provider.of<JiramaState>(context, listen: false);
+     AutresState _autresState = Provider.of<AutresState>(context, listen: false);
     int _idReservation = widget._reservation["idReservation"];
-    if(!_constituerState.demiJourneesByReservation.containsKey(_idReservation))
+    if (!_constituerState.demiJourneesByReservation.containsKey(_idReservation))
       await _constituerState.fetchData(_idReservation);
-    if(!_jiramaState.jiramaByIdReservation.containsKey(_idReservation))
+    if (!_jiramaState.jiramaByIdReservation.containsKey(_idReservation))
       await _jiramaState.fetchData(_idReservation);
+    if (!_autresState.autresByIdReservation.containsKey(_idReservation))
+      await _autresState.fetchData(_idReservation);
     Navigator.of(context).push(MaterialPageRoute(builder: (ctx) {
-     return ReservationDetails(_idReservation);
+      return ReservationDetails(_idReservation);
     }));
   }
 
@@ -36,12 +41,12 @@ class _ReservationItemState extends State<ReservationItem> {
           decoration: BoxDecoration(
             shape: BoxShape.circle,
             color: widget._reservation["couleur"] != null &&
-                int.tryParse(widget._reservation["couleur"]) != null
+                    int.tryParse(widget._reservation["couleur"]) != null
                 ? Color(int.parse(widget._reservation["couleur"]))
                 : Colors.green,
           ),
         ),
-        onTap:() => _watch(context),
+        onTap: () => _watch(context),
         contentPadding: EdgeInsets.fromLTRB(25, 10, 10, 10),
         title: Row(
           children: <Widget>[
@@ -56,20 +61,21 @@ class _ReservationItemState extends State<ReservationItem> {
                 children: <Widget>[
                   const Text("Client: "),
                   Text(
-                      "${widget._reservation["nomClient"]} ${widget
-                          ._reservation["prenomClient"]}"),
+                      "${widget._reservation["nomClient"]} ${widget._reservation["prenomClient"]}"),
                 ],
               ),
               Row(
                 children: <Widget>[
                   const Text("Date Entree: "),
-                  Text("${widget._reservation["dateEntree"]} ${widget._reservation["typeDemiJourneeEntree"]}"),
+                  Text(
+                      "${widget._reservation["dateEntree"]} ${widget._reservation["typeDemiJourneeEntree"]}"),
                 ],
               ),
               Row(
                 children: <Widget>[
                   const Text("Date Sortie: "),
-                  Text("${widget._reservation["dateSortie"]} ${widget._reservation["typeDemiJourneeSortie"]}"),
+                  Text(
+                      "${widget._reservation["dateSortie"]} ${widget._reservation["typeDemiJourneeSortie"]}"),
                 ],
               ),
             ],

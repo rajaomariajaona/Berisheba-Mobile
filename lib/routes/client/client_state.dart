@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:core';
 import 'dart:io';
 
+import 'package:berisheba/routes/reservation/states/reservation_state.dart';
 import 'package:berisheba/states/config.dart';
 import 'package:berisheba/states/global_state.dart';
 import 'package:berisheba/states/parametres.dart';
@@ -119,15 +120,14 @@ class ClientState extends ChangeNotifier {
           var data = response?.data;
           if (data != null) {
             _listClientByIdClient = data["data"];
-          }else{
+          } else {
             throw "No data";
           }
         }).catchError((error) {
-          if(error is DioError){
-            if(error?.response?.statusCode != 401){
-            GlobalState().isConnected = false;
+          if (error is DioError) {
+            if (error?.response?.statusCode != 401) {
+              GlobalState().isConnected = false;
             }
-
           }
         });
       });
@@ -145,11 +145,25 @@ class ClientState extends ChangeNotifier {
     }
   }
 
-  Future<bool> removeData() async {
+  Future<bool> removeDatas() async {
     Dio _dio = await RestRequest().getDioInstance();
     _dio.options.headers["deletelist"] = json.encode(_listIdClientSelected);
     try {
       Response response = await _dio.delete("/clients");
+      GlobalState().channel.sink.add("client delete");
+      this.isDeletingClient = false;
+      return true;
+    } catch (error) {
+      print(error?.response?.data);
+      return false;
+    }
+  }
+
+  static Future<bool> removeData(int idClient) async {
+    Dio _dio = await RestRequest().getDioInstance();
+    try {
+      Response response = await _dio.delete("/clients/$idClient");
+      GlobalState().channel.sink.add("client delete");
       return true;
     } catch (error) {
       print(error?.response?.data);
@@ -229,6 +243,10 @@ class ClientState extends ChangeNotifier {
     GlobalState().externalStreamController.stream.listen((msg) {
       if (msg == "client") {
         fetchData();
+      }
+      if(msg == "client delete"){
+        //TODO: Optimize this
+        ReservationState().fetchDataByWeekRange("1-53");
       }
     });
     GlobalState().internalStreamController.stream.listen((msg) {

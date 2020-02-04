@@ -5,7 +5,7 @@ import 'package:berisheba/states/global_state.dart';
 import 'package:dio/dio.dart';
 import 'package:imei_plugin/imei_plugin.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
+//TODO: Test connection coupee
 class RestRequest {
   static final BaseOptions _options = BaseOptions(
     baseUrl: "${Config.apiURI}",
@@ -36,7 +36,7 @@ class RestRequest {
         });
       }, onError: (DioError error) async {
         if (error?.response?.statusCode != 401) {
-          return error.response.data;
+          _dio.reject(error);
         } else {
           RequestOptions options = error?.response?.request;
           await _refreshToken(options).catchError((error) {

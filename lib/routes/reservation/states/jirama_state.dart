@@ -30,7 +30,6 @@ class JiramaState extends ChangeNotifier {
               puissance: item["appareilIdAppareil"]["puissance"] + 0.0,
           )] = 
             item["duree"];
-         print(_jirama[idReservation]);
       });
       notifyListeners();
       _isLoading = 0;

@@ -1,5 +1,7 @@
 import 'package:berisheba/routes/client/client_portrait.dart';
 import 'package:berisheba/routes/client/client_state.dart';
+import 'package:berisheba/routes/client/widgets/client_float_button.dart';
+import 'package:berisheba/routes/client/widgets/client_selector.dart';
 import 'package:berisheba/routes/reservation/states/reservation_state.dart';
 import 'package:berisheba/tools/formatters/CaseInputFormatter.dart';
 import 'package:flutter/material.dart';
@@ -258,10 +260,7 @@ class _ReservationGlobalDetailsState extends State<ReservationGlobalDetails> {
   Future<void> _showClientSelector(BuildContext context) async {
     var result =
         await Navigator.of(context).push(MaterialPageRoute(builder: (ctx) {
-      return Scaffold(
-        appBar: AppBar(),
-        body: ClientPortrait(),
-      );
+      return ClientSelectorBody();
     }));
     if (result != null && int.tryParse("$result") != null) {
       idClient = int.parse("$result");

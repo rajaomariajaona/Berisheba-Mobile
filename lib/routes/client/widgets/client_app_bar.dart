@@ -46,13 +46,10 @@ class ClientAppBar {
               icon: Icon(Icons.delete),
               onPressed: () async {
                 try {
-                  if (!(await _clientState.removeData()))
+                  if (!(await _clientState.removeDatas()))
                     throw Exception("Client not deleted");
                 } on Exception catch (_) {
                   print("error deleting client");
-                } finally {
-                  GlobalState().channel.sink.add("client");
-                  _clientState.isDeletingClient = false;
                 }
               },
             )

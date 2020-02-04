@@ -34,7 +34,10 @@ class ClientDetail extends StatelessWidget {
                   icon: const Icon(
                     Icons.delete,
                   ),
-                  onPressed: () {},
+                  onPressed: ()async {
+                    Navigator.of(context).pop(null);
+                    await ClientState.removeData(_idClient);
+                  },
                 ),
                 IconButton(
                   icon: const Icon(Icons.edit),
