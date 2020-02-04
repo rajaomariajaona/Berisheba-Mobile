@@ -10,7 +10,7 @@ import 'package:expandable/expandable.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
-import 'package:http/http.dart' as http;
+
 //TODO: resolve tsy hita tampoka izy rht xD
 class ReservationDemiJournee extends StatefulWidget {
   final int _idReservation;
@@ -22,7 +22,7 @@ class ReservationDemiJournee extends StatefulWidget {
 class _ReservationDemiJourneeState extends State<ReservationDemiJournee> {
   Map<DemiJournee, int> _modifiedDemiJournee = {};
   bool _editMode = false;
-    bool _isPosting = false;
+  bool _isPosting = false;
   bool get editMode => _editMode;
   void setEditMode(bool v, {Map<DemiJournee, int> currentDemiJournees}) {
     _editMode = v;
@@ -130,7 +130,8 @@ class _ReservationDemiJourneeState extends State<ReservationDemiJournee> {
     );
 
     if (!rangePickerData["remplaceAll"]) {
-      Map<DemiJournee,int> demiJournees = constituerState.demiJourneesByReservation[widget._idReservation];
+      Map<DemiJournee, int> demiJournees =
+          constituerState.demiJourneesByReservation[widget._idReservation];
       if (demiJournees.containsKey(currentDemiJournee)) {
         _modifiedDemiJournee.putIfAbsent(
             currentDemiJournee, () => demiJournees[currentDemiJournee]);
@@ -139,11 +140,11 @@ class _ReservationDemiJourneeState extends State<ReservationDemiJournee> {
     }
     _modifiedDemiJournee.putIfAbsent(
         currentDemiJournee, () => rangePickerData["nbPersonne"]);
-    if(constituerState.controllers[currentDemiJournee] == null){
+    if (constituerState.controllers[currentDemiJournee] == null) {
       constituerState.controllers[currentDemiJournee] = TextEditingController();
     }
-    constituerState.controllers[currentDemiJournee].text = "${_modifiedDemiJournee[currentDemiJournee]}";
-    
+    constituerState.controllers[currentDemiJournee].text =
+        "${_modifiedDemiJournee[currentDemiJournee]}";
   }
 
   DateTime _incrementDateOneDay(DateTime currentDate) {
@@ -157,15 +158,17 @@ class _ReservationDemiJourneeState extends State<ReservationDemiJournee> {
         reservationState.reservationsById[widget._idReservation];
     final ConstituerState constituerState =
         Provider.of<ConstituerState>(context);
-    final Map<DemiJournee, int> demiJournees = constituerState.demiJourneesByReservation[widget._idReservation];
+    final Map<DemiJournee, int> demiJournees =
+        constituerState.demiJourneesByReservation[widget._idReservation];
     final Map<String, dynamic> stat = constituerState.stats;
     List<Widget> listDemiJournees = [];
     if (editMode) constituerState.controllers.clear();
     editMode
         ? _modifiedDemiJournee
             .forEach((DemiJournee demiJournee, int nbPersonne) {
-            if(constituerState.controllers[demiJournee] == null)
-            constituerState.controllers[demiJournee] = TextEditingController();
+            if (constituerState.controllers[demiJournee] == null)
+              constituerState.controllers[demiJournee] =
+                  TextEditingController();
             listDemiJournees.add(ListTile(
               leading: Checkbox(
                 value: constituerState.isSelected(demiJournee),
@@ -200,10 +203,8 @@ class _ReservationDemiJourneeState extends State<ReservationDemiJournee> {
                       child: TextField(
                     keyboardType: TextInputType.number,
                     inputFormatters: [
-                      WhitelistingTextInputFormatter(
-                        RegExp("[0-9]+")
-                        )
-                      ],
+                      WhitelistingTextInputFormatter(RegExp("[0-9]+"))
+                    ],
                     controller: constituerState.controllers[demiJournee],
                     onChanged: (value) {
                       if (constituerState.demiJourneeSelected.length > 0) {
@@ -221,9 +222,11 @@ class _ReservationDemiJourneeState extends State<ReservationDemiJournee> {
             listDemiJournees.add(Divider());
             constituerState.controllers[demiJournee].text = "$nbPersonne";
             constituerState.controllers[demiJournee].selection =
-                TextSelection.collapsed(offset: constituerState.controllers[demiJournee].text.length);
-            constituerState.controllers
-                .putIfAbsent(demiJournee, () => constituerState.controllers[demiJournee]);
+                TextSelection.collapsed(
+                    offset:
+                        constituerState.controllers[demiJournee].text.length);
+            constituerState.controllers.putIfAbsent(
+                demiJournee, () => constituerState.controllers[demiJournee]);
           })
         : demiJournees.forEach((DemiJournee demiJournee, int nbPersonne) {
             listDemiJournees.add(ListTile(
@@ -279,156 +282,181 @@ class _ReservationDemiJourneeState extends State<ReservationDemiJournee> {
                       "Dates et nombres de personne",
                       style: Theme.of(context).textTheme.body2,
                     )),
-                collapsed: constituerState.isLoading == widget._idReservation ? const Loading() : Column(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: <Widget>[
-                    Text(
-                      "Date Entree : ${reservation["dateEntree"]} ${reservation["typeDemiJourneeEntree"]}",
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    Text(
-                      "Date Sortie : ${reservation["dateSortie"]} ${reservation["typeDemiJourneeSortie"]}",
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    Text(
-                      "Nombre de jours : ${stat != null ? stat["nbJours"] : ""}",
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    Text(
-                      "Nombre de personne en moyenne : ${stat != null ? stat["nbMoyennePersonne"] : ""}",
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ],
-                ),
+                collapsed: constituerState.isLoading == widget._idReservation
+                    ? const Loading()
+                    : Column(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: <Widget>[
+                          Text(
+                            "Date Entree : ${reservation["dateEntree"]} ${reservation["typeDemiJourneeEntree"]}",
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          Text(
+                            "Date Sortie : ${reservation["dateSortie"]} ${reservation["typeDemiJourneeSortie"]}",
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          Text(
+                            "Nombre de jours : ${stat != null ? stat["nbJours"] : ""}",
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          Text(
+                            "Nombre de personne en moyenne : ${stat != null ? stat["nbMoyennePersonne"] : ""}",
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ],
+                      ),
                 expanded: Container(
                   height: 250,
-                  child: constituerState.isLoading == widget._idReservation ? const Loading() : Column(
-                    children: <Widget>[
-                      Expanded(
-                        child: SingleChildScrollView(
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: listDemiJournees,
-                          ),
+                  child: constituerState.isLoading == widget._idReservation
+                      ? const Loading()
+                      : Column(
+                          children: <Widget>[
+                            Expanded(
+                              child: SingleChildScrollView(
+                                child: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: listDemiJournees,
+                                ),
+                              ),
+                            ),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              children: !_editMode
+                                  ? <Widget>[
+                                      IconButton(
+                                        icon: Icon(Icons.edit),
+                                        onPressed: () {
+                                          setState(() {
+                                            setEditMode(true,
+                                                currentDemiJournees:
+                                                    demiJournees);
+                                          });
+                                        },
+                                      ),
+                                      IconButton(
+                                        icon: Icon(Icons.today),
+                                        onPressed: () async {
+                                          var res = await showDialog(
+                                              context: context,
+                                              builder: (BuildContext ctx) {
+                                                return ChangeDatesDialog(
+                                                  nbPersonne: double.parse(
+                                                          "${stat != null ? stat["nbMoyennePersonne"] : "0"}")
+                                                      .floor(),
+                                                  dateEntree:
+                                                      "${reservation["dateEntree"]}",
+                                                  typeDemiJourneeEntree:
+                                                      reservation["typeDemiJourneeEntree"] ==
+                                                              'Jour'
+                                                          ? TypeDemiJournee.jour
+                                                          : TypeDemiJournee
+                                                              .nuit,
+                                                  dateSortie:
+                                                      "${reservation["dateSortie"]}",
+                                                  typeDemiJourneeSortie:
+                                                      reservation["typeDemiJourneeSortie"] ==
+                                                              'Jour'
+                                                          ? TypeDemiJournee.jour
+                                                          : TypeDemiJournee
+                                                              .nuit,
+                                                );
+                                              });
+                                          if (res != null) {
+                                            print(res);
+                                            await generateDemiJourneesFromDateRangePicker(
+                                                res, context);
+                                            setState(() {
+                                              setEditMode(true);
+                                            });
+                                          }
+                                        },
+                                      ),
+                                    ]
+                                  : <Widget>[
+                                      IconButton(
+                                        icon: constituerState.emptySelected()
+                                            ? const Icon(
+                                                Icons.check_box_outline_blank)
+                                            : constituerState.allSelected()
+                                                ? const Icon(Icons.check_box)
+                                                : const Icon(Icons
+                                                    .indeterminate_check_box),
+                                        onPressed: () async {
+                                          if (constituerState.emptySelected()) {
+                                            constituerState.addAllSelected();
+                                          } else if (constituerState
+                                              .allSelected()) {
+                                            constituerState.deleteAllSelected();
+                                          } else {
+                                            constituerState.deleteAllSelected();
+                                          }
+                                        },
+                                      ),
+                                      IconButton(
+                                        icon: Icon(Icons.close),
+                                        onPressed: () {
+                                          setState(() {
+                                            setEditMode(false);
+                                          });
+                                        },
+                                      ),
+                                      IconButton(
+                                        icon: Icon(Icons.check),
+                                        onPressed: _isPosting
+                                            ? null
+                                            : () async {
+                                                setState(() {
+                                                  _isPosting = true;
+                                                });
+                                                List<Map<String, String>>
+                                                    datas = [];
+                                                constituerState.controllers
+                                                    .forEach((dj, ctrl) {
+                                                  Map<String, String> data = {};
+                                                  data["nbPersonne"] =
+                                                      ctrl.text;
+                                                  data["date"] = dj.date;
+                                                  data["typeDemiJournee"] =
+                                                      dj.typeDemiJournee ==
+                                                              TypeDemiJournee
+                                                                  .jour
+                                                          ? "Jour"
+                                                          : "Nuit";
+                                                  datas.add(data);
+                                                });
+                                                try {
+                                                  await ConstituerState
+                                                      .modifyData({
+                                                    "data": json.encode(datas)
+                                                  },
+                                                          idReservation: widget
+                                                              ._idReservation);
+
+                                                  GlobalState().channel.sink.add(
+                                                      "constituer ${widget._idReservation}");
+                                                  setState(() {
+                                                    setEditMode(false);
+                                                  });
+                                                  setState(() {
+                                                    _isPosting = false;
+                                                  });
+                                                } catch (error) {
+                                                  print(error?.response?.data);
+                                                }
+                                              },
+                                      )
+                                    ],
+                            )
+                          ],
                         ),
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: !_editMode
-                            ? <Widget>[
-                                IconButton(
-                                  icon: Icon(Icons.edit),
-                                  onPressed: () {
-                                    setState(() {
-                                      setEditMode(true,
-                                          currentDemiJournees: demiJournees);
-                                    });
-                                  },
-                                ),
-                                IconButton(
-                                  icon: Icon(Icons.today),
-                                  onPressed: () async {
-                                    var res = await showDialog(
-                                        context: context,
-                                        builder: (BuildContext ctx) {
-                                          return ChangeDatesDialog(
-                                            nbPersonne: double.parse(
-                                                    "${stat != null ? stat["nbMoyennePersonne"] : "0"}")
-                                                .floor(),
-                                            dateEntree:
-                                                "${reservation["dateEntree"]}",
-                                            typeDemiJourneeEntree: reservation[
-                                                        "typeDemiJourneeEntree"] ==
-                                                    'Jour'
-                                                ? TypeDemiJournee.jour
-                                                : TypeDemiJournee.nuit,
-                                            dateSortie:
-                                                "${reservation["dateSortie"]}",
-                                            typeDemiJourneeSortie: reservation[
-                                                        "typeDemiJourneeSortie"] ==
-                                                    'Jour'
-                                                ? TypeDemiJournee.jour
-                                                : TypeDemiJournee.nuit,
-                                          );
-                                        });
-                                    if (res != null) {
-                                      print(res);
-                                      await generateDemiJourneesFromDateRangePicker(
-                                          res, context);
-                                      setState(() {
-                                        setEditMode(true);
-                                      });
-                                    }
-                                  },
-                                ),
-                              ]
-                            : <Widget>[
-                                IconButton(
-                                  icon: constituerState.emptySelected()
-                                      ? const Icon(
-                                          Icons.check_box_outline_blank)
-                                      : constituerState.allSelected()
-                                          ? const Icon(Icons.check_box)
-                                          : const Icon(
-                                              Icons.indeterminate_check_box),
-                                  onPressed: () async {
-                                    if (constituerState.emptySelected()) {
-                                      constituerState.addAllSelected();
-                                    } else if (constituerState.allSelected()) {
-                                      constituerState.deleteAllSelected();
-                                    } else {
-                                      constituerState.deleteAllSelected();
-                                    }
-                                  },
-                                ),
-                                IconButton(
-                                  icon: Icon(Icons.close),
-                                  onPressed: () {
-                                    setState(() {
-                                      setEditMode(false);
-                                    });
-                                  },
-                                ),
-                                IconButton(
-                                  icon: Icon(Icons.check),
-                                  onPressed: _isPosting? null  : () async {
-                                    setState((){
-                                      _isPosting = true;
-                                    });
-                                    List<Map<String, String>> datas = []; 
-                                    constituerState.controllers.forEach((dj, ctrl){
-                                      Map<String, String> data = {};
-                                      data["nbPersonne"] = ctrl.text;
-                                      data["date"] = dj.date;
-                                      data["typeDemiJournee"] = dj.typeDemiJournee == TypeDemiJournee.jour ? "Jour" : "Nuit";
-                                      datas.add(data);
-                                    });
-                                  http.put("${Config.apiURI}constituers/${widget._idReservation}",body: {"data" : json.encode(datas)})
-                                  .then((result){
-                                  if(result.statusCode == 200){
-                                    GlobalState().channel.sink.add("constituer ${widget._idReservation}");
-                                    setState((){
-                                      setEditMode(false);
-                                    });
-                                  }
-                                  setState((){
-                                    _isPosting = false;
-                                  });
-                                  });
-                                  },
-                                )
-                              ],
-                      )
-                    ],
-                  ),
                 ),
                 builder: (_, collapsed, expanded) {
                   return Padding(
                     padding: const EdgeInsets.all(10),
                     child: Expandable(
-                      collapsed:collapsed,
+                      collapsed: collapsed,
                       expanded: expanded,
                       theme: const ExpandableThemeData(crossFadePoint: 0),
                     ),
@@ -447,4 +475,3 @@ class _ReservationDemiJourneeState extends State<ReservationDemiJournee> {
     return _body(context);
   }
 }
-

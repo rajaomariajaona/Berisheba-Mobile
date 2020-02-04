@@ -3,14 +3,14 @@ import 'dart:convert';
 import 'package:berisheba/states/config.dart';
 import 'package:berisheba/states/global_state.dart';
 import 'package:berisheba/tools/date.dart';
+import 'package:berisheba/tools/http/request.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-import 'package:table_calendar/table_calendar.dart';
 
+import 'package:table_calendar/table_calendar.dart';
 
 //Lazy loading (ByReservation de alaina amnin xD) Contrainte (Semaine xD) {PAR ID + PAR SEMAINE}
 class ReservationState extends ChangeNotifier {
-
   bool __isLoading = false;
   bool get isLoading => __isLoading;
   set _isLoading(bool val) {
@@ -52,40 +52,78 @@ class ReservationState extends ChangeNotifier {
   Map<int, dynamic> get reservationsById => _reservationsById;
 
   Future fetchDataByWeekRange(String weekRange) async {
-    // try{
-    // _isLoading = true;
-    // http.Response response = await http
-    //     .get("${Config.apiURI}/reservations", headers: {"range": weekRange});
-    // if (response.statusCode == 200) {
-    //   _reservationsById = (jsonDecode(response.body)["data"]).map<int, dynamic>((key, value) => MapEntry<int, dynamic>(int.parse(key),value));
-    //   notifyListeners();
-    //   this.generateEvents();
-    // } else {
-    //   throw Exception("Error while fetching data ${response.statusCode}");
-    // }
-    // }catch(err){
-    //   GlobalState().isConnected = false;
-    // }finally{
-    //   _isLoading = false;
-    // }
+    Dio _dio = await RestRequest().getDioInstance();
+    try {
+      _isLoading = true;
+      _dio.options.headers["range"] = weekRange;
+      var response = await _dio.get("/reservations");
+      _reservationsById = (response.data["data"]).map<int, dynamic>(
+          (key, value) => MapEntry<int, dynamic>(int.parse(key), value));
+      notifyListeners();
+      this.generateEvents();
+    } catch (err) {
+      print(err);
+      print(err?.response?.data);
+      GlobalState().isConnected = false;
+    } finally {
+      _isLoading = false;
+    }
   }
+
   Future fetchDataByIdReservation(int idReservation) async {
-    // try{
-    // _isLoading = true;
-    // http.Response response = await http
-    //     .get("${Config.apiURI}/reservations/$idReservation");
-    // if (response.statusCode == 200) {
-    //   _reservationsById[idReservation] = jsonDecode(response.body)["data"];
-    //   notifyListeners();
-    //   this.generateEvents();
-    // } else {
-    //   throw Exception("Error while fetching data ${response.statusCode}");
-    // }
-    // }catch(err){
-    //   GlobalState().isConnected = false;
-    // }finally{
-    //   _isLoading = false;
-    // }
+    Dio _dio = await RestRequest().getDioInstance();
+    try {
+      _isLoading = true;
+      var response = await _dio.get("/reservations/$idReservation");
+      var data = response?.data;
+      if (data != null) {
+        _reservationsById[idReservation] = response.data["data"];
+        notifyListeners();
+        this.generateEvents();
+      }else{
+        throw "No data";
+      }
+    } catch (err) {
+      print(err);
+      print(err?.response?.data);
+      GlobalState().isConnected = false;
+    } finally {
+      _isLoading = false;
+    }
+  }
+
+  static Future<bool> saveData(dynamic data) async {
+    Dio _dio = await RestRequest().getDioInstance();
+    try {
+      await _dio.post("/reservations", data: data);
+      return true;
+    } catch (error) {
+      print(error?.response?.data);
+      return false;
+    }
+  }
+
+  static Future<bool> modifyData(dynamic data,
+      {@required int idReservation}) async {
+    Dio _dio = await RestRequest().getDioInstance();
+    try {
+      await _dio.put("/reservations/$idReservation", data: data);
+      return true;
+    } catch (error) {
+      print(error?.response?.data);
+      return false;
+    }
+  }
+
+  static Future<bool> removeData({@required int idReservation}) async {
+    Dio _dio = await RestRequest().getDioInstance();
+    try {
+      await _dio.delete("/reservations/$idReservation");
+      return true;
+    } catch (error) {
+      print(error?.response?.data);
+      return false;
+    }
   }
 
   void generateEvents() {
@@ -108,20 +146,19 @@ class ReservationState extends ChangeNotifier {
   Map<DateTime, List<dynamic>> _events = {};
 
   Map<DateTime, List<dynamic>> get events => _events;
-  ReservationState(){
+  ReservationState() {
     _calendarController = CalendarController();
     this.fetchDataByWeekRange("1-53");
-    GlobalState().externalStreamController.stream.listen((msg){
-      if(msg == "reservation")
+    GlobalState().externalStreamController.stream.listen((msg) {
+      if (msg == "reservation")
         this.fetchDataByWeekRange("1-53");
-      else if(msg.split(" ")[0] == "reservation")
+      else if (msg.split(" ")[0] == "reservation")
         this.fetchDataByIdReservation(int.parse(msg.split(" ")[1]));
-      if(msg.split(" ")[0] == "constituer")
+      if (msg.split(" ")[0] == "constituer")
         this.fetchDataByIdReservation(int.parse(msg.split(" ")[1]));
     });
-    GlobalState().internalStreamController.stream.listen((msg){
-      if(msg == "refresh")
-        this.fetchDataByWeekRange("1-53");
+    GlobalState().internalStreamController.stream.listen((msg) {
+      if (msg == "refresh") this.fetchDataByWeekRange("1-53");
     });
   }
 }

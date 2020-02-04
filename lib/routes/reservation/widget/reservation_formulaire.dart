@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:berisheba/routes/client/client_portrait.dart';
 import 'package:berisheba/routes/reservation/constituer_state.dart';
+import 'package:berisheba/routes/reservation/reservation_state.dart';
 import 'package:berisheba/states/config.dart';
 import 'package:berisheba/routes/client/client_state.dart';
 import 'package:berisheba/states/global_state.dart';
@@ -12,7 +13,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_colorpicker/block_picker.dart';
 import 'package:provider/provider.dart';
-import 'package:http/http.dart' as http;
 
 class ReservationFormulaire extends StatefulWidget {
   final List<Color> _colors = [
@@ -73,28 +73,6 @@ class _ReservationFormulaireState extends State<ReservationFormulaire> {
     super.initState();
   }
 
-  Future<http.Response> _saveToDatabase() async {
-    Map<String, dynamic> data = {
-      "nomReservation": nomReservation,
-      "dateEntree": dateEntree,
-      "typeDemiJourneeEntree":
-          typeDemiJourneeEntree == TypeDemiJournee.jour ? "Jour" : "Nuit",
-      "dateSortie": dateSortie,
-      "typeDemiJourneeSortie":
-          typeDemiJourneeSortie == TypeDemiJournee.jour ? "Jour" : "Nuit",
-      "prixPersonne": prixPersonne.toString(),
-      "nbPersonne": nbPersonne.toString(),
-      "idClient": idClient.toString(),
-      "couleur": couleur.value.toString(),
-      "etatReservation": etatReservation.toString(),
-      "nbPersonneIdentique": true.toString()
-    };
-    return http.post(
-      Config.apiURI + "reservations",
-      body: data,
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -141,21 +119,42 @@ class _ReservationFormulaireState extends State<ReservationFormulaire> {
                                 });
                                 _formKey.currentState.save();
                                 if (_formKey.currentState.validate()) {
-                                  _saveToDatabase().then((result) {
-                                    if (result.statusCode == 201) {
-                                      GlobalState()
-                                          .channel
-                                          .sink
-                                          .add("reservation");
-                                      Navigator.of(context).pop(dateEntree);
-                                    } else {
-                                      setState(() {
-                                        isPostingData = false;
-                                      });
-                                      print(result.statusCode);
-                                      //TODO: Handle deleted client
-                                    }
-                                  });
+                                  dynamic data = {
+                                    "nomReservation": nomReservation,
+                                    "dateEntree": dateEntree,
+                                    "typeDemiJourneeEntree":
+                                        typeDemiJourneeEntree ==
+                                                TypeDemiJournee.jour
+                                            ? "Jour"
+                                            : "Nuit",
+                                    "dateSortie": dateSortie,
+                                    "typeDemiJourneeSortie":
+                                        typeDemiJourneeSortie ==
+                                                TypeDemiJournee.jour
+                                            ? "Jour"
+                                            : "Nuit",
+                                    "prixPersonne": prixPersonne.toString(),
+                                    "nbPersonne": nbPersonne.toString(),
+                                    "idClient": idClient.toString(),
+                                    "couleur": couleur.value.toString(),
+                                    "etatReservation":
+                                        etatReservation.toString(),
+                                    "nbPersonneIdentique": true.toString()
+                                  };
+
+                                  try {
+                                    await ReservationState.saveData(data);
+                                    GlobalState()
+                                        .channel
+                                        .sink
+                                        .add("reservation");
+                                    Navigator.of(context).pop(dateEntree);
+                                  } catch (error) {
+                                    setState(() {
+                                      isPostingData = false;
+                                    });
+                                    print(error?.response?.data);
+                                  }
                                 } else {
                                   setState(() {
                                     isPostingData = false;

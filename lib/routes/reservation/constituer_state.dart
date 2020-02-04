@@ -1,9 +1,7 @@
-import 'dart:convert';
-
-import 'package:berisheba/states/config.dart';
 import 'package:berisheba/states/global_state.dart';
+import 'package:berisheba/tools/http/request.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/widgets.dart';
-import 'package:http/http.dart' as http;
 
 enum TypeDemiJournee { jour, nuit }
 
@@ -68,33 +66,46 @@ class ConstituerState extends ChangeNotifier {
     try {
       _isLoading = idReservation;
       _demiJournees[idReservation] = {};
-      http.get("${Config.apiURI}/constituers/$idReservation").then((result) {
-        print(result.toString());
-        if (result.statusCode == 200) {
-          Map<String, dynamic> _data = json.decode(result.body);
-
-          _demiJournees[idReservation] = (_data["data"] as List<dynamic>).asMap().map<DemiJournee, int>((int index,dynamic value) {
-                return MapEntry<DemiJournee, int>(DemiJournee(
-                    date: value["demiJournee"]["date"],
-                    typeDemiJournee:
-                        value["demiJournee"]["typeDemiJournee"] == 'Jour'
-                            ? TypeDemiJournee.jour
-                            : TypeDemiJournee.nuit),
-                value["nbPersonne"]);
-          });
-
-          //TODO: Send This to server to add performance to app
-          _stats = _data["stat"];
-          notifyListeners();
-        } else {
-          print(result.statusCode);
-          print(result.body);
-        }
-      }).then((_){
-      _isLoading = 0;
-      });
+      Dio _dio = await RestRequest().getDioInstance();
+      try {
+        Response response = await _dio.get("/constituers/$idReservation");
+        var _data = response.data;
+        
+        _demiJournees[idReservation] = (_data["data"] as List<dynamic>)
+            .asMap()
+            .map<DemiJournee, int>((int index, dynamic value) {
+          return MapEntry<DemiJournee, int>(
+              DemiJournee(
+                  date: value["demiJournee"]["date"],
+                  typeDemiJournee:
+                      value["demiJournee"]["typeDemiJournee"] == 'Jour'
+                          ? TypeDemiJournee.jour
+                          : TypeDemiJournee.nuit),
+              value["nbPersonne"]);
+        });
+        _stats = _data["stat"];
+        notifyListeners();
+        _isLoading = 0;
+        return true;
+      } catch (error) {
+        print(error?.response?.data);
+        _isLoading = 0;
+        return false;
+      }
     } catch (err) {
+      _isLoading = 0;
       print(err);
+    }
+  }
+
+  static Future<bool> modifyData(dynamic data, {@required idReservation}) async {
+    Dio _dio = await RestRequest().getDioInstance();
+    try {
+      await _dio.put("/constituers/$idReservation", data: data);
+      return true;
+    } catch (error) {
+      print(error?.response?.data);
+      return false;
     }
   }
 

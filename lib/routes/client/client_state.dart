@@ -116,11 +116,14 @@ class ClientState extends ChangeNotifier {
       _isLoading = true;
       await RestRequest().getDioInstance().then((Dio _dio) async {
         await _dio.get("/clients").then((response) {
-          _listClientByIdClient = response.data["data"];
-        }).catchError((error) {
-          if (error is DioError) {
-            return;
+          var data = response?.data;
+          if (data != null) {
+            _listClientByIdClient = data["data"];
+          }else{
+            throw "No data";
           }
+        }).catchError((error) {
+            GlobalState().isConnected = false;
         });
       });
       _clients = _listClientByIdClient.values.toList();
@@ -138,29 +141,38 @@ class ClientState extends ChangeNotifier {
   }
 
   Future<bool> removeData() async {
-    await RestRequest().getDioInstance().then((_dio) async {
-      _dio.options.headers["deletelist"] = json.encode(_listIdClientSelected);
-      await _dio.delete("/clients").then((response) {
-        return true;
-      }).catchError((error) {
-        return false;
-      });
+    Dio _dio = await RestRequest().getDioInstance();
+    _dio.options.headers["deletelist"] = json.encode(_listIdClientSelected);
+    try {
+      Response response = await _dio.delete("/clients");
+      return true;
+    } catch (error) {
+      print(error?.response?.data);
       return false;
-    });
-    return false;
+    }
   }
 
-  Future<bool> saveData() async {
-    await RestRequest().getDioInstance().then((_dio) async {
-      _dio.options.headers["deletelist"] = json.encode(_listIdClientSelected);
-      await _dio.delete("/clients").then((response) {
-        return true;
-      }).catchError((error) {
-        return false;
-      });
-    });
+  static Future<bool> saveData(dynamic data) async {
+    Dio _dio = await RestRequest().getDioInstance();
+    try {
+      await _dio.post("/clients", data: data);
+      return true;
+    } catch (error) {
+      print(error?.response?.data);
+      return false;
+    }
   }
 
+  static Future<bool> modifyData(dynamic data, {@required int idClient}) async {
+    Dio _dio = await RestRequest().getDioInstance();
+    try {
+      await _dio.put("/clients/$idClient", data: data);
+      return true;
+    } catch (error) {
+      print(error?.response?.data);
+      return false;
+    }
+  }
 
   Future<void> sort() async {
     _clientsFiltered.sort((dynamic a, dynamic b) {

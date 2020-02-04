@@ -11,9 +11,6 @@ import 'package:berisheba/routes/materiel/widgets/materiel_app_bar.dart';
 import 'package:berisheba/routes/reservation/reservation_portrait.dart';
 import 'package:berisheba/routes/reservation/widget/reservation_app_bar.dart';
 import 'package:berisheba/routes/reservation/widget/reservation_float_button.dart';
-import 'package:berisheba/routes/salle/salle_portrait.dart';
-import 'package:berisheba/routes/salle/widgets/salle_app_bar.dart';
-import 'package:berisheba/routes/salle/widgets/salle_float_button.dart';
 import 'package:berisheba/states/config.dart';
 import 'package:berisheba/states/global_state.dart';
 import 'package:berisheba/states/tab_state.dart';
@@ -53,7 +50,7 @@ class _SquelleteState extends State<Squellete> {
     AcceuilPortrait(),
     ClientPortrait(),
     ReservationPortrait(),
-    SallePortrait(),
+    Clients(),
     MaterielPortrait(),
     Clients(),
     Clients(),
@@ -73,7 +70,7 @@ class _SquelleteState extends State<Squellete> {
     null,
     ClientFloatButton(),
     ReservationFloatButton(),
-    SalleFloatButton(),
+    ClientFloatButton(),
     ClientFloatButton(),
     ClientFloatButton(),
     ClientFloatButton(),
@@ -106,7 +103,7 @@ class _SquelleteState extends State<Squellete> {
       AcceuilAppBar().appbar,
       ClientAppBar(context).appbar,
       ReservationAppBar().appbar,
-      SalleAppBar(context).appbar,
+      ClientAppBar(context).appbar,
       MaterielAppBar(context).appbar,
       ClientAppBar(context).appbar,
       ClientAppBar(context).appbar,

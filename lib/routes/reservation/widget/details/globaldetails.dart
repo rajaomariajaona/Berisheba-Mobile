@@ -8,7 +8,7 @@ import 'package:berisheba/tools/formatters/CaseInputFormatter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_colorpicker/block_picker.dart';
 import 'package:provider/provider.dart';
-import 'package:http/http.dart' as http;
+
 class ReservationGlobalDetails extends StatefulWidget {
 
   final int _idReservation;
@@ -128,7 +128,7 @@ class _ReservationGlobalDetailsState extends State<ReservationGlobalDetails> {
                         ),
                         IconButton(
                           icon: const Icon(Icons.check),
-                          onPressed: () {
+                          onPressed: () async {
                             _formKey.currentState.save();
                             if (_formKey.currentState.validate()) {
                               Map<String, String> data = 
@@ -138,13 +138,13 @@ class _ReservationGlobalDetailsState extends State<ReservationGlobalDetails> {
                                 "idClient": idClient.toString(),
                                 "couleur": couleur.value.toString(),
                               };
-                              http.put("${Config.apiURI}reservations/${widget._idReservation}", body: data
-                              ).then((result){
-                              if(result.statusCode == 200)
+                              
+                              try{
+                                await ReservationState.modifyData(data, idReservation: widget._idReservation);
                                 setEditMode(false);
-                              else
-                                print(result.statusCode);
-                              });
+                              }catch(error){
+                                print(error?.response?.data);
+                              }
                             }
                           },
                         ),
