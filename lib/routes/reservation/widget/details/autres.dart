@@ -190,7 +190,7 @@ class _AutresDialogState extends State<_AutresDialog> {
                       TextFormField(
                         initialValue:
                             widget.modifier ? "${widget.autre.motif}" : "",
-                        textCapitalization: TextCapitalization.characters,
+                        textCapitalization: TextCapitalization.words,
                         inputFormatters: <TextInputFormatter>[
                           WhitelistingTextInputFormatter(RegExp("[A-Za-z ]")),
                           LengthLimitingTextInputFormatter(50),
