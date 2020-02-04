@@ -50,74 +50,77 @@ class _ChangeDatesDialogState extends State<ChangeDatesDialog> {
   @override
   Widget build(BuildContext context) {
     return Dialog(
-      child: Padding(
-        padding: const EdgeInsets.all(4.0),
-        child: Form(
-          key: _formState,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: <Widget>[
-              Flexible(child: _date(context)),
-              Flexible(
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: <Widget>[
-                    Checkbox(
-                      value: remplaceAll,
-                      onChanged: (bool val) {
-                        setState(() {
-                          remplaceAll = val;
-                        });
-                      },
-                    ),
-                    const Text("Tout remplacer"),
-                  ],
-                ),
-              ),
-              Flexible(
-                child: TextFormField(
-                  controller: _nbPersonne,
-                  keyboardType: TextInputType.number,
-                  decoration: InputDecoration(
-                    border: UnderlineInputBorder(),
-                    labelText: "Nombre de Personne",
+      child: SingleChildScrollView(
+        scrollDirection: Axis.vertical,
+              child: Padding(
+          padding: const EdgeInsets.all(4.0),
+          child: Form(
+            key: _formState,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                Flexible(child: _date(context)),
+                Flexible(
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: <Widget>[
+                      Checkbox(
+                        value: remplaceAll,
+                        onChanged: (bool val) {
+                          setState(() {
+                            remplaceAll = val;
+                          });
+                        },
+                      ),
+                      const Text("Tout remplacer"),
+                    ],
                   ),
-                  onSaved:(val) {
-                    nbPersonne = int.parse(val);
-                  },
                 ),
-              ),
-              Flexible(
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: <Widget>[
-                    FlatButton(
-                      child: const Text("Annuler"),
-                      onPressed: () {
-                        Navigator.of(context).pop();
-                      },
+                Flexible(
+                  child: TextFormField(
+                    controller: _nbPersonne,
+                    keyboardType: TextInputType.number,
+                    decoration: InputDecoration(
+                      border: UnderlineInputBorder(),
+                      labelText: "Nombre de Personne",
                     ),
-                    FlatButton(
-                      child: const Text("Enregistrer"),
-                      onPressed: () {
-                        if (_formState.currentState.validate()) {
-                          _formState.currentState.save();
-                          Map<String, dynamic> data = {
-                            "dateEntree": dateEntree,
-                            "typeDemiJourneeEntree": typeDemiJourneeEntree,
-                            "dateSortie": dateSortie,
-                            "typeDemiJourneeSortie": typeDemiJourneeSortie,
-                            "nbPersonne": nbPersonne,
-                            "remplaceAll": remplaceAll
-                          };
-                          Navigator.of(context).pop(data);
-                        }
-                      },
-                    ),
-                  ],
+                    onSaved:(val) {
+                      nbPersonne = int.parse(val);
+                    },
+                  ),
                 ),
-              )
-            ],
+                Flexible(
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: <Widget>[
+                      FlatButton(
+                        child: const Text("Annuler"),
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                        },
+                      ),
+                      FlatButton(
+                        child: const Text("Enregistrer"),
+                        onPressed: () {
+                          if (_formState.currentState.validate()) {
+                            _formState.currentState.save();
+                            Map<String, dynamic> data = {
+                              "dateEntree": dateEntree,
+                              "typeDemiJourneeEntree": typeDemiJourneeEntree,
+                              "dateSortie": dateSortie,
+                              "typeDemiJourneeSortie": typeDemiJourneeSortie,
+                              "nbPersonne": nbPersonne,
+                              "remplaceAll": remplaceAll
+                            };
+                            Navigator.of(context).pop(data);
+                          }
+                        },
+                      ),
+                    ],
+                  ),
+                )
+              ],
+            ),
           ),
         ),
       ),
