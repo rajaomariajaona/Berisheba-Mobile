@@ -6,6 +6,8 @@ import 'package:berisheba/states/global_state.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+enum Actions { supprimer, jirama }
+
 class ReservationDetails extends StatelessWidget {
   final int _idReservation;
   ReservationDetails(this._idReservation, {Key key}) : super(key: key);
@@ -26,18 +28,32 @@ class ReservationDetails extends StatelessWidget {
               title: Text(
                   "${reservationState.reservationsById[_idReservation]["nomReservation"]}"),
               actions: <Widget>[
-                IconButton(
-                  icon: Icon(Icons.delete),
-                  onPressed: () async {
-                    try {
-                      await ReservationState.removeData(
-                          idReservation: _idReservation);
-                      Navigator.of(context).pop(true);
-                      GlobalState().channel.sink.add("reservation");
-                    } catch (error) {
-                      print(error?.response?.data);
+                PopupMenuButton(
+                  onSelected: (value) async {
+                    switch (value) {
+                      case Actions.supprimer:
+                        try {
+                          await ReservationState.removeData(
+                              idReservation: _idReservation);
+                          Navigator.of(context).pop(true);
+                          GlobalState().channel.sink.add("reservation");
+                        } catch (error) {
+                          print(error?.response?.data);
+                        }
+                        break;
+                      default:
                     }
                   },
+                  itemBuilder: (context) => [
+                    PopupMenuItem(
+                      child: Text("supprimer"),
+                      value: Actions.supprimer,
+                    ),
+                    PopupMenuItem(
+                      child: Text("jirama"),
+                      value: Actions.jirama,
+                    ),
+                  ],
                 )
               ],
             ),
@@ -69,34 +85,34 @@ class _customFloatButton extends StatelessWidget {
           child: Icon(Icons.add),
           onPressed: () {},
         ),
-      //   Positioned(
-      //     bottom: 65,
-      //     child: Column(
-      //       children: <Widget>[
-      //         Padding(
-      //           padding: const EdgeInsets.symmetric(vertical:4.0),
-      //           child: FloatingActionButton(
-      //             child: Icon(Icons.wb_incandescent),
-      //             onPressed: () {},
-      //           ),
-      //         ),
-      //         Padding(
-      //           padding: const EdgeInsets.symmetric(vertical:4.0),
-      //           child: FloatingActionButton(
-      //             child: Icon(Icons.location_city),
-      //             onPressed: () {},
-      //           ),
-      //         ),
-      //         Padding(
-      //           padding: const EdgeInsets.symmetric(vertical:4.0),
-      //           child: FloatingActionButton(
-      //             child: Icon(Icons.dashboard),
-      //             onPressed: () {},
-      //           ),
-      //         ),
-      //       ],
-      //     ),
-      //   ),
+        //   Positioned(
+        //     bottom: 65,
+        //     child: Column(
+        //       children: <Widget>[
+        //         Padding(
+        //           padding: const EdgeInsets.symmetric(vertical:4.0),
+        //           child: FloatingActionButton(
+        //             child: Icon(Icons.wb_incandescent),
+        //             onPressed: () {},
+        //           ),
+        //         ),
+        //         Padding(
+        //           padding: const EdgeInsets.symmetric(vertical:4.0),
+        //           child: FloatingActionButton(
+        //             child: Icon(Icons.location_city),
+        //             onPressed: () {},
+        //           ),
+        //         ),
+        //         Padding(
+        //           padding: const EdgeInsets.symmetric(vertical:4.0),
+        //           child: FloatingActionButton(
+        //             child: Icon(Icons.dashboard),
+        //             onPressed: () {},
+        //           ),
+        //         ),
+        //       ],
+        //     ),
+        //   ),
       ],
     );
   }
