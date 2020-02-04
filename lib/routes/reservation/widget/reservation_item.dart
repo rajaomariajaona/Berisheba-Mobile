@@ -1,4 +1,5 @@
-import 'package:berisheba/routes/reservation/constituer_state.dart';
+import 'package:berisheba/routes/reservation/states/constituer_state.dart';
+import 'package:berisheba/routes/reservation/states/jirama_state.dart';
 import 'package:berisheba/routes/reservation/widget/reservation_details.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -12,10 +13,13 @@ class ReservationItem extends StatefulWidget {
 
 class _ReservationItemState extends State<ReservationItem> {
   void _watch(BuildContext context) async {
-    ConstituerState _constituerState = Provider.of<ConstituerState>(context);
+    ConstituerState _constituerState = Provider.of<ConstituerState>(context,listen: false);
+    JiramaState _jiramaState = Provider.of<JiramaState>(context, listen: false);
     int _idReservation = widget._reservation["idReservation"];
     if(!_constituerState.demiJourneesByReservation.containsKey(_idReservation))
       await _constituerState.fetchData(_idReservation);
+    if(!_jiramaState.jiramaByIdReservation.containsKey(_idReservation))
+      await _jiramaState.fetchData(_idReservation);
     Navigator.of(context).push(MaterialPageRoute(builder: (ctx) {
      return ReservationDetails(_idReservation);
     }));

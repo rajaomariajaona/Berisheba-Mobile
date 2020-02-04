@@ -1,7 +1,7 @@
 import 'dart:convert';
 
-import 'package:berisheba/routes/reservation/constituer_state.dart';
-import 'package:berisheba/routes/reservation/reservation_state.dart';
+import 'package:berisheba/routes/reservation/states/constituer_state.dart';
+import 'package:berisheba/routes/reservation/states/reservation_state.dart';
 import 'package:berisheba/routes/reservation/widget/details/change_dates_dialog.dart';
 import 'package:berisheba/states/config.dart';
 import 'package:berisheba/states/global_state.dart';

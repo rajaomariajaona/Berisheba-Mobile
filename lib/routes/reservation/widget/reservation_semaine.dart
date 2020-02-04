@@ -1,4 +1,4 @@
-import 'package:berisheba/routes/reservation/reservation_state.dart';
+import 'package:berisheba/routes/reservation/states/reservation_state.dart';
 import 'package:berisheba/routes/reservation/widget/reservation_item.dart';
 import 'package:berisheba/states/config.dart';
 import 'package:berisheba/tools/date.dart';

@@ -1,8 +1,8 @@
 import 'dart:math';
 
 import 'package:berisheba/routes/client/client_portrait.dart';
-import 'package:berisheba/routes/reservation/constituer_state.dart';
-import 'package:berisheba/routes/reservation/reservation_state.dart';
+import 'package:berisheba/routes/reservation/states/constituer_state.dart';
+import 'package:berisheba/routes/reservation/states/reservation_state.dart';
 import 'package:berisheba/states/config.dart';
 import 'package:berisheba/routes/client/client_state.dart';
 import 'package:berisheba/states/global_state.dart';
