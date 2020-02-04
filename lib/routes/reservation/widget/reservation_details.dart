@@ -1,6 +1,7 @@
 import 'package:berisheba/routes/reservation/reservation_state.dart';
 import 'package:berisheba/routes/reservation/widget/details/demi_journee.dart';
 import 'package:berisheba/routes/reservation/widget/details/globaldetails.dart';
+import 'package:berisheba/routes/reservation/widget/details/jirama.dart';
 import 'package:berisheba/states/config.dart';
 import 'package:berisheba/states/global_state.dart';
 import 'package:flutter/material.dart';
@@ -45,10 +46,59 @@ class ReservationDetails extends StatelessWidget {
               child: Column(
                 children: <Widget>[
                   ReservationGlobalDetails(_idReservation),
-                  ReservationDemiJournee(_idReservation)
+                  ReservationDemiJournee(_idReservation),
+                  ReservationJirama(_idReservation),
                 ],
               ),
             ),
+            // floatingActionButton: _customFloatButton(),
           );
+  }
+}
+
+class _customFloatButton extends StatelessWidget {
+  const _customFloatButton({
+    Key key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      overflow: Overflow.visible,
+      children: <Widget>[
+        FloatingActionButton(
+          child: Icon(Icons.add),
+          onPressed: () {},
+        ),
+      //   Positioned(
+      //     bottom: 65,
+      //     child: Column(
+      //       children: <Widget>[
+      //         Padding(
+      //           padding: const EdgeInsets.symmetric(vertical:4.0),
+      //           child: FloatingActionButton(
+      //             child: Icon(Icons.wb_incandescent),
+      //             onPressed: () {},
+      //           ),
+      //         ),
+      //         Padding(
+      //           padding: const EdgeInsets.symmetric(vertical:4.0),
+      //           child: FloatingActionButton(
+      //             child: Icon(Icons.location_city),
+      //             onPressed: () {},
+      //           ),
+      //         ),
+      //         Padding(
+      //           padding: const EdgeInsets.symmetric(vertical:4.0),
+      //           child: FloatingActionButton(
+      //             child: Icon(Icons.dashboard),
+      //             onPressed: () {},
+      //           ),
+      //         ),
+      //       ],
+      //     ),
+      //   ),
+      ],
+    );
   }
 }

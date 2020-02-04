@@ -25,6 +25,10 @@ void main() {
       statusBarColor: Config.primaryBlue,
       systemNavigationBarColor: Config.secondaryBlue);
   SystemChrome.setSystemUIOverlayStyle(style);
+  SystemChrome.setPreferredOrientations(<DeviceOrientation>[
+    DeviceOrientation.portraitUp,
+    DeviceOrientation.portraitDown
+  ]);
 }
 
 class MyApp extends StatelessWidget {
