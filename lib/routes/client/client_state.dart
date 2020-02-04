@@ -123,7 +123,12 @@ class ClientState extends ChangeNotifier {
             throw "No data";
           }
         }).catchError((error) {
+          if(error is DioError){
+            if(error?.response?.statusCode != 401){
             GlobalState().isConnected = false;
+            }
+
+          }
         });
       });
       _clients = _listClientByIdClient.values.toList();

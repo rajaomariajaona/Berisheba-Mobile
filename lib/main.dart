@@ -1,6 +1,7 @@
 import 'package:berisheba/home_page/home_page.dart';
 import 'package:berisheba/routes/client/client_state.dart';
 import 'package:berisheba/routes/materiel/materiel_state.dart';
+import 'package:berisheba/routes/reservation/states/autres_state.dart';
 import 'package:berisheba/routes/reservation/states/constituer_state.dart';
 import 'package:berisheba/routes/reservation/states/jirama_state.dart';
 import 'package:berisheba/routes/reservation/states/reservation_state.dart';
@@ -95,6 +96,7 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => MaterielState()),
         ChangeNotifierProvider(create: (_) => ConstituerState()),
         ChangeNotifierProvider(create: (_) => JiramaState()),
+        ChangeNotifierProvider(create: (_) => AutresState()),
       ],
       child: MaterialApp(
         localizationsDelegates: [

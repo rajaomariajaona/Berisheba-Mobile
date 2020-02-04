@@ -39,17 +39,12 @@ class RestRequest {
           return error.response.data;
         } else {
           RequestOptions options = error?.response?.request;
-          if ((error?.response?.data["message"] as String)
-              .contains("expired")) {
-            await _refreshToken(options).catchError((error) {
-              if (error is DioError) {
-                GlobalState().isAuthorized = false;
-                _dio.resolve({});
-              }
-            });
-          } else {
-            _dio.reject(error);
-          }
+          await _refreshToken(options).catchError((error) {
+            if (error is DioError) {
+              GlobalState().isAuthorized = false;
+              _dio.resolve({});
+            }
+          });
         }
       }),
     );
