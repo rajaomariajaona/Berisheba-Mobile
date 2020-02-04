@@ -16,8 +16,10 @@ class JiramaState extends ChangeNotifier {
   Map<int, Map<String, dynamic>> get statsByIdReservation => _stats;
   Map<int, Map<Appareil, int>> get jiramaByIdReservation => _jirama;
   Future fetchData(int idReservation) async {
+
     Dio _dio = await RestRequest().getDioInstance();
     try {
+      _isLoading = idReservation;
       var response = await _dio.get("/jirama/$idReservation");
       _stats[idReservation] = response.data["stats"];
       _jirama[idReservation] = {};
@@ -31,10 +33,11 @@ class JiramaState extends ChangeNotifier {
          print(_jirama[idReservation]);
       });
       notifyListeners();
+      _isLoading = 0;
       return true;
     } catch (error) {
       print(error);
-      // print(error?.response?.data);
+      _isLoading = 0;
       return false;
     }
   }

@@ -1,4 +1,5 @@
 import 'package:berisheba/tools/formatters/CaseInputFormatter.dart';
+import 'package:berisheba/tools/widgets/loading.dart';
 import 'package:expandable/expandable.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -46,13 +47,13 @@ class ReservationJirama extends StatelessWidget {
                       "JIRAMA",
                       style: Theme.of(context).textTheme.body2,
                     )),
-                collapsed: Container(
+                collapsed: jiramaState.isLoading == _idReservation ? const Loading() : Container(
                   child:
                       Text("Consommation: ${jiramaState.statsByIdReservation[_idReservation]["consommation"]} kw"),
                 ),
                 expanded: Container(
                   height: 250,
-                  child: Column(
+                  child: jiramaState.isLoading == _idReservation ? const Loading() : Column(
                     mainAxisAlignment: MainAxisAlignment.start,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: <Widget>[
