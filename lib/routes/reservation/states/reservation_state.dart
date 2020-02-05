@@ -9,7 +9,7 @@ import 'package:flutter/material.dart';
 
 import 'package:table_calendar/table_calendar.dart';
 
-//Lazy loading (ByReservation de alaina amnin xD) Contrainte (Semaine xD) {PAR ID + PAR SEMAINE}
+//TODO: Lazy loading (ByReservation de alaina amnin xD) Contrainte (Semaine xD) {PAR ID + PAR SEMAINE}
 class ReservationState extends ChangeNotifier {
   bool __isLoading = false;
   bool get isLoading => __isLoading;
@@ -86,7 +86,9 @@ class ReservationState extends ChangeNotifier {
     } catch (err) {
       print(err);
       print(err?.response?.data);
+      if(err?.response?.statusCode != 404){
       GlobalState().isConnected = false;
+      }
     } finally {
       _isLoading = false;
     }
@@ -151,16 +153,16 @@ class ReservationState extends ChangeNotifier {
   factory ReservationState() {
     _singleton._calendarController = CalendarController();
     _singleton.fetchDataByWeekRange("1-53");
-    GlobalState().externalStreamController.stream.listen((msg) {
+    GlobalState().externalStreamController.stream.listen((msg) async {
       if (msg == "reservation")
-        _singleton.fetchDataByWeekRange("1-53");
-      else if (msg.split(" ")[0] == "reservation")
-        _singleton.fetchDataByIdReservation(int.parse(msg.split(" ")[1]));
+        await _singleton.fetchDataByWeekRange("1-53");
+      else if (msg.contains("reservation"))
+        await _singleton.fetchDataByIdReservation(int.parse(msg.split(" ")[1]));
       if (msg.split(" ")[0] == "constituer")
-        _singleton.fetchDataByIdReservation(int.parse(msg.split(" ")[1]));
+        await _singleton.fetchDataByIdReservation(int.parse(msg.split(" ")[1]));
     });
-    GlobalState().internalStreamController.stream.listen((msg) {
-      if (msg == "refresh") _singleton.fetchDataByWeekRange("1-53");
+    GlobalState().internalStreamController.stream.listen((msg) async {
+      if (msg == "refresh") await _singleton.fetchDataByWeekRange("1-53");
     });
     return _singleton;
   }

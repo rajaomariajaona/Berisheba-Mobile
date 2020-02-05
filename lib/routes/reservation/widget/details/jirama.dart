@@ -1,3 +1,4 @@
+import 'package:berisheba/routes/reservation/states/reservation_state.dart';
 import 'package:berisheba/tools/formatters/CaseInputFormatter.dart';
 import 'package:berisheba/tools/widgets/loading.dart';
 import 'package:expandable/expandable.dart';
@@ -43,46 +44,56 @@ class ReservationJirama extends StatelessWidget {
                 ),
                 header: Padding(
                     padding: const EdgeInsets.all(10),
-                    child: Text(
-                      "JIRAMA",
-                      style: Theme.of(context).textTheme.body2,
+                    child: Consumer<ReservationState>(
+                      builder: (ctx, reservationState, _) => Text(
+                        "JIRAMA (${reservationState.reservationsById[_idReservation]["prixKW"]} ar/kw)",
+                        style: Theme.of(context).textTheme.body2,
+                      ),
                     )),
-                collapsed: jiramaState.isLoading == _idReservation ? const Loading() : Container(
-                  child:
-                      Text("Consommation: ${jiramaState.statsByIdReservation[_idReservation]["consommation"] ?? 0} kw"),
-                ),
+                collapsed: jiramaState.isLoading == _idReservation
+                    ? const Loading()
+                    : Container(
+                        child: Text(
+                            "Consommation: ${jiramaState.statsByIdReservation[_idReservation]["consommation"] ?? 0} kw"),
+                      ),
                 expanded: Container(
-                  height: jiramaState.jiramaByIdReservation[_idReservation].length > 0 ? 250: 50,
-                  child: jiramaState.isLoading == _idReservation ? const Loading() : Column(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: <Widget>[
-                      Expanded(
-                        child: SingleChildScrollView(
-                          child: Column(
-                            children: _listJirama,
-                          ),
-                        ),
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: <Widget>[
-                          IconButton(
-                            icon: Icon(Icons.add),
-                            onPressed: () {
-                              showDialog(
-                                context: context,
-                                builder: (BuildContext context) =>
-                                    _JiramaDialog(
-                                  idReservation: _idReservation,
+                  height:
+                      jiramaState.jiramaByIdReservation[_idReservation].length >
+                              0
+                          ? 250
+                          : 50,
+                  child: jiramaState.isLoading == _idReservation
+                      ? const Loading()
+                      : Column(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: <Widget>[
+                            Expanded(
+                              child: SingleChildScrollView(
+                                child: Column(
+                                  children: _listJirama,
                                 ),
-                              );
-                            },
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
+                              ),
+                            ),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              children: <Widget>[
+                                IconButton(
+                                  icon: Icon(Icons.add),
+                                  onPressed: () {
+                                    showDialog(
+                                      context: context,
+                                      builder: (BuildContext context) =>
+                                          _JiramaDialog(
+                                        idReservation: _idReservation,
+                                      ),
+                                    );
+                                  },
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
                 ),
                 builder: (_, collapsed, expanded) {
                   return Padding(
@@ -131,11 +142,15 @@ class _JiramaItem extends StatelessWidget {
               children: <Widget>[
                 Padding(
                   padding: const EdgeInsets.symmetric(vertical: 4.0),
-                  child: Text("Puissance: ${appareil.puissance} w", overflow: TextOverflow.ellipsis),
+                  child: Text("Puissance: ${appareil.puissance} w",
+                      overflow: TextOverflow.ellipsis),
                 ),
                 Padding(
                   padding: const EdgeInsets.symmetric(vertical: 4.0),
-                  child: Text("duree: $duree s",overflow: TextOverflow.ellipsis,),
+                  child: Text(
+                    "duree: $duree s",
+                    overflow: TextOverflow.ellipsis,
+                  ),
                 ),
               ],
             ),
@@ -158,7 +173,8 @@ class _JiramaItem extends StatelessWidget {
         },
         onSelected: (dynamic value) {
           if (value == "delete") {
-            JiramaState.removeData(idAppareil: appareil.id, idReservation: idReservation);
+            JiramaState.removeData(
+                idAppareil: appareil.id, idReservation: idReservation);
           } else if (value == "edit") {
             showDialog(
                 builder: (BuildContext context) {
@@ -214,7 +230,7 @@ class _JiramaDialogState extends State<_JiramaDialog> {
                       TextFormField(
                         initialValue:
                             widget.modifier ? "${widget.appareil.nom}" : "",
-                        textCapitalization: TextCapitalization.characters,
+                        textCapitalization: TextCapitalization.words,
                         inputFormatters: <TextInputFormatter>[
                           WhitelistingTextInputFormatter(RegExp("[A-Za-z ]")),
                           LengthLimitingTextInputFormatter(50),
@@ -319,6 +335,91 @@ class _JiramaDialogState extends State<_JiramaDialog> {
                                 "duree": _duree.toString()
                               }, idReservation: widget.idReservation);
                         Navigator.of(context).pop(null);
+                      }
+                    },
+                  ),
+                ],
+              ),
+            )
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class JiramaPriceDialog extends StatefulWidget {
+  JiramaPriceDialog({@required this.idReservation, Key key}) : super(key: key);
+  final int idReservation;
+  @override
+  _JiramaPriceDialogState createState() => _JiramaPriceDialogState();
+}
+
+class _JiramaPriceDialogState extends State<JiramaPriceDialog> {
+  final GlobalKey<FormState> _formState = GlobalKey<FormState>();
+  double prixKW;
+  @override
+  Widget build(BuildContext context) {
+    final JiramaState jiramaState = Provider.of<JiramaState>(context);
+    return Dialog(
+      child: SingleChildScrollView(
+        scrollDirection: Axis.vertical,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: <Widget>[
+            Flexible(
+              child: Padding(
+                padding: const EdgeInsets.all(15.0),
+                child: Form(
+                  key: _formState,
+                  child: TextFormField(
+                    initialValue:
+                        "${Provider.of<ReservationState>(context, listen: false).reservationsById[widget.idReservation]["prixKW"] ?? ""}",
+                    keyboardType: TextInputType.number,
+                    inputFormatters: <TextInputFormatter>[
+                      WhitelistingTextInputFormatter(RegExp("[0-9.]+")),
+                      LengthLimitingTextInputFormatter(50),
+                    ],
+                    decoration: InputDecoration(
+                      border: UnderlineInputBorder(),
+                      labelText: "Prix KW",
+                    ),
+                    onSaved: (val) {
+                      prixKW = double.parse(val);
+                    },
+                  ),
+                ),
+              ),
+            ),
+            Flexible(
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: <Widget>[
+                  IconButton(
+                    icon: Icon(
+                      Icons.close,
+                    ),
+                    onPressed: () => Navigator.of(context).pop(null),
+                  ),
+                  IconButton(
+                    icon: Icon(Icons.check),
+                    onPressed: () {
+                      if (_formState.currentState.validate()) {
+                        _formState.currentState.save();
+                        JiramaState.patchPrixKW({"prixKW": prixKW.toString()},
+                            idReservation: widget.idReservation);
+                        if(jiramaState.jiramaByIdReservation[widget.idReservation]
+                                    .length >
+                                0)
+                            Navigator.of(context).pop(null);
+                        else {
+                          Navigator.of(context).pop(null);
+                          showDialog(
+                                builder: (BuildContext context) {
+                                  return _JiramaDialog(idReservation: widget.idReservation);
+                                },
+                                context: context);
+                        }
                       }
                     },
                   ),

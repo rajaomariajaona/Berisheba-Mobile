@@ -1,3 +1,5 @@
+import 'package:berisheba/routes/reservation/states/autres_state.dart';
+import 'package:berisheba/routes/reservation/states/jirama_state.dart';
 import 'package:berisheba/routes/reservation/states/reservation_state.dart';
 import 'package:berisheba/routes/reservation/widget/details/autres.dart';
 import 'package:berisheba/routes/reservation/widget/details/demi_journee.dart';
@@ -28,94 +30,72 @@ class ReservationDetails extends StatelessWidget {
             appBar: AppBar(
               title: Text(
                   "${reservationState.reservationsById[_idReservation]["nomReservation"]}"),
-              actions: <Widget>[
-                PopupMenuButton(
-                  onSelected: (value) async {
-                    switch (value) {
-                      case Actions.supprimer:
-                        try {
-                          await ReservationState.removeData(
-                              idReservation: _idReservation);
-                          Navigator.of(context).pop(true);
-                          GlobalState().channel.sink.add("reservation");
-                        } catch (error) {
-                          print(error?.response?.data);
-                        }
-                        break;
-                      default:
-                    }
-                  },
-                  itemBuilder: (context) => [
-                    PopupMenuItem(
-                      child: Text("supprimer"),
-                      value: Actions.supprimer,
-                    ),
-                    PopupMenuItem(
-                      child: Text("jirama"),
-                      value: Actions.jirama,
-                    ),
-                  ],
-                )
-              ],
+              actions: _actionsAppBar(context),
             ),
             body: SingleChildScrollView(
               child: Column(
                 children: <Widget>[
                   ReservationGlobalDetails(_idReservation),
                   ReservationDemiJournee(_idReservation),
-                  ReservationJirama(_idReservation),
-                  ReservationAutres(_idReservation),
+                  Consumer<JiramaState>(
+                      builder: (ctx, jiramaState, __) => jiramaState
+                                  .jiramaByIdReservation[_idReservation]
+                                  .length >
+                              0
+                          ? ReservationJirama(_idReservation)
+                          : Container()),
+                  Consumer<AutresState>(
+                      builder: (ctx, autresState, __) => autresState
+                                  .autresByIdReservation[_idReservation]
+                                  .length >
+                              0
+                          ? ReservationAutres(_idReservation)
+                          : Container()),
                 ],
               ),
             ),
             // floatingActionButton: _customFloatButton(),
           );
   }
-}
 
-class _customFloatButton extends StatelessWidget {
-  const _customFloatButton({
-    Key key,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Stack(
-      overflow: Overflow.visible,
-      children: <Widget>[
-        FloatingActionButton(
-          child: Icon(Icons.add),
-          onPressed: () {},
-        ),
-        //   Positioned(
-        //     bottom: 65,
-        //     child: Column(
-        //       children: <Widget>[
-        //         Padding(
-        //           padding: const EdgeInsets.symmetric(vertical:4.0),
-        //           child: FloatingActionButton(
-        //             child: Icon(Icons.wb_incandescent),
-        //             onPressed: () {},
-        //           ),
-        //         ),
-        //         Padding(
-        //           padding: const EdgeInsets.symmetric(vertical:4.0),
-        //           child: FloatingActionButton(
-        //             child: Icon(Icons.location_city),
-        //             onPressed: () {},
-        //           ),
-        //         ),
-        //         Padding(
-        //           padding: const EdgeInsets.symmetric(vertical:4.0),
-        //           child: FloatingActionButton(
-        //             child: Icon(Icons.dashboard),
-        //             onPressed: () {},
-        //           ),
-        //         ),
-        //       ],
-        //     ),
-        //   ),
-      ],
-    );
+  List<Widget> _actionsAppBar(BuildContext context) {
+    return <Widget>[
+      PopupMenuButton(
+        onSelected: (value) async {
+          switch (value) {
+            case Actions.supprimer:
+              try {
+                await ReservationState.removeData(
+                    idReservation: _idReservation);
+                Navigator.of(context).pop(true);
+                GlobalState().channel.sink.add("reservation");
+              } catch (error) {
+                print(error?.response?.data);
+              }
+              break;
+            case Actions.jirama:
+              try {
+                showDialog(
+                    builder: (BuildContext context) {
+                      return JiramaPriceDialog(idReservation: _idReservation);
+                    },
+                    context: context);
+              } catch (error) {}
+              break;
+            default:
+          }
+        },
+        itemBuilder: (context) => [
+          PopupMenuItem(
+            child: Text("supprimer"),
+            value: Actions.supprimer,
+          ),
+          PopupMenuItem(
+            child: Text("jirama"),
+            value: Actions.jirama,
+          ),
+        ],
+      )
+    ];
   }
 }

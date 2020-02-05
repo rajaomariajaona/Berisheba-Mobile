@@ -141,7 +141,8 @@ class _ReservationFormulaireState extends State<ReservationFormulaire> {
                                     "couleur": couleur.value.toString(),
                                     "etatReservation":
                                         etatReservation.toString(),
-                                    "nbPersonneIdentique": true.toString()
+                                    "nbPersonneIdentique": true.toString(),
+                                    "prixKW": 600
                                   };
 
                                   try {

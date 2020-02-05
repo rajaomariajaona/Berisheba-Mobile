@@ -65,6 +65,18 @@ class JiramaState extends ChangeNotifier {
       return false;
     }
   }
+  static Future<bool> patchPrixKW(dynamic data,
+      {@required idReservation}) async {
+    Dio _dio = await RestRequest().getDioInstance();
+    try {
+      await _dio.patch("/reservations/$idReservation", data: data);
+      GlobalState().channel.sink.add("reservation $idReservation");
+      return true;
+    } catch (error) {
+      print(error?.response?.data);
+      return false;
+    }
+  }
 
   static Future<bool> removeData({@required idAppareil,@required idReservation}) async {
     Dio _dio = await RestRequest().getDioInstance();
