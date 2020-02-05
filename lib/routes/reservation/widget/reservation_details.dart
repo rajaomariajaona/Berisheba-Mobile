@@ -9,7 +9,7 @@ import 'package:berisheba/states/global_state.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-enum Actions { supprimer, jirama }
+enum Actions { supprimer, jirama, autres}
 
 class ReservationDetails extends StatelessWidget {
   final int _idReservation;
@@ -82,17 +82,30 @@ class ReservationDetails extends StatelessWidget {
                     context: context);
               } catch (error) {}
               break;
+            case Actions.autres:
+              try {
+                showDialog(
+                    builder: (BuildContext context) {
+                      return AutresDialog(idReservation: _idReservation);
+                    },
+                    context: context);
+              } catch (error) {}
+              break;
             default:
           }
         },
         itemBuilder: (context) => [
           PopupMenuItem(
-            child: Text("supprimer"),
+            child: const Text("supprimer"),
             value: Actions.supprimer,
           ),
           PopupMenuItem(
-            child: Text("jirama"),
+            child: const Text("jirama"),
             value: Actions.jirama,
+          ),
+          PopupMenuItem(
+            child: const Text("autres"),
+            value: Actions.autres,
           ),
         ],
       )

@@ -49,7 +49,7 @@ class ReservationAutres extends StatelessWidget {
                     )),
                 collapsed: autresState.isLoading == _idReservation ? const Loading() : Container(
                   child:
-                      Text("Prix: ${autresState.statsByIdReservation[_idReservation]["somme"] ?? 0}"),
+                      Text("Prix Total: ${autresState.statsByIdReservation[_idReservation]["somme"] ?? 0}"),
                 ),
                 expanded: Container(
                   height: autresState.autresByIdReservation[_idReservation].length > 0 ? 250: 50,
@@ -73,7 +73,7 @@ class ReservationAutres extends StatelessWidget {
                               showDialog(
                                 context: context,
                                 builder: (BuildContext context) =>
-                                    _AutresDialog(
+                                    AutresDialog(
                                   idReservation: _idReservation,
                                 ),
                               );
@@ -142,7 +142,7 @@ class _AutresItem extends StatelessWidget {
           } else if (value == "edit") {
             showDialog(
                 builder: (BuildContext context) {
-                  return _AutresDialog(
+                  return AutresDialog(
                     autre: autre,
                     prixAutre: prixAutre,
                     idReservation: idReservation,
@@ -156,8 +156,8 @@ class _AutresItem extends StatelessWidget {
   }
 }
 
-class _AutresDialog extends StatefulWidget {
-  _AutresDialog({this.autre, this.prixAutre, @required this.idReservation}) {
+class AutresDialog extends StatefulWidget {
+  AutresDialog({this.autre, this.prixAutre, @required this.idReservation}) {
     modifier = autre != null && prixAutre != null;
   }
   final int idReservation;
@@ -168,7 +168,7 @@ class _AutresDialog extends StatefulWidget {
   State<StatefulWidget> createState() => _AutresDialogState();
 }
 
-class _AutresDialogState extends State<_AutresDialog> {
+class _AutresDialogState extends State<AutresDialog> {
   String _motif;
   int _prixAutre;
   final GlobalKey<FormState> _formState = GlobalKey<FormState>();
