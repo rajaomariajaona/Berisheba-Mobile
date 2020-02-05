@@ -5,6 +5,7 @@ import 'package:berisheba/states/global_state.dart';
 import 'package:dio/dio.dart';
 import 'package:imei_plugin/imei_plugin.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
 //TODO: Test connection coupee
 class RestRequest {
   static final BaseOptions _options = BaseOptions(
@@ -35,17 +36,38 @@ class RestRequest {
           }
         });
       }, onError: (DioError error) async {
-        if (error?.response?.statusCode != 401) {
-          _dio.reject(error);
-        } else {
-          RequestOptions options = error?.response?.request;
-          await _refreshToken(options).catchError((error) {
-            if (error is DioError) {
-              GlobalState().isAuthorized = false;
-              _dio.resolve({});
+        switch (error.type) {
+          case DioErrorType.RESPONSE:
+            if (error?.response?.statusCode != 401) {
+              _dio.reject(error);
+            } else {
+              RequestOptions options = error?.response?.request;
+              await _refreshToken(options).catchError((error) {
+                if (error is DioError) {
+                  GlobalState().isAuthorized = false;
+                  _dio.resolve({});
+                }
+              });
             }
-          });
+            break;
+          case DioErrorType.RECEIVE_TIMEOUT:
+          case DioErrorType.CONNECT_TIMEOUT:
+            print("TIMEOUT ERROR RECEIVE OR CONNECT");
+             _dio.resolve({});
+            GlobalState().isConnected = false;
+            break;
+          case DioErrorType.DEFAULT:
+            if(error.message.contains("SocketException")){
+              _dio.resolve({});
+              GlobalState().isConnected = false;
+            }else{
+              _dio.reject(error);
+            }
+            break;
+          default:
+            print("OTHER");
         }
+        _dio.unlock();
       }),
     );
     return _dio;

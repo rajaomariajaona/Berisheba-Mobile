@@ -8,6 +8,7 @@ import 'package:berisheba/routes/reservation/states/reservation_state.dart';
 import 'package:berisheba/states/config.dart';
 import 'package:berisheba/states/global_state.dart';
 import 'package:berisheba/states/tab_state.dart';
+import 'package:berisheba/tools/widgets/no_internet.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -112,6 +113,11 @@ class MyApp extends StatelessWidget {
         debugShowCheckedModeBanner: false,
         theme: t,
         home: Squellete(),
+        routes: {
+          "no-internet": (ctx) {
+            return NoInternet();
+          }
+        },
       ),
     );
   }

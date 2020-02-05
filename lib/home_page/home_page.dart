@@ -91,7 +91,7 @@ class _SquelleteState extends State<Squellete> {
         _bottomNavigationItem("Statistique", Config.navIcons["statistique"]),
       ],
       type: BottomNavigationBarType.shifting,
-      currentIndex: tabState.index,
+      currentIndex: TabState.index,
       onTap: (index) {
         tabState.changePage(index);
       },
@@ -117,7 +117,7 @@ class _SquelleteState extends State<Squellete> {
     return globalState.isAuthorized? Scaffold(
       resizeToAvoidBottomInset: false,
       //fix render flex
-      appBar: appBar[tabState.index],
+      appBar: appBar[TabState.index],
       body:
           //Orientation Builder detect if Orientation Changes
           OrientationBuilder(
@@ -141,7 +141,7 @@ class _SquelleteState extends State<Squellete> {
       //Drawer is Menu on the Left side
       drawer: const MenuDrawer(),
       bottomNavigationBar: globalState.hideBottomNavBar ? null : _bottomNavBar,
-      floatingActionButton: floatButtons[tabState.index],
+      floatingActionButton: floatButtons[TabState.index],
     ) : NotAuthorized();
   }
 }

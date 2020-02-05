@@ -21,7 +21,6 @@ class _ClientItemState extends State<ClientItem> {
   @override
   Widget build(BuildContext context) {
     final ClientState clientState = Provider.of<ClientState>(context);
-    final TabState tabState = Provider.of<TabState>(context);
     Map<String, dynamic> _client =
         clientState.listClientByIdClient["${widget._idClient}"];
     return Card(
@@ -55,7 +54,7 @@ class _ClientItemState extends State<ClientItem> {
           style: TextStyle(fontSize: 16),
         ),
         onTap: () {
-          if (tabState.index == 1) {
+          if (TabState.index == 1) {
             if (clientState.isDeletingClient) {
               setState(() {
                 if (clientState.isSelected(_client["idClient"]))

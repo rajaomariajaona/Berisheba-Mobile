@@ -115,29 +115,20 @@ class ClientState extends ChangeNotifier {
   Future<void> fetchData() async {
     try {
       _isLoading = true;
-      await RestRequest().getDioInstance().then((Dio _dio) async {
-        await _dio.get("/clients").then((response) {
-          var data = response?.data;
-          if (data != null) {
-            _listClientByIdClient = data["data"];
-          } else {
-            throw "No data";
-          }
-        }).catchError((error) {
-          if (error is DioError) {
-            if (error?.response?.statusCode != 401) {
-              GlobalState().isConnected = false;
-            }
-          }
-        });
-      });
+      Dio _dio = await RestRequest().getDioInstance();
+      try {
+        var response = await _dio.get("/clients");
+        var data = response?.data;
+        _listClientByIdClient = data["data"];
+      } catch (error) {
+        if (error is DioError && error.type == DioErrorType.RESPONSE) {
+          print(error);
+        }
+      }
       _clients = _listClientByIdClient.values.toList();
       _clientsFiltered = _clients;
       await this.sort();
-      GlobalState().isConnected = true;
-    } on SocketException catch (_) {
-      GlobalState().isConnected = false;
-    } on Exception catch (_) {
+    } catch (_) {
       print(_.toString());
     } finally {
       _isLoading = false;
@@ -244,7 +235,7 @@ class ClientState extends ChangeNotifier {
       if (msg == "client") {
         fetchData();
       }
-      if(msg == "client delete"){
+      if (msg == "client delete") {
         //TODO: Optimize this
         ReservationState().fetchDataByWeekRange("1-53");
       }

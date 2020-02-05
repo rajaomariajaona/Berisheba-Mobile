@@ -64,7 +64,6 @@ class ReservationState extends ChangeNotifier {
     } catch (err) {
       print(err);
       print(err?.response?.data);
-      GlobalState().isConnected = false;
     } finally {
       _isLoading = false;
     }
@@ -84,10 +83,8 @@ class ReservationState extends ChangeNotifier {
         throw "No data";
       }
     } catch (err) {
-      print(err);
-      print(err?.response?.data);
       if(err?.response?.statusCode != 404){
-      GlobalState().isConnected = false;
+        print(err);
       }
     } finally {
       _isLoading = false;

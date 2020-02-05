@@ -73,9 +73,8 @@ class GlobalState extends ChangeNotifier {
     if (_isConnected != value) {
       _isConnected = value;
       if (!_isConnected && _isAuthorized)
-        _navigatorState.currentState.push(MaterialPageRoute(
-          builder: (_context) => NoInternet(),
-        ));
+      
+        _navigatorState.currentState.pushNamed("no-internet");
       notifyListeners();
     }
   }

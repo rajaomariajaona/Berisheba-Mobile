@@ -1,3 +1,4 @@
+import 'package:berisheba/states/tab_state.dart';
 import 'package:flutter/material.dart';
 import 'package:berisheba/states/global_state.dart';
 
