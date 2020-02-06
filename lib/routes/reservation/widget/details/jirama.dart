@@ -53,9 +53,15 @@ class ReservationJirama extends StatelessWidget {
                     )),
                 collapsed: jiramaState.isLoading == _idReservation
                     ? const Loading()
-                    : Container(
-                        child: Text(
-                            "Consommation: ${jiramaState.statsByIdReservation[_idReservation]["consommation"] ?? 0} kw"),
+                    : Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.start,
+                        children: <Widget>[
+                          Text(
+                            "Consommation: ${jiramaState.statsByIdReservation[_idReservation]["consommation"] ?? ""} kw"),
+                          Text(
+                            "Prix: ${jiramaState.statsByIdReservation[_idReservation]["prix"] ?? ""}"),
+                      ]
                       ),
                 expanded: Container(
                   height:
