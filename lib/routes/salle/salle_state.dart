@@ -20,7 +20,6 @@ class SalleState extends ChangeNotifier {
     }
   }
 
-
   Map<int, dynamic> _listSalleByIdSalle = {};
 
   Map<int, dynamic> get listSalleByIdSalle => _listSalleByIdSalle;
@@ -118,8 +117,12 @@ class SalleState extends ChangeNotifier {
       try {
         var response = await _dio.get("/salles");
         var data = response?.data;
-        _listSalleByIdSalle = data["data"];
+        _listSalleByIdSalle =
+            data["data"].map<int, dynamic>((String id, dynamic value) {
+          return MapEntry<int, dynamic>(int.parse(id), value);
+        });
       } catch (error) {
+        print(error);
         if (error is DioError && error.type == DioErrorType.RESPONSE) {
           print(error);
         }
@@ -187,16 +190,12 @@ class SalleState extends ChangeNotifier {
     _sallesFiltered.sort((dynamic a, dynamic b) {
       return this._isNotReverse
           ? a["nomSalle"].toLowerCase().compareTo(b["nomSalle"].toLowerCase())
-          : b["nomSalle"]
-              .toLowerCase()
-              .compareTo(a["nomSalle"].toLowerCase());
+          : b["nomSalle"].toLowerCase().compareTo(a["nomSalle"].toLowerCase());
     });
     _salles.sort((dynamic a, dynamic b) {
       return this._isNotReverse
           ? a["nomSalle"].toLowerCase().compareTo(b["nomSalle"].toLowerCase())
-          : b["nomSalle"]
-              .toLowerCase()
-              .compareTo(a["nomSalle"].toLowerCase());
+          : b["nomSalle"].toLowerCase().compareTo(a["nomSalle"].toLowerCase());
     });
     notifyListeners();
   }
@@ -251,15 +250,13 @@ class SalleState extends ChangeNotifier {
   }
 }
 
-class Salle{
+class Salle {
   const Salle({@required this.idSalle, @required this.nomSalle});
   final int idSalle;
   final String nomSalle;
   @override
-  operator == (salle) =>
-    salle is Salle &&
-    salle.idSalle == idSalle && 
-    salle.nomSalle == nomSalle;
-  
+  operator ==(salle) =>
+      salle is Salle && salle.idSalle == idSalle && salle.nomSalle == nomSalle;
+
   int get hashCode => idSalle.hashCode ^ nomSalle.hashCode;
 }
