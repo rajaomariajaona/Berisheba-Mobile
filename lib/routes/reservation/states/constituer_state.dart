@@ -11,7 +11,6 @@ class ConstituerState extends ChangeNotifier {
   int get isLoading => __isLoading;
   set _isLoading(int val) {
     __isLoading = val;
-    notifyListeners();
   }
 
   Map<String, dynamic> get stats => _stats;
@@ -69,9 +68,10 @@ class ConstituerState extends ChangeNotifier {
       _demiJournees[idReservation] = {};
       Dio _dio = await RestRequest().getDioInstance();
       try {
-        Response response = await _dio.get("/constituers/$idReservation");
+        Response response =
+            await _dio.get("/reservations/$idReservation/demijournee");
         var _data = response.data;
-        
+
         _demiJournees[idReservation] = (_data["data"] as List<dynamic>)
             .asMap()
             .map<DemiJournee, int>((int index, dynamic value) {
@@ -89,10 +89,10 @@ class ConstituerState extends ChangeNotifier {
         _isLoading = 0;
         return true;
       } catch (error) {
-        if(error?.response?.data["error"] == "This Reservation not found"){
+        if (error?.response?.data["error"] == "This Reservation not found") {
           ReservationState().reservationsById[idReservation] = null;
-        }else{
-        print(error?.response?.data);
+        } else {
+          print(error?.response?.data);
         }
 
         _isLoading = 0;
@@ -104,10 +104,11 @@ class ConstituerState extends ChangeNotifier {
     }
   }
 
-  static Future<bool> modifyData(dynamic data, {@required idReservation}) async {
+  static Future<bool> modifyData(dynamic data,
+      {@required idReservation}) async {
     Dio _dio = await RestRequest().getDioInstance();
     try {
-      await _dio.put("/constituers/$idReservation", data: data);
+      await _dio.put("/reservations/$idReservation/demijournee", data: data);
       return true;
     } catch (error) {
       print(error?.response?.data);

@@ -113,18 +113,6 @@ class SalleDetail extends StatelessWidget {
                                       launch("tel:${_salle["numTelSalle"]}");
                                   },
                                 ),
-                                IconButton(
-                                  icon: const Icon(Icons.today),
-                                  onPressed: () {
-                                    Provider.of<TabState>(context)
-                                        .changePage(2);
-                                    Navigator.of(context)
-                                        .pushReplacement(MaterialPageRoute(
-                                      builder: (context) =>
-                                          ReservationFormulaire(idSalle: int.parse("${_salle["idSalle"]}"), nomSalle: "${_salle["nomSalle"]} ${_salle["prenomSalle"]}",),
-                                    ));
-                                  },
-                                ),
                               ],
                             )
                           ],

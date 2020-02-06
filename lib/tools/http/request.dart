@@ -29,6 +29,7 @@ class RestRequest {
         await SharedPreferences.getInstance().then((pref) async {
           if (!pref.containsKey("TOKEN")) {
             await _refreshToken(options);
+            print(options.headers["Authorization"]);
           } else {
             options.headers["Authorization"] =
                 "Bearer ${pref.getString("TOKEN")}";
@@ -36,18 +37,26 @@ class RestRequest {
           }
         });
       }, onError: (DioError error) async {
+        _dio.lock();
         switch (error.type) {
           case DioErrorType.RESPONSE:
             if (error?.response?.statusCode != 401) {
               _dio.reject(error);
             } else {
               RequestOptions options = error?.response?.request;
-              await _refreshToken(options).catchError((error) {
+              print(options.headers["Authorization"]);
+              await _refreshToken(options)
+              .then((__) async {
+                print(options.headers["Authorization"]);
+                await _dio.request(options.path, options: options);
+              })
+              .catchError((error) {
                 if (error is DioError) {
                   GlobalState().isAuthorized = false;
                   _dio.resolve({});
                 }
               });
+              _dio.unlock();
             }
             break;
           case DioErrorType.RECEIVE_TIMEOUT:
@@ -88,7 +97,7 @@ class RestRequest {
         return options;
       });
     } catch (error) {
-      if (error is DioError) {
+      if (error is DioError && error.type == DioErrorType.RESPONSE) {
         GlobalState().isAuthorized = false;
         return _dio.reject("Device not Authorized by admin");
       } else {

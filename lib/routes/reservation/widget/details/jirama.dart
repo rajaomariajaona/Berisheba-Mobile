@@ -10,6 +10,7 @@ import 'package:provider/provider.dart';
 class ReservationJirama extends StatelessWidget {
   final int _idReservation;
   const ReservationJirama(this._idReservation, {Key key}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     final JiramaState jiramaState = Provider.of<JiramaState>(context);

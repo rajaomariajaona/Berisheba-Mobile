@@ -1,4 +1,5 @@
 import 'package:berisheba/routes/reservation/states/autres_state.dart';
+import 'package:berisheba/routes/reservation/states/concerner_state.dart';
 import 'package:berisheba/routes/reservation/states/constituer_state.dart';
 import 'package:berisheba/routes/reservation/states/jirama_state.dart';
 import 'package:berisheba/routes/reservation/widget/reservation_details.dart';
@@ -14,18 +15,9 @@ class ReservationItem extends StatefulWidget {
 
 class _ReservationItemState extends State<ReservationItem> {
   void _watch(BuildContext context) async {
-    ConstituerState _constituerState =
-        Provider.of<ConstituerState>(context, listen: false);
-    JiramaState _jiramaState = Provider.of<JiramaState>(context, listen: false);
-     AutresState _autresState = Provider.of<AutresState>(context, listen: false);
     int _idReservation = widget._reservation["idReservation"];
-    if (!_constituerState.demiJourneesByReservation.containsKey(_idReservation))
-      await _constituerState.fetchData(_idReservation);
-    if (!_jiramaState.jiramaByIdReservation.containsKey(_idReservation))
-      await _jiramaState.fetchData(_idReservation);
-    if (!_autresState.autresByIdReservation.containsKey(_idReservation))
-      await _autresState.fetchData(_idReservation);
-    Navigator.of(context).push(MaterialPageRoute(builder: (ctx) {
+    final Stopwatch st = Stopwatch()..start();
+    await Navigator.of(context).push(MaterialPageRoute(builder: (ctx) {
       return ReservationDetails(_idReservation);
     }));
   }

@@ -1,10 +1,8 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:core';
-import 'dart:io';
 
 import 'package:berisheba/routes/reservation/states/reservation_state.dart';
-import 'package:berisheba/states/config.dart';
 import 'package:berisheba/states/global_state.dart';
 import 'package:berisheba/states/parametres.dart';
 import 'package:berisheba/tools/http/request.dart';
@@ -22,9 +20,10 @@ class SalleState extends ChangeNotifier {
     }
   }
 
-  Map<String, dynamic> _listSalleByIdSalle = {};
 
-  Map<String, dynamic> get listSalleByIdSalle => _listSalleByIdSalle;
+  Map<int, dynamic> _listSalleByIdSalle = {};
+
+  Map<int, dynamic> get listSalleByIdSalle => _listSalleByIdSalle;
 
   //Global key for Indicator state use for refresh data
   final _refreshIndicatorStateSalle = GlobalKey<RefreshIndicatorState>();
@@ -250,4 +249,17 @@ class SalleState extends ChangeNotifier {
   SalleState() {
     asyncConstructor();
   }
+}
+
+class Salle{
+  const Salle({@required this.idSalle, @required this.nomSalle});
+  final int idSalle;
+  final String nomSalle;
+  @override
+  operator == (salle) =>
+    salle is Salle &&
+    salle.idSalle == idSalle && 
+    salle.nomSalle == nomSalle;
+  
+  int get hashCode => idSalle.hashCode ^ nomSalle.hashCode;
 }
