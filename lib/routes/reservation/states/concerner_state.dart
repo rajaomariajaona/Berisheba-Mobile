@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:core';
 
 import 'package:berisheba/routes/salle/salle_state.dart';
@@ -15,15 +16,17 @@ class ConcernerState extends ChangeNotifier {
       __isLoading = val;
     }
   }
+  static Map<int, dynamic> _conflict = {};
+  static Map<int, dynamic> get conflict => _conflict;
+  Map<int, Map<int, dynamic>> _listeSalleDispoByIdReservation = {};
 
-  Map<int, Map<int,dynamic>> _listeSalleDispoByIdReservation = {};
+  Map<int, Map<int, dynamic>> get listeSalleDispoByIdReservation =>
+      _listeSalleDispoByIdReservation;
 
-  Map<int, Map<int,dynamic>> get listeSalleDispoByIdReservation =>  _listeSalleDispoByIdReservation;
+  Map<int, Map<int, Salle>> _sallesByIdReservation = {};
+  Map<int, Map<int, Salle>> get sallesByIdReservation => _sallesByIdReservation;
 
-  Map<int, Map<int,Salle>> _sallesByIdReservation = {};
-  Map<int, Map<int,Salle>> get sallesByIdReservation => _sallesByIdReservation;
-
-   //Salle id List of Selected;
+  //Salle id List of Selected;
   // List<int> _listIdSalleSelected = [];
 
   // List<int> get idSalleSelected => _listIdSalleSelected;
@@ -79,16 +82,21 @@ class ConcernerState extends ChangeNotifier {
       _isLoading = idReservation;
       Dio _dio = await RestRequest().getDioInstance();
       try {
-        Stopwatch st = Stopwatch()..start();
         var response = await _dio.get("/reservations/$idReservation/salles");
         var response2 = await _dio.get("/salles/$idReservation");
         var data = response?.data;
         var data2 = response2?.data;
-        _sallesByIdReservation[idReservation] = (data["data"] as Map<String,dynamic>).map<int,Salle>((String idSalle, dynamic salle){
-          return MapEntry<int,Salle> (int.parse(idSalle), Salle(idSalle: int.parse(idSalle), nomSalle: salle["nomSalle"]));
+        _sallesByIdReservation[idReservation] =
+            (data["data"] as Map<String, dynamic>)
+                .map<int, Salle>((String idSalle, dynamic salle) {
+          return MapEntry<int, Salle>(int.parse(idSalle),
+              Salle(idSalle: int.parse(idSalle), nomSalle: salle["nomSalle"]));
         });
-        _listeSalleDispoByIdReservation[idReservation] = (data2["data"] as Map<String,dynamic>).map<int,Salle>((String idSalle, dynamic salle){
-          return MapEntry<int,Salle> (int.parse(idSalle), Salle(idSalle: int.parse(idSalle), nomSalle: salle["nomSalle"]));
+        _listeSalleDispoByIdReservation[idReservation] =
+            (data2["data"] as Map<String, dynamic>)
+                .map<int, Salle>((String idSalle, dynamic salle) {
+          return MapEntry<int, Salle>(int.parse(idSalle),
+              Salle(idSalle: int.parse(idSalle), nomSalle: salle["nomSalle"]));
         });
       } catch (error) {
         print(error);
@@ -104,10 +112,12 @@ class ConcernerState extends ChangeNotifier {
     }
   }
 
-  static Future<bool> removeData({@required int idReservation,@required  int idSalle}) async {
+  static Future<bool> removeData(
+      {@required int idReservation, @required int idSalle}) async {
     Dio _dio = await RestRequest().getDioInstance();
     try {
-      Response response = await _dio.delete("/reservations/$idReservation/salles/$idSalle");
+      Response response =
+          await _dio.delete("/reservations/$idReservation/salles/$idSalle");
       GlobalState().channel.sink.add("concerner $idReservation");
       return true;
     } catch (error) {
@@ -116,13 +126,23 @@ class ConcernerState extends ChangeNotifier {
     }
   }
 
-  static Future<bool> saveData(dynamic data,{@required int idReservation}) async {
+  static Future<bool> saveData(dynamic data,
+      {@required int idReservation}) async {
     Dio _dio = await RestRequest().getDioInstance();
     try {
-      await _dio.post("/reservations/$idReservation/salles", data: data);
-      GlobalState().channel.sink.add("concerner $idReservation");
+      var response =
+          await _dio.post("/reservations/$idReservation/salles", data: data);
+      if ((response.data["conflict"] as Map<String,dynamic>).isEmpty) {
+        GlobalState().channel.sink.add("concerner $idReservation");
+      }else{
+        _conflict = (response.data["conflict"] as Map<String,dynamic>).map<int, dynamic>((String idSalle, dynamic value){
+          return MapEntry<int,dynamic>(int.parse(idSalle), value);
+        });
+        GlobalState().internalStreamController.sink.add("conflict");
+      }
       return true;
     } catch (error) {
+      print(error);
       print(error?.response?.data);
       return false;
     }
@@ -151,12 +171,23 @@ class ConcernerState extends ChangeNotifier {
 
   ConcernerState() {
     GlobalState().externalStreamController.stream.listen((msg) async {
-      if(msg.contains("concerner")){
+      if (msg.contains("concerner")) {
         int idReservation = int.tryParse(msg.split(" ")[1]);
-        if(idReservation != null){
+        if (idReservation != null) {
           await this.fetchData(idReservation);
         }
       }
     });
+  }
+
+  static Future<bool> fixConflict(List<Map<String, String>> data) async {
+    Dio _dio = await RestRequest().getDioInstance();
+    try {
+      await _dio.patch("/salles/sallesconflict", data: {"deleteList" : json.encode(data)});
+      return true;
+    } catch (error) {
+      print(error?.response?.data);
+      return false;
+    }
   }
 }

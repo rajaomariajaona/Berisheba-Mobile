@@ -1,11 +1,46 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:berisheba/tools/widgets/loading.dart';
 
 class MaterielPortrait extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return const Loading();
+    return Center(
+      child: FlatButton(
+        child: Text("asdf"),
+        onPressed: (){
+          Navigator.of(context).push(
+            MaterialPageRoute(
+              maintainState: true,
+              fullscreenDialog: false,
+              builder: (ctx){
+                WidgetsBinding.instance.addPostFrameCallback((callback){
+                  showDialog(
+                  context: ctx,
+                  builder: (_ctx){
+                    return Dialog(
+                    child: Container(
+                    height: 100,
+                    width: 100,
+                    color: Colors.yellow,
+                  ));
+                  }
+                );
+                });
+                return Scaffold(
+                  backgroundColor: Colors.transparent,
+                  body: Dialog(
+                    child: Container(
+                    height: 100,
+                    width: 100,
+                    color: Colors.green,
+                  )
+                  ),
+                );
+              }
+            )
+          );
+        },
+      ),
+    );
   }
 }
 

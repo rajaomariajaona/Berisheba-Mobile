@@ -52,7 +52,8 @@ class _ReservationDetailsState extends State<ReservationDetailsBody>{
      _jiramaState.fetchData(widget._idReservation);
     if (!_autresState.autresByIdReservation.containsKey(widget._idReservation))
      _autresState.fetchData(widget._idReservation);
-    _concernerState.fetchData(widget._idReservation);
+    if (!_concernerState.sallesByIdReservation.containsKey(widget._idReservation))
+      _concernerState.fetchData(widget._idReservation);
   }
 
   @override

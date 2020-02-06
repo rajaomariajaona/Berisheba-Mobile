@@ -9,6 +9,7 @@ import 'package:berisheba/routes/clients.dart';
 import 'package:berisheba/routes/materiel/materiel_portrait.dart';
 import 'package:berisheba/routes/materiel/widgets/materiel_app_bar.dart';
 import 'package:berisheba/routes/reservation/reservation_portrait.dart';
+import 'package:berisheba/routes/reservation/widget/details/salles.dart';
 import 'package:berisheba/routes/reservation/widget/reservation_app_bar.dart';
 import 'package:berisheba/routes/reservation/widget/reservation_float_button.dart';
 import 'package:berisheba/routes/salle/salle_portrait.dart';
@@ -32,10 +33,29 @@ class _SquelleteState extends State<Squellete> {
     super.initState();
     //Connect the app to the websocket
     GlobalState().connect();
+    bool show = false;
+    GlobalState().internalStreamController.stream.listen((msg) async {
+      if (msg == "conflict") {
+        if(!show){
+        show = true;
+        await showDialog(
+            context: context,
+            builder: (ctx) {
+              return ConflictSalleDialog();
+            });
+        show = false;
+        }
+      }
+    });
   }
 
-  BottomNavigationBarItem _bottomNavigationItem(String title,
-      IconData iconData) {
+  @override
+  void dispose() {
+    super.dispose();
+  }
+
+  BottomNavigationBarItem _bottomNavigationItem(
+      String title, IconData iconData) {
     return BottomNavigationBarItem(
       icon: Icon(
         iconData,
@@ -116,35 +136,38 @@ class _SquelleteState extends State<Squellete> {
     assert(_bottomNavBar.items.length == routesPortrait.length);
     assert(_bottomNavBar.items.length == routesLandscape.length);
     assert(_bottomNavBar.items.length == appBar.length);
-    
-    return globalState.isAuthorized? Scaffold(
-      resizeToAvoidBottomInset: false,
-      //fix render flex
-      appBar: appBar[TabState.index],
-      body:
-          //Orientation Builder detect if Orientation Changes
-          OrientationBuilder(
-        builder: (BuildContext context, Orientation orientation) {
+
+    return globalState.isAuthorized
+        ? Scaffold(
+            resizeToAvoidBottomInset: false,
+            //fix render flex
+            appBar: appBar[TabState.index],
+            body:
+                //Orientation Builder detect if Orientation Changes
+                OrientationBuilder(
+              builder: (BuildContext context, Orientation orientation) {
 //          return orientation == Orientation.portrait
 //              ? routesPortrait[tabState.index]
 //              : routesLandscape[tabState.index];
 
-          return PageView(
-            children: orientation == Orientation.portrait
-                ? routesPortrait
-                : routesLandscape,
-            controller: TabState.controllerPage,
-            onPageChanged: (int tabIndex) {
-              tabState.changeIndex(tabIndex);
-            },
-          );
-        },
-      ),
+                return PageView(
+                  children: orientation == Orientation.portrait
+                      ? routesPortrait
+                      : routesLandscape,
+                  controller: TabState.controllerPage,
+                  onPageChanged: (int tabIndex) {
+                    tabState.changeIndex(tabIndex);
+                  },
+                );
+              },
+            ),
 
-      //Drawer is Menu on the Left side
-      drawer: const MenuDrawer(),
-      bottomNavigationBar: globalState.hideBottomNavBar ? null : _bottomNavBar,
-      floatingActionButton: floatButtons[TabState.index],
-    ) : NotAuthorized();
+            //Drawer is Menu on the Left side
+            drawer: const MenuDrawer(),
+            bottomNavigationBar:
+                globalState.hideBottomNavBar ? null : _bottomNavBar,
+            floatingActionButton: floatButtons[TabState.index],
+          )
+        : NotAuthorized();
   }
 }

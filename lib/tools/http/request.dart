@@ -49,6 +49,7 @@ class RestRequest {
               .then((__) async {
                 print(options.headers["Authorization"]);
                 await _dio.request(options.path, options: options);
+                _dio.unlock();
               })
               .catchError((error) {
                 if (error is DioError) {
