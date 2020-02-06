@@ -1,7 +1,3 @@
-/**
- * Idee: Mulitple selection
- * Save: 
- */
 import 'package:berisheba/routes/reservation/states/concerner_state.dart';
 import 'package:berisheba/routes/reservation/states/reservation_state.dart';
 import 'package:berisheba/routes/salle/salle_state.dart';
@@ -79,20 +75,26 @@ class ReservationSalle extends StatelessWidget {
                             Row(
                               mainAxisAlignment: MainAxisAlignment.end,
                               children: <Widget>[
-                                IconButton(
-                                  icon: Icon(Icons.add),
-                                  onPressed: () async {
-                                    var res = await showDialog(
-                                      context: context,
-                                      builder: (BuildContext context) =>
-                                          _SalleDialog(
-                                        idReservation: _idReservation,
-                                      ),
-                                    );
-                                    if(res != null){
-                                      await ConcernerState.saveData({"idSalle": res}, idReservation: _idReservation);
-                                    }
-                                  },
+
+                                Selector<ConcernerState,bool>(
+                                  selector:(_, _concernerState) => _concernerState.listeSalleDispoByIdReservation[_idReservation].length > 0 ,
+                                  builder: (ctx, isNotEmpty,__) => 
+                                  isNotEmpty?
+                                  IconButton(
+                                    icon: Icon(Icons.add),
+                                    onPressed: () async {
+                                      var res = await showDialog(
+                                        context: context,
+                                        builder: (BuildContext context) =>
+                                            _SalleDialog(
+                                          idReservation: _idReservation,
+                                        ),
+                                      );
+                                      if(res != null){
+                                        await ConcernerState.saveData({"idSalle": res}, idReservation: _idReservation);
+                                      }
+                                    },
+                                  ):Container(),
                                 ),
                               ],
                             ),
