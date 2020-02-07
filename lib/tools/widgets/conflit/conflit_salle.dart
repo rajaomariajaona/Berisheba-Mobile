@@ -1,32 +1,28 @@
-import 'package:berisheba/routes/reservation/states/conflit_state.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 
+typedef ChoiceCallback = void Function(int idSalle, Choice chx);
 enum Choice { keep, change }
 
 class ConflitSalle extends StatefulWidget {
   final int idReservation;
-  ConflitSalle({@required this.idReservation});
+  const ConflitSalle({@required this.idReservation, @required this.conflit, @required this.choix, @required this.callback});
+  final ChoiceCallback callback;
+  final Map<int, dynamic> conflit;
+  final Map<int, Choice> choix;
   @override
   _ConflitSalleState createState() => _ConflitSalleState();
 }
 
 class _ConflitSalleState extends State<ConflitSalle> {
-  Map<int, dynamic> _conflit;
   int idReservation;
-  Map<int, Choice> choix = {};
+  Map<int, dynamic> _conflit;
+  Map<int, Choice> choix;
   @override
-  void didChangeDependencies() {
-    _conflit = Provider.of<ConflitState>(context, listen: false)
-            .conflictByIdReservation[idReservation] ??
-        ["salle"];
-    if (_conflit != null) {
-      idReservation = _conflit.values.elementAt(0)["new"]["idReservation"];
-      for (int idSalle in _conflit.keys) choix[idSalle] = Choice.change;
-    }else{
-      Navigator.of(context).pop(null);
-    }
-    super.didChangeDependencies();
+  void initState() {
+    idReservation = widget.idReservation;
+    _conflit = widget.conflit;
+    choix = widget.choix;
+    super.initState();
   }
 
   @override
@@ -53,7 +49,7 @@ class _ConflitSalleState extends State<ConflitSalle> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
           Padding(
-            padding: const EdgeInsets.all(4.0),
+            padding: const EdgeInsets.all(8.0),
             child: Text(
               "Salle : ${details["new"]["nomSalle"]}",
               style: TextStyle(
@@ -75,9 +71,7 @@ class _ConflitSalleState extends State<ConflitSalle> {
                     value: Choice.change,
                     groupValue: choix[details["new"]["idSalle"]],
                     onChanged: (Choice val) {
-                      setState(() {
-                        choix[details["new"]["idSalle"]] = val;
-                      });
+                      widget.callback(details["new"]["idSalle"], val);
                     },
                   ),
                 ),
@@ -90,9 +84,7 @@ class _ConflitSalleState extends State<ConflitSalle> {
                       value: Choice.keep,
                       groupValue: choix[details["new"]["idSalle"]],
                       onChanged: (Choice val) {
-                        setState(() {
-                          choix[details["new"]["idSalle"]] = val;
-                        });
+                        widget.callback(details["new"]["idSalle"], val);
                       },
                     ),
                   ),

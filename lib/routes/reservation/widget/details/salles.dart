@@ -101,7 +101,13 @@ class ReservationSalle extends StatelessWidget {
                                             if (res != null) {
                                               await ConcernerState.saveData({
                                                 "idSalle": res
-                                              }, idReservation: _idReservation);
+                                              }, idReservation: _idReservation).whenComplete((){
+                                                Provider.of<ConflitState>(context,listen: false).fetchConflit(_idReservation).then((bool containConflit){
+                                                  if(containConflit){
+                                                    Navigator.of(context).pushNamed("conflit/:$_idReservation");
+                                                  }
+                                                });
+                                              });
                                             }
                                           },
                                         )

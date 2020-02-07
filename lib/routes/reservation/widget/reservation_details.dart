@@ -1,5 +1,6 @@
 import 'package:berisheba/routes/reservation/states/autres_state.dart';
 import 'package:berisheba/routes/reservation/states/concerner_state.dart';
+import 'package:berisheba/routes/reservation/states/conflit_state.dart';
 import 'package:berisheba/routes/reservation/states/constituer_state.dart';
 import 'package:berisheba/routes/reservation/states/jirama_state.dart';
 import 'package:berisheba/routes/reservation/states/reservation_state.dart';
@@ -12,7 +13,7 @@ import 'package:berisheba/states/global_state.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-enum Actions { supprimer, jirama, autres}
+enum Actions { supprimer, jirama, autres }
 
 class ReservationDetails extends StatelessWidget {
   final int _idReservation;
@@ -31,28 +32,50 @@ class ReservationDetailsBody extends StatefulWidget {
   @override
   State<StatefulWidget> createState() => _ReservationDetailsState();
 }
-class _ReservationDetailsState extends State<ReservationDetailsBody>{
+
+class _ReservationDetailsState extends State<ReservationDetailsBody> {
+  @override
+  void initState() {
+    final ConflitState _conflitState =
+        Provider.of<ConflitState>(context, listen: false);
+    _conflitState
+        .fetchConflit(widget._idReservation)
+        .then((bool containConflit) {
+      var temp = Provider.of<ConflitState>(context, listen: false)
+          .conflictByIdReservation[widget._idReservation];
+      if (temp != null) {
+        Navigator.of(context).pushNamed("conflit/:${widget._idReservation}");
+      }
+    });
+    // TODO: implement initState
+    super.initState();
+  }
 
   @override
-  void didChangeDependencies(){
+  void didChangeDependencies() {
     super.didChangeDependencies();
     final ConstituerState _constituerState =
         Provider.of<ConstituerState>(context, listen: false);
-    final JiramaState _jiramaState = Provider.of<JiramaState>(context, listen: false);
-    final AutresState _autresState = Provider.of<AutresState>(context, listen: false);
-    final ConcernerState _concernerState = Provider.of<ConcernerState>(context, listen: false);
+    final JiramaState _jiramaState =
+        Provider.of<JiramaState>(context, listen: false);
+    final AutresState _autresState =
+        Provider.of<AutresState>(context, listen: false);
+    final ConcernerState _concernerState =
+        Provider.of<ConcernerState>(context, listen: false);
     _fetchData(_constituerState, _jiramaState, _autresState, _concernerState);
-
   }
 
-  void _fetchData(ConstituerState _constituerState, JiramaState _jiramaState, AutresState _autresState, ConcernerState _concernerState) {
-    if (!_constituerState.demiJourneesByReservation.containsKey(widget._idReservation))
-     _constituerState.fetchData(widget._idReservation);
+  void _fetchData(ConstituerState _constituerState, JiramaState _jiramaState,
+      AutresState _autresState, ConcernerState _concernerState) {
+    if (!_constituerState.demiJourneesByReservation
+        .containsKey(widget._idReservation))
+      _constituerState.fetchData(widget._idReservation);
     if (!_jiramaState.jiramaByIdReservation.containsKey(widget._idReservation))
-     _jiramaState.fetchData(widget._idReservation);
+      _jiramaState.fetchData(widget._idReservation);
     if (!_autresState.autresByIdReservation.containsKey(widget._idReservation))
-     _autresState.fetchData(widget._idReservation);
-    if (!_concernerState.sallesByIdReservation.containsKey(widget._idReservation))
+      _autresState.fetchData(widget._idReservation);
+    if (!_concernerState.sallesByIdReservation
+        .containsKey(widget._idReservation))
       _concernerState.fetchData(widget._idReservation);
   }
 
@@ -80,22 +103,29 @@ class _ReservationDetailsState extends State<ReservationDetailsBody>{
                   ReservationDemiJournee(widget._idReservation),
                   ReservationSalle(widget._idReservation),
                   Consumer<JiramaState>(
-                      builder: (ctx, jiramaState, __) => jiramaState
-                                  .jiramaByIdReservation[widget._idReservation] != null && jiramaState
-                                  .jiramaByIdReservation[widget._idReservation]
-                                  .length >
-                              0
-                          ? ReservationJirama(widget._idReservation)
-                          : Container()),
+                      builder: (ctx, jiramaState, __) =>
+                          jiramaState.jiramaByIdReservation[
+                                          widget._idReservation] !=
+                                      null &&
+                                  jiramaState
+                                          .jiramaByIdReservation[
+                                              widget._idReservation]
+                                          .length >
+                                      0
+                              ? ReservationJirama(widget._idReservation)
+                              : Container()),
                   Consumer<AutresState>(
-                      builder: (ctx, autresState, __) => autresState
-                                  .autresByIdReservation[widget._idReservation] != null && autresState
-                                  .autresByIdReservation[widget._idReservation]
-                                  .length >
-                              0
-                          ? ReservationAutres(widget._idReservation)
-                          : Container()),
-          
+                      builder: (ctx, autresState, __) =>
+                          autresState.autresByIdReservation[
+                                          widget._idReservation] !=
+                                      null &&
+                                  autresState
+                                          .autresByIdReservation[
+                                              widget._idReservation]
+                                          .length >
+                                      0
+                              ? ReservationAutres(widget._idReservation)
+                              : Container()),
                 ],
               ),
             ),
@@ -122,7 +152,8 @@ class _ReservationDetailsState extends State<ReservationDetailsBody>{
               try {
                 showDialog(
                     builder: (BuildContext context) {
-                      return JiramaPriceDialog(idReservation: widget._idReservation);
+                      return JiramaPriceDialog(
+                          idReservation: widget._idReservation);
                     },
                     context: context);
               } catch (error) {}

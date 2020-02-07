@@ -4,6 +4,7 @@ import 'package:berisheba/states/config.dart';
 import 'package:berisheba/states/global_state.dart';
 import 'package:berisheba/tools/date.dart';
 import 'package:berisheba/tools/http/request.dart';
+import 'package:berisheba/tools/others/cast.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 
@@ -57,8 +58,7 @@ class ReservationState extends ChangeNotifier {
       _isLoading = true;
       _dio.options.headers["range"] = weekRange;
       var response = await _dio.get("/reservations");
-      _reservationsById = (response.data["data"]).map<int, dynamic>(
-          (key, value) => MapEntry<int, dynamic>(int.parse(key), value));
+      _reservationsById = Cast.stringToIntMap(response.data["data"], (value) => value);
       notifyListeners();
       this.generateEvents();
     } catch (err) {

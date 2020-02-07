@@ -4,6 +4,7 @@ import 'dart:core';
 import 'package:berisheba/routes/salle/salle_state.dart';
 import 'package:berisheba/states/global_state.dart';
 import 'package:berisheba/tools/http/request.dart';
+import 'package:berisheba/tools/others/cast.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 
@@ -15,8 +16,7 @@ class ConcernerState extends ChangeNotifier {
       __isLoading = val;
     }
   }
-  static Map<int, dynamic> _conflict = {};
-  static Map<int, dynamic> get conflict => _conflict;
+
   Map<int, Map<int, dynamic>> _listeSalleDispoByIdReservation = {};
 
   Map<int, Map<int, dynamic>> get listeSalleDispoByIdReservation =>
@@ -34,18 +34,17 @@ class ConcernerState extends ChangeNotifier {
         var response2 = await _dio.get("/salles/$idReservation");
         var data = response?.data;
         var data2 = response2?.data;
-        _sallesByIdReservation[idReservation] =
-            (data["data"] as Map<String, dynamic>)
-                .map<int, Salle>((String idSalle, dynamic salle) {
-          return MapEntry<int, Salle>(int.parse(idSalle),
-              Salle(idSalle: int.parse(idSalle), nomSalle: salle["nomSalle"]));
-        });
-        _listeSalleDispoByIdReservation[idReservation] =
-            (data2["data"] as Map<String, dynamic>)
-                .map<int, Salle>((String idSalle, dynamic salle) {
-          return MapEntry<int, Salle>(int.parse(idSalle),
-              Salle(idSalle: int.parse(idSalle), nomSalle: salle["nomSalle"]));
-        });
+        _sallesByIdReservation[idReservation] = Cast.stringToIntMap(
+            data["data"],
+            (salle) => Salle(
+                idSalle: salle["idSalle"],
+                nomSalle: salle["nomSalle"])).cast<int, Salle>();
+
+        _listeSalleDispoByIdReservation[idReservation] = Cast.stringToIntMap(
+            data2["data"],
+            (salle) => Salle(
+                idSalle: salle["idSalle"],
+                nomSalle: salle["nomSalle"])).cast<int, Salle>();
       } catch (error) {
         print(error);
         if (error is DioError && error.type == DioErrorType.RESPONSE) {
@@ -78,16 +77,8 @@ class ConcernerState extends ChangeNotifier {
       {@required int idReservation}) async {
     Dio _dio = await RestRequest().getDioInstance();
     try {
-      var response =
-          await _dio.post("/reservations/$idReservation/salles", data: data);
-      if ((response.data["conflict"] as Map<String,dynamic>).isEmpty) {
-        GlobalState().channel.sink.add("concerner $idReservation");
-      }else{
-        _conflict = (response.data["conflict"] as Map<String,dynamic>).map<int, dynamic>((String idSalle, dynamic value){
-          return MapEntry<int,dynamic>(int.parse(idSalle), value);
-        });
-        GlobalState().internalStreamController.sink.add("conflict");
-      }
+      await _dio.post("/reservations/$idReservation/salles", data: data);
+      GlobalState().channel.sink.add("concerner $idReservation");
       return true;
     } catch (error) {
       print(error);

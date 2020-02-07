@@ -6,6 +6,7 @@ import 'package:berisheba/routes/reservation/states/reservation_state.dart';
 import 'package:berisheba/states/global_state.dart';
 import 'package:berisheba/states/parametres.dart';
 import 'package:berisheba/tools/http/request.dart';
+import 'package:berisheba/tools/others/cast.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -117,10 +118,7 @@ class SalleState extends ChangeNotifier {
       try {
         var response = await _dio.get("/salles");
         var data = response?.data;
-        _listSalleByIdSalle =
-            data["data"].map<int, dynamic>((String id, dynamic value) {
-          return MapEntry<int, dynamic>(int.parse(id), value);
-        });
+        _listSalleByIdSalle = Cast.stringToIntMap(data["data"], (value) => value);
       } catch (error) {
         print(error);
         if (error is DioError && error.type == DioErrorType.RESPONSE) {
