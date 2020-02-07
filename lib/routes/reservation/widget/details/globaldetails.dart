@@ -3,13 +3,13 @@ import 'package:berisheba/routes/client/client_state.dart';
 import 'package:berisheba/routes/client/widgets/client_float_button.dart';
 import 'package:berisheba/routes/client/widgets/client_selector.dart';
 import 'package:berisheba/routes/reservation/states/reservation_state.dart';
+import 'package:berisheba/states/global_state.dart';
 import 'package:berisheba/tools/formatters/CaseInputFormatter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_colorpicker/block_picker.dart';
 import 'package:provider/provider.dart';
 
 class ReservationGlobalDetails extends StatefulWidget {
-
   final int _idReservation;
   ReservationGlobalDetails(this._idReservation, {Key key}) : super(key: key);
   @override
@@ -130,18 +130,22 @@ class _ReservationGlobalDetailsState extends State<ReservationGlobalDetails> {
                           onPressed: () async {
                             _formKey.currentState.save();
                             if (_formKey.currentState.validate()) {
-                              Map<String, String> data = 
-                              {
+                              Map<String, String> data = {
                                 "nomReservation": nomReservation,
                                 "prixPersonne": prixPersonne.toString(),
                                 "idClient": idClient.toString(),
                                 "couleur": couleur.value.toString(),
                               };
-                              
-                              try{
-                                await ReservationState.modifyData(data, idReservation: widget._idReservation);
-                                setEditMode(false);
-                              }catch(error){
+
+                              try {
+                                await ReservationState.modifyData(data,
+                                        idReservation: widget._idReservation)
+                                    .whenComplete(() {
+                                  setEditMode(false);
+                                  GlobalState().channel.sink.add(
+                                      "reservation ${widget._idReservation}");
+                                });
+                              } catch (error) {
                                 print(error?.response?.data);
                               }
                             }

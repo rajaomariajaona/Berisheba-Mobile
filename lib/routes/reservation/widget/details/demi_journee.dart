@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:berisheba/routes/reservation/states/conflit_state.dart';
 import 'package:berisheba/routes/reservation/states/constituer_state.dart';
 import 'package:berisheba/routes/reservation/states/reservation_state.dart';
 import 'package:berisheba/routes/reservation/widget/details/change_dates_dialog.dart';
@@ -427,20 +428,32 @@ class _ReservationDemiJourneeState extends State<ReservationDemiJournee> {
                                                   datas.add(data);
                                                 });
                                                 try {
-                                                  await ConstituerState
-                                                      .modifyData({
+                                                  await ConstituerState.modifyData({
                                                     "data": json.encode(datas)
                                                   },
                                                           idReservation: widget
-                                                              ._idReservation);
-
-                                                  GlobalState().channel.sink.add(
-                                                      "constituer ${widget._idReservation}");
-                                                  setState(() {
-                                                    setEditMode(false);
-                                                  });
-                                                  setState(() {
-                                                    _isPosting = false;
+                                                              ._idReservation)
+                                                      .whenComplete(() {
+                                                    GlobalState().channel.sink.add(
+                                                        "constituer ${widget._idReservation}");
+                                                    
+                                                    Provider.of<ConflitState>(
+                                                            context,
+                                                            listen: false)
+                                                        .fetchConflit(
+                                                            widget._idReservation)
+                                                        .then((bool
+                                                            containConflit) {
+                                                      if (containConflit) {
+                                                        Navigator.of(context)
+                                                            .pushNamed(
+                                                                "conflit/:${widget._idReservation}");
+                                                      }
+                                                    });
+                                                    setState(() {
+                                                      setEditMode(false);
+                                                      _isPosting = false;
+                                                    });
                                                   });
                                                 } catch (error) {
                                                   print(error?.response?.data);
