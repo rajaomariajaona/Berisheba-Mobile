@@ -141,7 +141,7 @@ class ClientState extends ChangeNotifier {
     _dio.options.headers["deletelist"] = json.encode(_listIdClientSelected);
     try {
       Response response = await _dio.delete("/clients");
-      GlobalState().channel.sink.add("client delete");
+      GlobalState().channel.sink.add("client");
       this.isDeletingClient = false;
       return true;
     } catch (error) {
@@ -154,7 +154,7 @@ class ClientState extends ChangeNotifier {
     Dio _dio = await RestRequest().getDioInstance();
     try {
       Response response = await _dio.delete("/clients/$idClient");
-      GlobalState().channel.sink.add("client delete");
+      GlobalState().channel.sink.add("client");
       return true;
     } catch (error) {
       print(error?.response?.data);

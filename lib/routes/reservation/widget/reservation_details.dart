@@ -10,6 +10,7 @@ import 'package:berisheba/routes/reservation/widget/details/globaldetails.dart';
 import 'package:berisheba/routes/reservation/widget/details/jirama.dart';
 import 'package:berisheba/routes/reservation/widget/details/salles.dart';
 import 'package:berisheba/states/global_state.dart';
+import 'package:berisheba/tools/widgets/confirm.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -140,10 +141,12 @@ class _ReservationDetailsState extends State<ReservationDetailsBody> {
           switch (value) {
             case Actions.supprimer:
               try {
-                await ReservationState.removeData(
-                    idReservation: widget._idReservation);
-                Navigator.of(context).pop(true);
-                GlobalState().channel.sink.add("reservation");
+                if (await Confirm.showDeleteConfirm(context: context)) {
+                  await ReservationState.removeData(
+                      idReservation: widget._idReservation);
+                  Navigator.of(context).pop(true);
+                  GlobalState().channel.sink.add("reservation");
+                }
               } catch (error) {
                 print(error?.response?.data);
               }

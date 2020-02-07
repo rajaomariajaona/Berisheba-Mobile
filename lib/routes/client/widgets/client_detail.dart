@@ -3,6 +3,7 @@ import 'package:berisheba/routes/client/widgets/client_formulaire.dart';
 import 'package:berisheba/routes/reservation/widget/reservation_formulaire.dart';
 import 'package:berisheba/states/config.dart';
 import 'package:berisheba/states/tab_state.dart';
+import 'package:berisheba/tools/widgets/confirm.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -34,9 +35,11 @@ class ClientDetail extends StatelessWidget {
                   icon: const Icon(
                     Icons.delete,
                   ),
-                  onPressed: ()async {
-                    Navigator.of(context).pop(null);
-                    await ClientState.removeData(_idClient);
+                  onPressed: () async {
+                    if (await Confirm.showDeleteConfirm(context: context)) {
+                      Navigator.of(context).pop(null);
+                      await ClientState.removeData(_idClient);
+                    }
                   },
                 ),
                 IconButton(
@@ -121,7 +124,12 @@ class ClientDetail extends StatelessWidget {
                                     Navigator.of(context)
                                         .pushReplacement(MaterialPageRoute(
                                       builder: (context) =>
-                                          ReservationFormulaire(idClient: int.parse("${_client["idClient"]}"), nomClient: "${_client["nomClient"]} ${_client["prenomClient"]}",),
+                                          ReservationFormulaire(
+                                        idClient:
+                                            int.parse("${_client["idClient"]}"),
+                                        nomClient:
+                                            "${_client["nomClient"]} ${_client["prenomClient"]}",
+                                      ),
                                     ));
                                   },
                                 ),

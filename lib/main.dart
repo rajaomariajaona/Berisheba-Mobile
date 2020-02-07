@@ -83,6 +83,8 @@ class MyApp extends StatelessWidget {
     accentColor: Config.primaryBlue,
     highlightColor: Config.secondaryBlue,
     focusColor: Config.primaryBlue,
+    buttonColor: Config.primaryBlue,
+    
   );
   final GlobalKey navigatorState = GlobalKey<NavigatorState>();
 

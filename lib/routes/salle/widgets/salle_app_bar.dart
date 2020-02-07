@@ -1,6 +1,7 @@
 import 'package:berisheba/routes/salle/salle_state.dart';
 import 'package:berisheba/states/global_state.dart';
 import 'package:berisheba/states/tab_state.dart';
+import 'package:berisheba/tools/widgets/confirm.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -45,11 +46,13 @@ class SalleAppBar {
             IconButton(
               icon: Icon(Icons.delete),
               onPressed: () async {
-                try {
-                  if (!(await _salleState.removeDatas()))
-                    throw Exception("Salle not deleted");
-                } on Exception catch (_) {
-                  print("error deleting salle");
+                if (await Confirm.showDeleteConfirm(context: _context)) {
+                  try {
+                    if (!(await _salleState.removeDatas()))
+                      throw Exception("Salle not deleted");
+                  } on Exception catch (_) {
+                    print("error deleting salle");
+                  }
                 }
               },
             )

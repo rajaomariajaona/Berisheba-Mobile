@@ -1,6 +1,7 @@
 import 'package:berisheba/routes/client/client_state.dart';
 import 'package:berisheba/states/global_state.dart';
 import 'package:berisheba/states/tab_state.dart';
+import 'package:berisheba/tools/widgets/confirm.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -46,8 +47,11 @@ class ClientAppBar {
               icon: Icon(Icons.delete),
               onPressed: () async {
                 try {
-                  if (!(await _clientState.removeDatas()))
+                  if (await Confirm.showDeleteConfirm(
+                      context:
+                          _context)) if (!(await _clientState.removeDatas()))
                     throw Exception("Client not deleted");
+                  _clientState.isDeletingClient = false;
                 } on Exception catch (_) {
                   print("error deleting client");
                 }
