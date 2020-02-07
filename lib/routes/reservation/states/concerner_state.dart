@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:convert';
 import 'dart:core';
 
 import 'package:berisheba/routes/salle/salle_state.dart';
@@ -25,57 +24,6 @@ class ConcernerState extends ChangeNotifier {
 
   Map<int, Map<int, Salle>> _sallesByIdReservation = {};
   Map<int, Map<int, Salle>> get sallesByIdReservation => _sallesByIdReservation;
-
-  //Salle id List of Selected;
-  // List<int> _listIdSalleSelected = [];
-
-  // List<int> get idSalleSelected => _listIdSalleSelected;
-
-  // //Add Id Salle to Selected List
-  // void addSelected(int idSalle) {
-  //   if (!_listIdSalleSelected.contains(idSalle))
-  //     _listIdSalleSelected.add(idSalle);
-  //   notifyListeners();
-  // }
-
-  // void deleteSelected(int idSalle) {
-  //   if (_listIdSalleSelected.contains(idSalle))
-  //     _listIdSalleSelected.remove(idSalle);
-  //   notifyListeners();
-  // }
-
-  // void deleteAllSelected() {
-  //   _listIdSalleSelected.clear();
-  //   notifyListeners();
-  // }
-
-  // void addAllSelected() {
-  //   _listIdSalleSelected.clear();
-  //   this._salles.forEach((v) {
-  //     _listIdSalleSelected.add(v["idSalle"]);
-  //   });
-  //   notifyListeners();
-  // }
-
-  // bool allSelected() =>
-  //     this._sallesFiltered.length == _listIdSalleSelected.length;
-
-  // bool emptySelected() => _listIdSalleSelected.isEmpty;
-
-  // bool isSelected(int idSalle) => _listIdSalleSelected.contains(idSalle);
-
-  // bool _isNotReverse = false;
-
-  // bool get isNotReverse => _isNotReverse;
-
-  // //Local Storage Variable
-  // SharedPreferences _sharedPreferences;
-
-  // Future<void> setIsReverse(bool isNotReverse) async {
-  //   await _sharedPreferences.setBool(Parametres.salleSort, isNotReverse);
-  //   this._isNotReverse = isNotReverse;
-  //   await this.sort();
-  // }
 
   Future<void> fetchData(int idReservation) async {
     try {
@@ -159,16 +107,6 @@ class ConcernerState extends ChangeNotifier {
     }
   }
 
-  Future<void> asyncConstructor() async {
-    // await SharedPreferences.getInstance().then((pref) async {
-    //   this._sharedPreferences = pref;
-    //   if (!this._sharedPreferences.containsKey(Parametres.salleSort))
-    //     this._sharedPreferences.setBool(Parametres.salleSort, true);
-    // }).then((_) {
-    //   this._isNotReverse = _sharedPreferences.getBool(Parametres.salleSort);
-    // });
-  }
-
   ConcernerState() {
     GlobalState().externalStreamController.stream.listen((msg) async {
       if (msg.contains("concerner")) {
@@ -178,16 +116,5 @@ class ConcernerState extends ChangeNotifier {
         }
       }
     });
-  }
-
-  static Future<bool> fixConflict(List<Map<String, String>> data) async {
-    Dio _dio = await RestRequest().getDioInstance();
-    try {
-      await _dio.patch("/salles/sallesconflict", data: {"deleteList" : json.encode(data)});
-      return true;
-    } catch (error) {
-      print(error?.response?.data);
-      return false;
-    }
   }
 }

@@ -10,6 +10,7 @@ import 'package:berisheba/routes/salle/salle_state.dart';
 import 'package:berisheba/states/config.dart';
 import 'package:berisheba/states/global_state.dart';
 import 'package:berisheba/states/tab_state.dart';
+import 'package:berisheba/tools/widgets/conflit.dart';
 import 'package:berisheba/tools/widgets/no_internet.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -117,12 +118,34 @@ class MyApp extends StatelessWidget {
         debugShowCheckedModeBanner: false,
         theme: t,
         home: Squellete(),
-        routes: {
-          "no-internet": (ctx) {
-            return NoInternet();
-          }
-        },
+        onGenerateRoute: _handleRoute,
       ),
     );
+  }
+
+  Route<dynamic> _handleRoute(RouteSettings settings) {
+    String routeName =  settings.name;
+    if(routeName.contains("conflit")){
+      List<String> params = routeName.split(":");
+      if(params.length == 2){
+
+      int idReservation = int.tryParse(params[1]);
+      if(idReservation != null)
+        return MaterialPageRoute(
+            builder: (ctx) => ConflitResolver(idReservation: idReservation,)
+        );
+      }
+    }else{
+      switch (routeName) {
+        case "no-internet":
+          return MaterialPageRoute(
+            builder: (ctx) => NoInternet()
+          );
+          break;
+        default:
+        return null;
+      }
+    }
+    return null;
   }
 }

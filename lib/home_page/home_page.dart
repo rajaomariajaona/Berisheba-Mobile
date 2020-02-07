@@ -34,19 +34,19 @@ class _SquelleteState extends State<Squellete> {
     //Connect the app to the websocket
     GlobalState().connect();
     bool show = false;
-    GlobalState().internalStreamController.stream.listen((msg) async {
-      if (msg == "conflict") {
-        if(!show){
-        show = true;
-        await showDialog(
-            context: context,
-            builder: (ctx) {
-              return ConflictSalleDialog();
-            });
-        show = false;
-        }
-      }
-    });
+    // GlobalState().internalStreamController.stream.listen((msg) async {
+    //   if (msg == "conflict") {
+    //     if(!show){
+    //     show = true;
+    //     await showDialog(
+    //         context: context,
+    //         builder: (ctx) {
+    //           return ConflictSalleDialog();
+    //         });
+    //     show = false;
+    //     }
+    //   }
+    // });
   }
 
   @override

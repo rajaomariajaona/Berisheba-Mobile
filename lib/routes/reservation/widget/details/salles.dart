@@ -1,4 +1,5 @@
 import 'package:berisheba/routes/reservation/states/concerner_state.dart';
+import 'package:berisheba/routes/reservation/states/conflit_state.dart';
 import 'package:berisheba/routes/reservation/states/reservation_state.dart';
 import 'package:berisheba/routes/salle/salle_state.dart';
 import 'package:berisheba/states/global_state.dart';
@@ -79,16 +80,6 @@ class ReservationSalle extends StatelessWidget {
                             Row(
                               mainAxisAlignment: MainAxisAlignment.end,
                               children: <Widget>[
-                                IconButton(
-                                  icon: const Icon(Icons.explore),
-                                  onPressed: () {
-                                    showDialog(
-                                        context: context,
-                                        builder: (ctx) {
-                                          return ConflictSalleDialog();
-                                        });
-                                  },
-                                ),
                                 Selector<ConcernerState, bool>(
                                   selector: (_, _concernerState) =>
                                       _concernerState
@@ -224,137 +215,3 @@ class _SalleDialogState extends State<_SalleDialog> {
   }
 }
 
-enum Choice { keep, change }
-
-class ConflictSalleDialog extends StatefulWidget {
-  @override
-  _ConflictSalleDialogState createState() => _ConflictSalleDialogState();
-}
-
-class _ConflictSalleDialogState extends State<ConflictSalleDialog> {
-  Map<int, dynamic> _conflict;
-  int idReservation;
-  Map<int, Choice> choix = {};
-  @override
-  void didChangeDependencies() {
-    _conflict = ConcernerState.conflict;
-    idReservation = _conflict.values.elementAt(0)["new"]["idResrvation"];
-    for (int idSalle in _conflict.keys) choix[idSalle] = Choice.change;
-    super.didChangeDependencies();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return WillPopScope(
-      onWillPop: () async {
-        return false;
-      },
-      child: AlertDialog(
-        contentPadding: EdgeInsets.symmetric(horizontal: 5, vertical: 15),
-        content: SingleChildScrollView(
-          child: Column(
-            children: <Widget>[
-              for (int idSalle in _conflict.keys) ...[
-                conflictCard(_conflict[idSalle]),
-                SizedBox(
-                  height: 10,
-                )
-              ]
-            ],
-          ),
-        ),
-        actions: <Widget>[
-          IconButton(
-            icon: const Icon(Icons.check),
-            onPressed: () async {
-              List<Map<String, String>> data = [];
-              List<int> listReservation = [];
-              choix.forEach((int idSalle, Choice chx) {
-                if (chx == Choice.change) {
-                  for (var val in _conflict[idSalle]["old"]) {
-                    data.add(
-                        {idSalle.toString(): val["idReservation"].toString()});
-                    listReservation.add(val["idReservation"]);
-                  }
-                  listReservation
-                      .add(_conflict[idSalle]["new"]["idReservation"]);
-                } else {
-                  data.add({
-                    idSalle.toString():
-                        _conflict[idSalle]["new"]["idReservation"].toString()
-                  });
-                }
-              });
-              await ConcernerState.fixConflict(data);
-              Navigator.of(context).pop(null);
-              listReservation.forEach((reser) {
-                GlobalState().channel.sink.add("concerner $reser");
-              });
-            },
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget conflictCard(Map<String, dynamic> details) {
-    return Card(
-      elevation: 3.0,
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.start,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          Padding(
-            padding: const EdgeInsets.all(4.0),
-            child: Text(
-              "Salle : ${details["new"]["nomSalle"]}",
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ),
-          const Divider(
-            thickness: 2,
-          ),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Column(
-              children: <Widget>[
-                ListTile(
-                  dense: true,
-                  title: Text("${details["new"]["nomReservation"]}"),
-                  trailing: Radio(
-                    value: Choice.change,
-                    groupValue: choix[details["new"]["idSalle"]],
-                    onChanged: (Choice val) {
-                      setState(() {
-                        choix[details["new"]["idSalle"]] = val;
-                      });
-                    },
-                  ),
-                ),
-                const Divider(),
-                for (dynamic val in details["old"]) ...[
-                  ListTile(
-                    dense: true,
-                    title: Text("${val["nomReservation"]}"),
-                    trailing: Radio(
-                      value: Choice.keep,
-                      groupValue: choix[details["new"]["idSalle"]],
-                      onChanged: (Choice val) {
-                        setState(() {
-                          choix[details["new"]["idSalle"]] = val;
-                        });
-                      },
-                    ),
-                  ),
-                  const Divider()
-                ]
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}

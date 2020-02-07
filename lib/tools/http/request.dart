@@ -6,7 +6,7 @@ import 'package:dio/dio.dart';
 import 'package:imei_plugin/imei_plugin.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-//TODO: Test connection coupee
+//TODO: Test connection coupee et Test token refresh
 class RestRequest {
   static final BaseOptions _options = BaseOptions(
     baseUrl: "${Config.apiURI}",
@@ -37,19 +37,20 @@ class RestRequest {
           }
         });
       }, onError: (DioError error) async {
-        _dio.lock();
         switch (error.type) {
           case DioErrorType.RESPONSE:
             if (error?.response?.statusCode != 401) {
               _dio.reject(error);
             } else {
+              _dio.lock();
               RequestOptions options = error?.response?.request;
               print(options.headers["Authorization"]);
               await _refreshToken(options)
-              .then((__) async {
+              .whenComplete(() async {
                 print(options.headers["Authorization"]);
-                await _dio.request(options.path, options: options);
                 _dio.unlock();
+              }).then((_) async {
+                await _dio.request(options.path, options: options);
               })
               .catchError((error) {
                 if (error is DioError) {
