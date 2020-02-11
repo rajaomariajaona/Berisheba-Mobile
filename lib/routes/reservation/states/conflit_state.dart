@@ -21,16 +21,23 @@ class ConflitState extends ChangeNotifier {
   Future<bool> fetchConflit(int idReservation) async {
     Dio _dio = await RestRequest().getDioInstance();
     try {
+      var res = false;
       var conflit = (await _dio.get("/conflits/$idReservation")).data;
       //TODO: AMPIANA Conflit materiel sy ustensile
       if (conflit["salle"] != null &&
           (conflit["salle"] as Map<String, dynamic>).isNotEmpty) {
         _conflit[idReservation] = {"salle": {}};
-        _conflit[idReservation]["salle"] = Cast.stringToIntMap(conflit["salle"], (value) => value);
-        return true;
-      } else {
-        return false;
+        _conflit[idReservation]["salle"] =
+            Cast.stringToIntMap(conflit["salle"], (value) => value);
+        res = true;
+      } else if (conflit["materiel"] != null &&
+          (conflit["materiel"] as Map<String, dynamic>).isNotEmpty) {
+        _conflit[idReservation] = {"materiel": {}};
+        _conflit[idReservation]["materiel"] =
+            Cast.stringToIntMap(conflit["materiel"], (value) => value);
+        res = true;
       }
+      return res;
     } catch (error) {
       print(error?.response?.data);
       return false;
@@ -53,6 +60,17 @@ class ConflitState extends ChangeNotifier {
     try {
       await _dio
           .patch("/conflits/salles", data: {"deleteList": json.encode(data)});
+      return true;
+    } catch (error) {
+      print(error?.response?.data);
+      return false;
+    }
+  }
+  static Future<bool> fixMateriel(dynamic data) async {
+    Dio _dio = await RestRequest().getDioInstance();
+    try {
+      await _dio
+          .patch("/conflits/materiels", data: {"changes": json.encode(data)});
       return true;
     } catch (error) {
       print(error?.response?.data);

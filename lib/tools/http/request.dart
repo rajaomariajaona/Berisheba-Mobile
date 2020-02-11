@@ -42,36 +42,31 @@ class RestRequest {
             if (error?.response?.statusCode != 401) {
               _dio.reject(error);
             } else {
-              _dio.lock();
               RequestOptions options = error?.response?.request;
               print(options.headers["Authorization"]);
-              await _refreshToken(options)
-              .whenComplete(() async {
+              await _refreshToken(options).whenComplete(() async {
                 print(options.headers["Authorization"]);
-                _dio.unlock();
               }).then((_) async {
                 await _dio.request(options.path, options: options);
-              })
-              .catchError((error) {
+              }).catchError((error) {
                 if (error is DioError) {
                   GlobalState().isAuthorized = false;
                   _dio.resolve({});
                 }
               });
-              _dio.unlock();
             }
             break;
           case DioErrorType.RECEIVE_TIMEOUT:
           case DioErrorType.CONNECT_TIMEOUT:
             print("TIMEOUT ERROR RECEIVE OR CONNECT");
-             _dio.resolve({});
+            _dio.resolve({});
             GlobalState().isConnected = false;
             break;
           case DioErrorType.DEFAULT:
-            if(error.message.contains("SocketException")){
+            if (error.message.contains("SocketException")) {
               _dio.resolve({});
               GlobalState().isConnected = false;
-            }else{
+            } else {
               _dio.reject(error);
             }
             break;
@@ -86,6 +81,8 @@ class RestRequest {
 
   Future<dynamic> _refreshToken(RequestOptions options) async {
     try {
+      _dio.interceptors.requestLock.lock();
+      _dio.interceptors.responseLock.lock();
       await Dio(BaseOptions(
         baseUrl: Config.baseURI,
         connectTimeout: 5000,
@@ -106,5 +103,7 @@ class RestRequest {
         print(error);
       }
     }
+    _dio.interceptors.requestLock.unlock();
+    _dio.interceptors.responseLock.unlock();
   }
 }

@@ -1,6 +1,6 @@
-
 import 'package:berisheba/routes/reservation/states/conflit_state.dart';
 import 'package:berisheba/states/global_state.dart';
+import 'package:berisheba/tools/widgets/conflit/conflit_materiel.dart';
 import 'package:berisheba/tools/widgets/conflit/conflit_salle.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -14,8 +14,11 @@ class ConflitResolver extends StatelessWidget {
       onWillPop: () async {
         return false;
       },
-      child: Scaffold(
-        body: SafeArea(child: ConflitBody(idReservation: idReservation)),
+      child: ChangeNotifierProvider(
+        create: (_) => ConflitMaterielState(),
+        child: Scaffold(
+          body: SafeArea(child: ConflitBody(idReservation: idReservation)),
+        ),
       ),
     );
   }
@@ -33,9 +36,10 @@ class ConflitBody extends StatefulWidget {
   State<StatefulWidget> createState() => _ConflitBodyState();
 }
 
-class _ConflitBodyState extends State<ConflitBody>{
+class _ConflitBodyState extends State<ConflitBody> {
   Map<int, Choice> choix = {};
-  Map<int, dynamic> _conflit;
+  Map<int, dynamic> _salle;
+  Map<int, dynamic> _materiel;
   int idReservation;
   @override
   void initState() {
@@ -45,14 +49,14 @@ class _ConflitBodyState extends State<ConflitBody>{
 
   @override
   void didChangeDependencies() {
-    
     var temp = Provider.of<ConflitState>(context, listen: false)
-            .conflictByIdReservation[idReservation];
+        .conflictByIdReservation[idReservation];
     if (temp != null) {
-      _conflit = temp["salle"];
-      idReservation = _conflit.values.elementAt(0)["new"]["idReservation"];
-      for (int idSalle in _conflit.keys) choix[idSalle] = Choice.change;
-    }else{
+      _salle = temp["salle"];
+      if (_salle != null)
+        for (int idSalle in _salle.keys) choix[idSalle] = Choice.change;
+      _materiel = temp["materiel"];
+    } else {
       Navigator.of(context).pop(null);
     }
     super.didChangeDependencies();
@@ -66,65 +70,91 @@ class _ConflitBodyState extends State<ConflitBody>{
         Expanded(
           child: SingleChildScrollView(
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 4.0),
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 10.0, vertical: 4.0),
               child: Column(
                 children: <Widget>[
-                  ConflitSalle(
-                    idReservation: idReservation,
-                    choix: choix,
-                    conflit: _conflit,
-                    callback: (int idSalle, Choice val){
-                      setState(() {
-                        choix[idSalle] = val;
-                      });
-                    },
-                  ),
+                  _salle != null
+                      ? ConflitSalle(
+                          idReservation: idReservation,
+                          choix: choix,
+                          conflit: _salle,
+                          callback: (int idSalle, Choice val) {
+                            setState(() {
+                              choix[idSalle] = val;
+                            });
+                          },
+                        )
+                      : Container(),
+                  ConflitMateriel(conflit: _materiel),
                 ],
               ),
             ),
           ),
         ),
-        Flexible(
+        Container(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            boxShadow: [BoxShadow(color: Colors.grey, blurRadius: 2.0)],
+          ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.end,
             children: <Widget>[
-              IconButton(
-                icon: const Icon(Icons.check),
-                onPressed: () async {
-                  List<Map<String, String>> data = [];
-                  List<int> listReservation = [];
-                  choix.forEach((int idSalle, Choice chx) {
-                    if (chx == Choice.change) {
-                      for (var val in _conflit[idSalle]["old"]) {
-                        data.add({
-                          idSalle.toString():
-                              val["idReservation"].toString()
-                        });
-                        listReservation.add(val["idReservation"]);
-                      }
-                      listReservation
-                          .add(_conflit[idSalle]["new"]["idReservation"]);
-                    } else {
-                      data.add({
-                        idSalle.toString(): _conflit[idSalle]["new"]
-                                ["idReservation"]
-                            .toString()
-                      });
-                      listReservation.add(_conflit[idSalle]["new"]
-                                ["idReservation"]);
-                    }
-                  });
-                  await ConflitState.fixSalle(data);
-                  listReservation.forEach((reser) {
-                    GlobalState().channel.sink.add("concerner $reser");
-                  });
-                  Navigator.of(context).pop(null);
-                },
-              )
+              Consumer<ConflitMaterielState>(
+                builder: (ctx, conflitMaterielState, _) => FlatButton(
+                  child: const Text("Enregistrer"),
+                  onPressed: !conflitMaterielState.canSave
+                      ? null
+                      : () async {
+                          if (conflitMaterielState.values.isNotEmpty) {
+                            await fixMateriel(conflitMaterielState);
+                          }
+                          if (choix.isNotEmpty) await fixSalle();
+                          Navigator.of(context).pop(null);
+                        },
+                ),
+              ),
             ],
           ),
         )
       ],
     );
+  }
+
+  Future fixMateriel(ConflitMaterielState conflitMaterielState) async {
+    ConflitState.fixMateriel(conflitMaterielState.values).then((v){
+      if(v){
+        List<int> toRefresh = [];
+        conflitMaterielState.values.forEach((int idMateriel, Map<int, int> value) {
+          toRefresh.insertAll(0, value.keys);
+        });
+        toRefresh.where((val) => !toRefresh.contains(val)).forEach((int idReservation){
+          GlobalState().channel.sink.add("louer $idReservation");
+        });
+      }
+    });
+  }
+
+  Future fixSalle() async {
+    List<Map<String, String>> data = [];
+    List<int> listReservation = [];
+    choix.forEach((int idSalle, Choice chx) {
+      if (chx == Choice.change) {
+        for (var val in _salle[idSalle]["old"]) {
+          data.add({idSalle.toString(): val["idReservation"].toString()});
+          listReservation.add(val["idReservation"]);
+        }
+        listReservation.add(_salle[idSalle]["new"]["idReservation"]);
+      } else {
+        data.add({
+          idSalle.toString(): _salle[idSalle]["new"]["idReservation"].toString()
+        });
+        listReservation.add(_salle[idSalle]["new"]["idReservation"]);
+      }
+    });
+    await ConflitState.fixSalle(data);
+    listReservation.forEach((reser) {
+      GlobalState().channel.sink.add("concerner $reser");
+    });
   }
 }
