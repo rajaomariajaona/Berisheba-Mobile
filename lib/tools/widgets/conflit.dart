@@ -86,7 +86,9 @@ class _ConflitBodyState extends State<ConflitBody> {
                           },
                         )
                       : Container(),
-                  ConflitMateriel(conflit: _materiel),
+                  _materiel != null
+                      ? ConflitMateriel(conflit: _materiel)
+                      : Container(),
                 ],
               ),
             ),
@@ -110,6 +112,9 @@ class _ConflitBodyState extends State<ConflitBody> {
                             await fixMateriel(conflitMaterielState);
                           }
                           if (choix.isNotEmpty) await fixSalle();
+                          Provider.of<ConflitState>(context)
+                              .conflictByIdReservation[widget.idReservation]
+                              .clear();
                           Navigator.of(context).pop(null);
                         },
                 ),
@@ -122,15 +127,18 @@ class _ConflitBodyState extends State<ConflitBody> {
   }
 
   Future fixMateriel(ConflitMaterielState conflitMaterielState) async {
-    ConflitState.fixMateriel(conflitMaterielState.values).then((v){
-      if(v){
+    ConflitState.fixMateriel(conflitMaterielState.values).then((v) {
+      if (v) {
         List<int> toRefresh = [];
-        conflitMaterielState.values.forEach((int idMateriel, Map<int, int> value) {
+        conflitMaterielState.values
+            .forEach((int idMateriel, Map<int, int> value) {
           toRefresh.insertAll(0, value.keys);
         });
-        toRefresh.where((val) => !toRefresh.contains(val)).forEach((int idReservation){
+
+        toRefresh.toSet().toList().forEach((int idReservation) {
           GlobalState().channel.sink.add("louer $idReservation");
         });
+        //To set to List delete duplicate entries
       }
     });
   }

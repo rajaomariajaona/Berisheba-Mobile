@@ -118,6 +118,7 @@ class MaterielState extends ChangeNotifier {
       try {
         var response = await _dio.get("/materiels");
         var data = response?.data;
+
         _listMaterielByIdMateriel = Cast.stringToIntMap(data["data"], (value) => value);
       } catch (error) {
         print(error);
@@ -249,9 +250,10 @@ class MaterielState extends ChangeNotifier {
 }
 
 class Materiel {
-  const Materiel({@required this.idMateriel, @required this.nomMateriel});
+  const Materiel({@required this.idMateriel, @required this.nomMateriel, @required this.nbStock});
   final int idMateriel;
   final String nomMateriel;
+  final int nbStock;
   @override
   operator ==(materiel) =>
       materiel is Materiel && materiel.idMateriel == idMateriel && materiel.nomMateriel == nomMateriel;

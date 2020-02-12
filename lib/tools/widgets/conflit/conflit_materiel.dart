@@ -2,14 +2,15 @@ import 'package:berisheba/tools/widgets/number_selector.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-class ConflitMaterielState extends ChangeNotifier{
+class ConflitMaterielState extends ChangeNotifier {
   bool _canSave = true;
-  set canSave(bool val){
-    if(_canSave != val){
+  set canSave(bool val) {
+    if (_canSave != val) {
       _canSave = val;
       notifyListeners();
     }
   }
+
   bool get canSave => _canSave;
   Map<int, Map<int, int>> values = {};
 }
@@ -33,6 +34,7 @@ class _ConflitMaterielState extends State<ConflitMateriel> {
     val = 10;
     super.initState();
   }
+
   @override
   void didChangeDependencies() {
     _conflitMaterielState = Provider.of<ConflitMaterielState>(context);
@@ -43,7 +45,7 @@ class _ConflitMaterielState extends State<ConflitMateriel> {
   @override
   Widget build(BuildContext context) {
     canSave = true;
-    WidgetsBinding.instance.addPostFrameCallback((_){
+    WidgetsBinding.instance.addPostFrameCallback((_) {
       _conflitMaterielState.canSave = canSave;
     });
     return SingleChildScrollView(
@@ -112,29 +114,35 @@ class _ConflitMaterielState extends State<ConflitMateriel> {
   }
 
   Row row(List details, detail) {
-    canSave = canSave && getTotal(details[0]["idMateriel"], detail["idReservations"]) <= details[0]["nbStock"];
+    canSave = canSave &&
+        getTotal(details[0]["idMateriel"], detail["idReservations"]) <=
+            details[0]["nbStock"];
     return Row(
-          children: <Widget>[
-            Text(
-                "Total: ${getTotal(details[0]["idMateriel"], detail["idReservations"])} "),
-  getTotal(details[0]["idMateriel"], detail["idReservations"]) > details[0]["nbStock"]
-            ? Icon(Icons.warning,color: Colors.yellow, size: 20,): Container()
-          ],
-        );
+      children: <Widget>[
+        Text(
+            "Total: ${getTotal(details[0]["idMateriel"], detail["idReservations"])} "),
+        getTotal(details[0]["idMateriel"], detail["idReservations"]) >
+                details[0]["nbStock"]
+            ? Icon(
+                Icons.warning,
+                color: Colors.yellow,
+                size: 20,
+              )
+            : Container()
+      ],
+    );
   }
 
   Container container(detail, List details) {
     return Container(
-          padding: const EdgeInsets.all(20),
-          child: Column(
-            children: <Widget>[
-              for (var i
-                  in Iterable.generate(detail["idReservations"].length))
-                buildRow(detail, i, details[0]["nbStock"],
-                    details[0]["idMateriel"])
-            ],
-          ),
-        );
+      padding: const EdgeInsets.all(20),
+      child: Column(
+        children: <Widget>[
+          for (var i in Iterable.generate(detail["idReservations"].length))
+            buildRow(detail, i, details[0]["nbStock"], details[0]["idMateriel"])
+        ],
+      ),
+    );
   }
 
   int getTotal(idMateriel, List listeReservation) {
@@ -146,8 +154,10 @@ class _ConflitMaterielState extends State<ConflitMateriel> {
   }
 
   Row buildRow(detail, i, max, idMateriel) {
-    if (!_conflitMaterielState.values.containsKey(idMateriel)) _conflitMaterielState.values[idMateriel] = {};
-    _conflitMaterielState.values[idMateriel].putIfAbsent(detail["idReservations"][i],
+    if (!_conflitMaterielState.values.containsKey(idMateriel))
+      _conflitMaterielState.values[idMateriel] = {};
+    _conflitMaterielState.values[idMateriel].putIfAbsent(
+        detail["idReservations"][i],
         () => detail["nbLouees"][i] > max ? max : detail["nbLouees"][i]);
     return Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -157,15 +167,18 @@ class _ConflitMaterielState extends State<ConflitMateriel> {
               max: max,
               increment: () {
                 setState(() {
-                  _conflitMaterielState.values[idMateriel][detail["idReservations"][i]]++;
+                  _conflitMaterielState.values[idMateriel]
+                      [detail["idReservations"][i]]++;
                 });
               },
-              decrement: () {
+              setValue: (int val) {
                 setState(() {
-                  _conflitMaterielState.values[idMateriel][detail["idReservations"][i]]--;
+                  _conflitMaterielState.values[idMateriel]
+                      [detail["idReservations"][i]] = val;
                 });
               },
-              value: _conflitMaterielState.values[idMateriel][detail["idReservations"][i]])
+              value: _conflitMaterielState.values[idMateriel]
+                  [detail["idReservations"][i]])
         ]);
   }
 }

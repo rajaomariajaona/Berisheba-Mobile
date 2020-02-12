@@ -3,11 +3,13 @@ import 'package:berisheba/routes/reservation/states/concerner_state.dart';
 import 'package:berisheba/routes/reservation/states/conflit_state.dart';
 import 'package:berisheba/routes/reservation/states/constituer_state.dart';
 import 'package:berisheba/routes/reservation/states/jirama_state.dart';
+import 'package:berisheba/routes/reservation/states/louer_state.dart';
 import 'package:berisheba/routes/reservation/states/reservation_state.dart';
 import 'package:berisheba/routes/reservation/widget/details/autres.dart';
 import 'package:berisheba/routes/reservation/widget/details/demi_journee.dart';
 import 'package:berisheba/routes/reservation/widget/details/globaldetails.dart';
 import 'package:berisheba/routes/reservation/widget/details/jirama.dart';
+import 'package:berisheba/routes/reservation/widget/details/materiels.dart';
 import 'package:berisheba/routes/reservation/widget/details/salles.dart';
 import 'package:berisheba/states/global_state.dart';
 import 'package:berisheba/tools/widgets/confirm.dart';
@@ -44,7 +46,7 @@ class _ReservationDetailsState extends State<ReservationDetailsBody> {
         .then((bool containConflit) {
       var temp = Provider.of<ConflitState>(context, listen: false)
           .conflictByIdReservation[widget._idReservation];
-      if (temp != null) {
+      if (temp != null && temp.isNotEmpty) {
         Navigator.of(context).pushNamed("conflit/:${widget._idReservation}");
       }
     });
@@ -63,11 +65,8 @@ class _ReservationDetailsState extends State<ReservationDetailsBody> {
         Provider.of<AutresState>(context, listen: false);
     final ConcernerState _concernerState =
         Provider.of<ConcernerState>(context, listen: false);
-    _fetchData(_constituerState, _jiramaState, _autresState, _concernerState);
-  }
-
-  void _fetchData(ConstituerState _constituerState, JiramaState _jiramaState,
-      AutresState _autresState, ConcernerState _concernerState) {
+    final LouerState _louerState =
+        Provider.of<LouerState>(context, listen: false);
     if (!_constituerState.demiJourneesByReservation
         .containsKey(widget._idReservation))
       _constituerState.fetchData(widget._idReservation);
@@ -78,6 +77,9 @@ class _ReservationDetailsState extends State<ReservationDetailsBody> {
     if (!_concernerState.sallesByIdReservation
         .containsKey(widget._idReservation))
       _concernerState.fetchData(widget._idReservation);
+    if (!_louerState.materielsLoueeByIdReservation
+        .containsKey(widget._idReservation))
+      _louerState.fetchData(widget._idReservation);
   }
 
   @override
@@ -103,6 +105,7 @@ class _ReservationDetailsState extends State<ReservationDetailsBody> {
                   ReservationGlobalDetails(widget._idReservation),
                   ReservationDemiJournee(widget._idReservation),
                   ReservationSalle(widget._idReservation),
+                  ReservationMateriel(widget._idReservation),
                   Consumer<JiramaState>(
                       builder: (ctx, jiramaState, __) =>
                           jiramaState.jiramaByIdReservation[

@@ -66,13 +66,20 @@ class ConflitState extends ChangeNotifier {
       return false;
     }
   }
+
   static Future<bool> fixMateriel(dynamic data) async {
     Dio _dio = await RestRequest().getDioInstance();
     try {
-      await _dio
-          .patch("/conflits/materiels", data: {"changes": json.encode(data)});
+      await _dio.patch("/conflits/materiels", data: {
+        "changes": json.encode(data.map<String, dynamic>((key, value) =>
+            MapEntry(
+                key.toString(),
+                value.map<String, dynamic>(
+                    (k, val) => MapEntry(k.toString(), val)))))
+      });
       return true;
     } catch (error) {
+      print(error);
       print(error?.response?.data);
       return false;
     }
