@@ -18,14 +18,19 @@ class _UstensileFormulaireState extends State<UstensileFormulaire> {
   final _formKey = GlobalKey<FormState>();
   bool isPostingData = false;
   String nom;
-  int nbStock;
+  int nbTotal;
+  double prixUstensile;
 
   final Map<String, FormFieldValidator> validators = {
     "nom": (value) {
       if (value.isEmpty) return "Champ vide";
       return null;
     },
-    "nbStock": (value) {
+    "nbTotal": (value) {
+      if (value.isEmpty) return "Champ vide";
+      return null;
+    },
+    "prixUstensile": (value) {
       if (value.isEmpty) return "Champ vide";
       return null;
     }
@@ -37,9 +42,13 @@ class _UstensileFormulaireState extends State<UstensileFormulaire> {
       LengthLimitingTextInputFormatter(50),
       CapitalizeWordsInputFormatter()
     ],
-    "nbStock": <TextInputFormatter>[
+    "nbTotal": <TextInputFormatter>[
       WhitelistingTextInputFormatter(RegExp("[0-9]")),
       LengthLimitingTextInputFormatter(4),
+    ],
+    "prixUstensile": <TextInputFormatter>[
+      WhitelistingTextInputFormatter(RegExp("[0-9]")),
+      LengthLimitingTextInputFormatter(20),
     ]
   };
 
@@ -86,11 +95,13 @@ class _UstensileFormulaireState extends State<UstensileFormulaire> {
                       dynamic result = modifier
                           ? await UstensileState.modifyData({
                               "nomUstensile": nom,
-                              "nbStock" : nbStock
+                              "nbTotal" : nbTotal,
+                              "prixUstensile": prixUstensile
                             },idUstensile: widget.ustensile["idUstensile"])
                           : await UstensileState.saveData({
                               "nomUstensile": nom,
-                              "nbStock" : nbStock
+                              "nbTotal" : nbTotal,
+                              "prixUstensile": prixUstensile
                             });
                       print(result);
                       GlobalState().channel.sink.add("ustensile");
@@ -129,16 +140,31 @@ class _UstensileFormulaireState extends State<UstensileFormulaire> {
                 ),
                 TextFormField(
                   keyboardType: TextInputType.number,
-                  validator: validators["nbStock"],
-                  inputFormatters: inputFormatters["nbStock"],
+                  validator: validators["nbTotal"],
+                  inputFormatters: inputFormatters["nbTotal"],
                   decoration: InputDecoration(
                     border: UnderlineInputBorder(),
                     labelText: "Nombre en Stock",
                   ),
-                  initialValue: modifier ? "${widget.ustensile["nbStock"]}" : "",
+                  initialValue: modifier ? "${widget.ustensile["nbTotal"]}" : "",
                   onSaved: (val) {
                     setState(() {
-                      nbStock = int.parse(val);
+                      nbTotal = int.parse(val);
+                    });
+                  },
+                ),
+                TextFormField(
+                  keyboardType: TextInputType.number,
+                  validator: validators["prixUstensile"],
+                  inputFormatters: inputFormatters["prixUstensile"],
+                  decoration: InputDecoration(
+                    border: UnderlineInputBorder(),
+                    labelText: "Prix ustensile",
+                  ),
+                  initialValue: modifier ? "${widget.ustensile["prixUstensile"]}" : "",
+                  onSaved: (val) {
+                    setState(() {
+                      prixUstensile = double.parse(val);
                     });
                   },
                 ),

@@ -1,6 +1,5 @@
 import 'package:berisheba/routes/ustensile/ustensile_state.dart';
 import 'package:berisheba/routes/ustensile/widgets/ustensile_formulaire.dart';
-import 'package:berisheba/routes/reservation/widget/reservation_details.dart';
 import 'package:berisheba/states/config.dart';
 import 'package:berisheba/tools/widgets/confirm.dart';
 import 'package:flutter/material.dart';
@@ -43,7 +42,7 @@ class _UstensileItemState extends State<UstensileItem> {
                           width: 1))),
               padding: EdgeInsets.symmetric(horizontal: 17, vertical: 3),
               child: Icon(
-                Icons.dashboard,
+                Icons.restaurant,
                 size: 30,
               ),
             )
@@ -56,7 +55,7 @@ class _UstensileItemState extends State<UstensileItem> {
           overflow: TextOverflow.clip,
           style: TextStyle(fontSize: 16),
         ),
-        subtitle: Text("Nombre total: ${_ustensile["nbStock"]}"),
+        subtitle: Text("Nombre total: ${_ustensile["nbTotal"]}\nPrix: ${_ustensile["prixUstensile"]}"),
         onLongPress: () {
           ustensileState.isDeletingUstensile = true;
           setState(() {

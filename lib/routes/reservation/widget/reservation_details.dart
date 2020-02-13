@@ -2,6 +2,7 @@ import 'package:berisheba/routes/reservation/states/autres_state.dart';
 import 'package:berisheba/routes/reservation/states/concerner_state.dart';
 import 'package:berisheba/routes/reservation/states/conflit_state.dart';
 import 'package:berisheba/routes/reservation/states/constituer_state.dart';
+import 'package:berisheba/routes/reservation/states/emprunter_state.dart';
 import 'package:berisheba/routes/reservation/states/jirama_state.dart';
 import 'package:berisheba/routes/reservation/states/louer_state.dart';
 import 'package:berisheba/routes/reservation/states/reservation_state.dart';
@@ -11,6 +12,7 @@ import 'package:berisheba/routes/reservation/widget/details/globaldetails.dart';
 import 'package:berisheba/routes/reservation/widget/details/jirama.dart';
 import 'package:berisheba/routes/reservation/widget/details/materiels.dart';
 import 'package:berisheba/routes/reservation/widget/details/salles.dart';
+import 'package:berisheba/routes/reservation/widget/details/ustensiles.dart';
 import 'package:berisheba/states/global_state.dart';
 import 'package:berisheba/tools/widgets/confirm.dart';
 import 'package:flutter/material.dart';
@@ -67,6 +69,8 @@ class _ReservationDetailsState extends State<ReservationDetailsBody> {
         Provider.of<ConcernerState>(context, listen: false);
     final LouerState _louerState =
         Provider.of<LouerState>(context, listen: false);
+    final EmprunterState _emprunterState =
+        Provider.of<EmprunterState>(context, listen: false);
     if (!_constituerState.demiJourneesByReservation
         .containsKey(widget._idReservation))
       _constituerState.fetchData(widget._idReservation);
@@ -80,6 +84,7 @@ class _ReservationDetailsState extends State<ReservationDetailsBody> {
     if (!_louerState.materielsLoueeByIdReservation
         .containsKey(widget._idReservation))
       _louerState.fetchData(widget._idReservation);
+      _emprunterState.fetchData(widget._idReservation);
   }
 
   @override
@@ -104,6 +109,7 @@ class _ReservationDetailsState extends State<ReservationDetailsBody> {
                 children: <Widget>[
                   ReservationGlobalDetails(widget._idReservation),
                   ReservationDemiJournee(widget._idReservation),
+                  ReservationUstensile(widget._idReservation),
                   ReservationSalle(widget._idReservation),
                   ReservationMateriel(widget._idReservation),
                   Consumer<JiramaState>(

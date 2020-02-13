@@ -87,8 +87,6 @@ class _ReservationUstensileState extends State<ReservationUstensile> {
                 collapsed: emprunterState.isLoading == widget.idReservation
                     ? const Loading()
                     : Container(
-                        child: Text(
-                            "Ustensiles occupées: ${emprunterState.ustensilesEmprunteByIdReservation[widget.idReservation]?.length ?? ""}"),
                       ),
                 expanded: Container(
                   height: emprunterState.ustensilesEmprunteByIdReservation[
@@ -261,7 +259,7 @@ class _UstensileItem extends StatelessWidget {
               onTap: () {},
               child: NumberSelector(
                 min: 0,
-                max: emprunter.ustensile.nbStock,
+                max: emprunter.ustensile.nbTotal,
                 value: value,
                 setValue: setValue,
               ),
@@ -330,7 +328,7 @@ class _UstensileDialogState extends State<_UstensileDialog> {
                               child: selected.contains(s.idUstensile)
                                   ? NumberSelector(
                                       min: 0,
-                                      max: s.nbStock,
+                                      max: s.nbTotal,
                                       value: value[s.idUstensile] ?? 0,
                                       setValue: (int val) {
                                         setState(() {

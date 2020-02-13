@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:core';
 
-import 'package:berisheba/routes/materiel/materiel_state.dart';
+import 'package:berisheba/routes/ustensile/ustensile_state.dart';
 import 'package:berisheba/states/global_state.dart';
 import 'package:berisheba/tools/http/request.dart';
 import 'package:berisheba/tools/others/cast.dart';
@@ -18,40 +18,40 @@ class EmprunterState extends ChangeNotifier {
     }
   }
 
-  Map<int, Map<int, dynamic>> _listeMaterielDispoByIdReservation = {};
+  Map<int, Map<int, dynamic>> _listeUstensileDispoByIdReservation = {};
 
-  Map<int, Map<int, dynamic>> get listeMaterielDispoByIdReservation =>
-      _listeMaterielDispoByIdReservation;
+  Map<int, Map<int, dynamic>> get listeUstensileDispoByIdReservation =>
+      _listeUstensileDispoByIdReservation;
 
-  Map<int, Map<int,Emprunter>> _materielsEmprunteByIdReservation = {};
-  Map<int, Map<int, Emprunter>> get materielsEmprunteByIdReservation =>
-      _materielsEmprunteByIdReservation;
+  Map<int, Map<int,Emprunter>> _ustensilesEmprunteByIdReservation = {};
+  Map<int, Map<int, Emprunter>> get ustensilesEmprunteByIdReservation =>
+      _ustensilesEmprunteByIdReservation;
 
   Future<void> fetchData(int idReservation) async {
     try {
       _isLoading = idReservation;
       Dio _dio = await RestRequest().getDioInstance();
       try {
-        var response = await _dio.get("/reservations/$idReservation/materiels");
-        var response2 = await _dio.get("/materiels/$idReservation");
+        var response = await _dio.get("/reservations/$idReservation/ustensiles");
+        var response2 = await _dio.get("/ustensiles/$idReservation");
         var data = response?.data;
         var data2 = response2?.data;
-        _materielsEmprunteByIdReservation[idReservation] = Cast.stringToIntMap(
+        _ustensilesEmprunteByIdReservation[idReservation] = Cast.stringToIntMap(
             data["data"],
-            (materiel) => Emprunter(
-                materiel: Materiel(
-                idMateriel: materiel["idMateriel"],
-                nomMateriel: materiel["nomMateriel"],
-                nbStock: materiel["nbStock"]),
+            (ustensile) => Emprunter(
+                ustensile: Ustensile(
+                idUstensile: ustensile["idUstensile"],
+                nomUstensile: ustensile["nomUstensile"],
+                nbTotal: ustensile["nbTotal"]),
                 idReservation: idReservation,
-                nbEmprunte: materiel["nbEmprunte"])).cast<int, Emprunter>();
+                nbEmprunte: ustensile["nbEmprunte"])).cast<int, Emprunter>();
 
-        _listeMaterielDispoByIdReservation[idReservation] = Cast.stringToIntMap(
+        _listeUstensileDispoByIdReservation[idReservation] = Cast.stringToIntMap(
             data2["data"],
-            (materiel) => Materiel(
-                idMateriel: materiel["idMateriel"],
-                nomMateriel: materiel["nomMateriel"],
-                nbStock: materiel["nbStock"])).cast<int, Materiel>();
+            (ustensile) => Ustensile(
+                idUstensile: ustensile["idUstensile"],
+                nomUstensile: ustensile["nomUstensile"],
+                nbTotal: ustensile["nbTotal"])).cast<int, Ustensile>();
       } catch (error) {
         print(error);
         if (error is DioError && error.type == DioErrorType.RESPONSE) {
@@ -67,11 +67,11 @@ class EmprunterState extends ChangeNotifier {
   }
 
   static Future<bool> removeData(
-      {@required int idReservation, @required int idMateriel}) async {
+      {@required int idReservation, @required int idUstensile}) async {
     Dio _dio = await RestRequest().getDioInstance();
     try {
       Response response = await _dio
-          .delete("/reservations/$idReservation/materiels/$idMateriel");
+          .delete("/reservations/$idReservation/ustensiles/$idUstensile");
       GlobalState().channel.sink.add("emprunter $idReservation");
       return true;
     } catch (error) {
@@ -84,7 +84,7 @@ class EmprunterState extends ChangeNotifier {
       {@required int idReservation}) async {
     Dio _dio = await RestRequest().getDioInstance();
     try {
-      await _dio.post("/reservations/$idReservation/materiels", data: {"data" : data});
+      await _dio.post("/reservations/$idReservation/ustensiles", data: {"data" : data});
       GlobalState().channel.sink.add("emprunter $idReservation");
       return true;
     } catch (error) {
@@ -99,7 +99,7 @@ class EmprunterState extends ChangeNotifier {
     Dio _dio = await RestRequest().getDioInstance();
     try {
       Map<String, int> dataEncodable = (data as Map<int, int>).map<String,int>((key,value) => MapEntry(key.toString(), value));
-      await _dio.put("/reservations/$idReservation/materiels", data: {"data" : json.encode(dataEncodable)});
+      await _dio.put("/reservations/$idReservation/ustensiles", data: {"data" : json.encode(dataEncodable)});
       GlobalState().channel.sink.add("emprunter $idReservation");
       return true;
     } catch (error) {
@@ -122,13 +122,13 @@ class EmprunterState extends ChangeNotifier {
 }
 
 class Emprunter {
-  Emprunter({@required this.materiel, @required this.idReservation, @required this.nbEmprunte});
+  Emprunter({@required this.ustensile, @required this.idReservation, @required this.nbEmprunte});
   final int idReservation;
-  final Materiel materiel;
+  final Ustensile ustensile;
   int nbEmprunte;
   @override
   operator ==(emprunter) =>
-      materiel is Emprunter && emprunter.idReservation == idReservation && emprunter.materiel == materiel;
+      ustensile is Emprunter && emprunter.idReservation == idReservation && emprunter.ustensile == ustensile;
 
-  int get hashCode => idReservation.hashCode ^ materiel.hashCode;
+  int get hashCode => idReservation.hashCode ^ ustensile.hashCode;
 }

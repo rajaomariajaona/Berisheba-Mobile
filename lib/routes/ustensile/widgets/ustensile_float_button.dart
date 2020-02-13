@@ -11,7 +11,7 @@ class UstensileFloatButton extends StatelessWidget {
         .isDeletingUstensile
         ? Container()
         : FloatingActionButton(
-            child: Icon(Icons.dashboard),
+            child: Icon(Icons.restaurant),
             onPressed: () async {
               var t = await Navigator.of(context).push(MaterialPageRoute(
                 builder: (context) => UstensileFormulaire(),

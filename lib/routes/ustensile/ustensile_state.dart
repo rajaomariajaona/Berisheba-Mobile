@@ -250,10 +250,10 @@ class UstensileState extends ChangeNotifier {
 }
 
 class Ustensile {
-  const Ustensile({@required this.idUstensile, @required this.nomUstensile, @required this.nbStock});
+  const Ustensile({@required this.idUstensile, @required this.nomUstensile, @required this.nbTotal});
   final int idUstensile;
   final String nomUstensile;
-  final int nbStock;
+  final int nbTotal;
   @override
   operator ==(ustensile) =>
       ustensile is Ustensile && ustensile.idUstensile == idUstensile && ustensile.nomUstensile == nomUstensile;
