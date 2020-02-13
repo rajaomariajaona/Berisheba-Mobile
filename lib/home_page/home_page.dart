@@ -16,6 +16,8 @@ import 'package:berisheba/routes/reservation/widget/reservation_float_button.dar
 import 'package:berisheba/routes/salle/salle_portrait.dart';
 import 'package:berisheba/routes/salle/widgets/salle_app_bar.dart';
 import 'package:berisheba/routes/salle/widgets/salle_float_button.dart';
+import 'package:berisheba/routes/ustensile/ustensile_portrait.dart';
+import 'package:berisheba/routes/ustensile/widgets/ustensile_float_button.dart';
 import 'package:berisheba/states/config.dart';
 import 'package:berisheba/states/global_state.dart';
 import 'package:berisheba/states/tab_state.dart';
@@ -76,7 +78,7 @@ class _SquelleteState extends State<Squellete> {
     ReservationPortrait(),
     SallePortrait(),
     MaterielPortrait(),
-    Clients(),
+    UstensilePortrait(),
     Clients(),
   ];
 
@@ -96,7 +98,7 @@ class _SquelleteState extends State<Squellete> {
     ReservationFloatButton(),
     SalleFloatButton(),
     MaterielFloatButton(),
-    ClientFloatButton(),
+    UstensileFloatButton(),
     ClientFloatButton(),
   ];
 

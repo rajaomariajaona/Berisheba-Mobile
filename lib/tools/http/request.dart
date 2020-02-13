@@ -80,6 +80,7 @@ class RestRequest {
   }
 
   Future<dynamic> _refreshToken(RequestOptions options) async {
+    var imei = await ImeiPlugin.getImei();
     try {
       _dio.interceptors.requestLock.lock();
       _dio.interceptors.responseLock.lock();
@@ -88,7 +89,7 @@ class RestRequest {
         connectTimeout: 5000,
         receiveTimeout: 3000,
         contentType: Headers.formUrlEncodedContentType,
-      )).post("/device", data: {"deviceid": await ImeiPlugin.getImei()}).then(
+      )).post("/device", data: {"deviceid": imei}).then(
           (response) async {
         String token = response.data["token"];
         await this._writeToken(token);

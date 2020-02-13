@@ -9,6 +9,7 @@ import 'package:berisheba/routes/reservation/states/jirama_state.dart';
 import 'package:berisheba/routes/reservation/states/louer_state.dart';
 import 'package:berisheba/routes/reservation/states/reservation_state.dart';
 import 'package:berisheba/routes/salle/salle_state.dart';
+import 'package:berisheba/routes/ustensile/ustensile_state.dart';
 import 'package:berisheba/states/config.dart';
 import 'package:berisheba/states/global_state.dart';
 import 'package:berisheba/states/tab_state.dart';
@@ -108,6 +109,7 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => SalleState()),
         ChangeNotifierProvider(create: (_) => ConcernerState()),
         ChangeNotifierProvider(create: (_) => LouerState()),
+        ChangeNotifierProvider(create: (_) => UstensileState()),
         ChangeNotifierProvider(create: (_) => ConflitState()),
       ],
       child: MaterialApp(
