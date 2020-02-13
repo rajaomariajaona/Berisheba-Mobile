@@ -2,7 +2,6 @@ import 'package:berisheba/routes/materiel/materiel_state.dart';
 import 'package:berisheba/states/config.dart';
 import 'package:berisheba/states/global_state.dart';
 import 'package:berisheba/tools/formatters/CaseInputFormatter.dart';
-import 'package:berisheba/tools/formatters/NumTelInputFormatter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -19,9 +18,14 @@ class _MaterielFormulaireState extends State<MaterielFormulaire> {
   final _formKey = GlobalKey<FormState>();
   bool isPostingData = false;
   String nom;
+  int nbStock;
 
   final Map<String, FormFieldValidator> validators = {
     "nom": (value) {
+      if (value.isEmpty) return "Champ vide";
+      return null;
+    },
+    "nbStock": (value) {
       if (value.isEmpty) return "Champ vide";
       return null;
     }
@@ -32,6 +36,10 @@ class _MaterielFormulaireState extends State<MaterielFormulaire> {
       WhitelistingTextInputFormatter(RegExp("[A-zÀ-ú ]")),
       LengthLimitingTextInputFormatter(50),
       CapitalizeWordsInputFormatter()
+    ],
+    "nbStock": <TextInputFormatter>[
+      WhitelistingTextInputFormatter(RegExp("[0-9]")),
+      LengthLimitingTextInputFormatter(4),
     ]
   };
 
@@ -78,9 +86,11 @@ class _MaterielFormulaireState extends State<MaterielFormulaire> {
                       dynamic result = modifier
                           ? await MaterielState.modifyData({
                               "nomMateriel": nom,
+                              "nbStock" : nbStock
                             },idMateriel: widget.materiel["idMateriel"])
                           : await MaterielState.saveData({
                               "nomMateriel": nom,
+                              "nbStock" : nbStock
                             });
                       print(result);
                       GlobalState().channel.sink.add("materiel");
@@ -108,12 +118,27 @@ class _MaterielFormulaireState extends State<MaterielFormulaire> {
                   inputFormatters: inputFormatters["nom"],
                   decoration: InputDecoration(
                     border: UnderlineInputBorder(),
-                    labelText: "Nom de la materiel",
+                    labelText: "Nom du materiel",
                   ),
                   initialValue: modifier ? widget.materiel["nomMateriel"] : "",
                   onSaved: (val) {
                     setState(() {
                       nom = val;
+                    });
+                  },
+                ),
+                TextFormField(
+                  keyboardType: TextInputType.number,
+                  validator: validators["nbStock"],
+                  inputFormatters: inputFormatters["nbStock"],
+                  decoration: InputDecoration(
+                    border: UnderlineInputBorder(),
+                    labelText: "Nombre en Stock",
+                  ),
+                  initialValue: modifier ? "${widget.materiel["nbStock"]}" : "",
+                  onSaved: (val) {
+                    setState(() {
+                      nbStock = int.parse(val);
                     });
                   },
                 ),

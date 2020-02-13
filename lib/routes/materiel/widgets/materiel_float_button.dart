@@ -11,7 +11,7 @@ class MaterielFloatButton extends StatelessWidget {
         .isDeletingMateriel
         ? Container()
         : FloatingActionButton(
-            child: Icon(Icons.add_location),
+            child: Icon(Icons.dashboard),
             onPressed: () async {
               var t = await Navigator.of(context).push(MaterialPageRoute(
                 builder: (context) => MaterielFormulaire(),

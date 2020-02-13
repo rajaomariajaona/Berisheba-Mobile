@@ -1,7 +1,12 @@
 import 'package:berisheba/routes/materiel/materiel_state.dart';
+import 'package:berisheba/routes/materiel/widgets/materiel_formulaire.dart';
+import 'package:berisheba/routes/reservation/widget/reservation_details.dart';
 import 'package:berisheba/states/config.dart';
+import 'package:berisheba/tools/widgets/confirm.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+
+enum Actions { supprimer, modifier }
 
 class MaterielItem extends StatefulWidget {
   final int _idMateriel;
@@ -48,9 +53,10 @@ class _MaterielItemState extends State<MaterielItem> {
         title: Text(
           "${_materiel["nomMateriel"]}",
           maxLines: 3,
-          overflow: TextOverflow.ellipsis,
+          overflow: TextOverflow.clip,
           style: TextStyle(fontSize: 16),
         ),
+        subtitle: Text("Nombre total: ${_materiel["nbStock"]}"),
         onLongPress: () {
           materielState.isDeletingMateriel = true;
           setState(() {
@@ -69,7 +75,37 @@ class _MaterielItemState extends State<MaterielItem> {
                   });
                 },
               )
-            : null,
+            : PopupMenuButton(
+                itemBuilder: (ctx) => [
+                  PopupMenuItem(
+                    child: Text("modifier"),
+                    value: Actions.modifier,
+                  ),
+                  PopupMenuItem(
+                      child: Text("supprimer"), value: Actions.supprimer),
+                ],
+                onSelected: (Actions action) async {
+                  switch (action) {
+                    case Actions.supprimer:
+                      await Confirm.showDeleteConfirm(context: context)
+                          .then((bool isOk) {
+                        if (isOk) {
+                          MaterielState.removeData(_materiel["idMateriel"]);
+                        }
+                      });
+                      break;
+                    case Actions.modifier:
+                      var t =
+                          await Navigator.of(context).push(MaterialPageRoute(
+                        builder: (context) => MaterielFormulaire(
+                          materiel: _materiel,
+                        ),
+                      ));
+                      break;
+                    default:
+                  }
+                },
+              ),
       ),
     );
   }

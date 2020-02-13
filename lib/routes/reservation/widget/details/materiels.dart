@@ -46,7 +46,7 @@ class _ReservationMaterielState extends State<ReservationMateriel> {
         .forEach((int idMateriel, Louer louer) {
       _listMateriel.add(_MaterielItem(
         louer: louer,
-        value: values[idMateriel],
+        value: values[idMateriel] ?? 0,
         idReservation: widget.idReservation,
         editMode: editMode,
         setValue: (int val) {
@@ -248,22 +248,24 @@ class _MaterielItem extends StatelessWidget {
             "${louer.materiel.nomMateriel} ${editMode ? "" : "\n Louee: ${louer.nbLouee}"}",
             overflow: TextOverflow.clip,
           ),
-          !editMode
-              ? IconButton(icon: Icon(Icons.delete), onPressed: () {
-                LouerState.removeData(idReservation: idReservation, idMateriel: louer.materiel.idMateriel);
-              })
-              : Container(),
-          editMode
-              ? GestureDetector(
-                  onTap: () {},
-                  child: NumberSelector(
-                    min: 0,
-                    max: louer.materiel.nbStock,
-                    value: value,
-                    setValue: setValue,
-                  ),
-                )
-              : Container(),
+          if (!editMode)
+            IconButton(
+                icon: Icon(Icons.delete),
+                onPressed: () {
+                  LouerState.removeData(
+                      idReservation: idReservation,
+                      idMateriel: louer.materiel.idMateriel);
+                })
+          else
+            GestureDetector(
+              onTap: () {},
+              child: NumberSelector(
+                min: 0,
+                max: louer.materiel.nbStock,
+                value: value,
+                setValue: setValue,
+              ),
+            )
         ],
       ),
     );

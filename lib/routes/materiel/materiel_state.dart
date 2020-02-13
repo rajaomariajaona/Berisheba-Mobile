@@ -142,7 +142,7 @@ class MaterielState extends ChangeNotifier {
     _dio.options.headers["deletelist"] = json.encode(_listIdMaterielSelected);
     try {
       Response response = await _dio.delete("/materiels");
-      GlobalState().channel.sink.add("materiel delete");
+      GlobalState().channel.sink.add("materiel");
       this.isDeletingMateriel = false;
       return true;
     } catch (error) {
@@ -155,7 +155,7 @@ class MaterielState extends ChangeNotifier {
     Dio _dio = await RestRequest().getDioInstance();
     try {
       Response response = await _dio.delete("/materiels/$idMateriel");
-      GlobalState().channel.sink.add("materiel delete");
+      GlobalState().channel.sink.add("materiel");
       return true;
     } catch (error) {
       print(error?.response?.data);
