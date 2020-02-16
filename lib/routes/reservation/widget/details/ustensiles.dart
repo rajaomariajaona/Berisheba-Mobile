@@ -168,7 +168,7 @@ class _ReservationUstensileState extends State<ReservationUstensile> {
                                             var res = await showDialog(
                                               context: context,
                                               builder: (BuildContext context) =>
-                                                  _UstensileDialog(
+                                                  UstensileDialog(
                                                 idReservation:
                                                     widget.idReservation,
                                               ),
@@ -270,14 +270,14 @@ class _UstensileItem extends StatelessWidget {
   }
 }
 
-class _UstensileDialog extends StatefulWidget {
-  _UstensileDialog({@required this.idReservation, Key key}) : super(key: key);
+class UstensileDialog extends StatefulWidget {
+  UstensileDialog({@required this.idReservation, Key key}) : super(key: key);
   final int idReservation;
   @override
   State<StatefulWidget> createState() => _UstensileDialogState();
 }
 
-class _UstensileDialogState extends State<_UstensileDialog> {
+class _UstensileDialogState extends State<UstensileDialog> {
   List<int> selected = [];
   Map<int, int> value = {};
   @override

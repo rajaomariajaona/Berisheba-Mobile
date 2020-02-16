@@ -170,7 +170,7 @@ class _ReservationMaterielState extends State<ReservationMateriel> {
                                             var res = await showDialog(
                                               context: context,
                                               builder: (BuildContext context) =>
-                                                  _MaterielDialog(
+                                                  MaterielDialog(
                                                 idReservation:
                                                     widget.idReservation,
                                               ),
@@ -272,14 +272,14 @@ class _MaterielItem extends StatelessWidget {
   }
 }
 
-class _MaterielDialog extends StatefulWidget {
-  _MaterielDialog({@required this.idReservation, Key key}) : super(key: key);
+class MaterielDialog extends StatefulWidget {
+  MaterielDialog({@required this.idReservation, Key key}) : super(key: key);
   final int idReservation;
   @override
   State<StatefulWidget> createState() => _MaterielDialogState();
 }
 
-class _MaterielDialogState extends State<_MaterielDialog> {
+class _MaterielDialogState extends State<MaterielDialog> {
   List<int> selected = [];
   Map<int, int> value = {};
   @override

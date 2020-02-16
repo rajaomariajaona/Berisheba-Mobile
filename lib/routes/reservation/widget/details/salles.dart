@@ -94,7 +94,7 @@ class ReservationSalle extends StatelessWidget {
                                             var res = await showDialog(
                                               context: context,
                                               builder: (BuildContext context) =>
-                                                  _SalleDialog(
+                                                  SalleDialog(
                                                 idReservation: _idReservation,
                                               ),
                                             );
@@ -164,14 +164,14 @@ class _SalleItem extends StatelessWidget {
   }
 }
 
-class _SalleDialog extends StatefulWidget {
-  _SalleDialog({@required this.idReservation, Key key}) : super(key: key);
+class SalleDialog extends StatefulWidget {
+  SalleDialog({@required this.idReservation, Key key}) : super(key: key);
   final int idReservation;
   @override
   State<StatefulWidget> createState() => _SalleDialogState();
 }
 
-class _SalleDialogState extends State<_SalleDialog> {
+class _SalleDialogState extends State<SalleDialog> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(

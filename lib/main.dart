@@ -33,7 +33,7 @@ void main() {
   });
   final SystemUiOverlayStyle style = SystemUiOverlayStyle.light.copyWith(
       statusBarColor: Config.primaryBlue,
-      systemNavigationBarColor: Config.secondaryBlue);
+      systemNavigationBarColor: Config.primaryBlue);
   SystemChrome.setSystemUIOverlayStyle(style);
   SystemChrome.setPreferredOrientations(<DeviceOrientation>[
     DeviceOrientation.portraitUp,
@@ -115,6 +115,7 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => ConflitState()),
       ],
       child: MaterialApp(
+        
         localizationsDelegates: [
           GlobalMaterialLocalizations.delegate,
           GlobalWidgetsLocalizations.delegate,

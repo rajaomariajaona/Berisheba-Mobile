@@ -1,3 +1,4 @@
+import 'package:berisheba/routes/materiel/materiel_state.dart';
 import 'package:berisheba/routes/reservation/states/autres_state.dart';
 import 'package:berisheba/routes/reservation/states/concerner_state.dart';
 import 'package:berisheba/routes/reservation/states/conflit_state.dart';
@@ -18,7 +19,7 @@ import 'package:berisheba/tools/widgets/confirm.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-enum Actions { supprimer, jirama, autres }
+enum Actions { salle, materiel, ustensile, jirama, autres }
 
 class ReservationDetails extends StatelessWidget {
   final int _idReservation;
@@ -84,7 +85,7 @@ class _ReservationDetailsState extends State<ReservationDetailsBody> {
     if (!_louerState.materielsLoueeByIdReservation
         .containsKey(widget._idReservation))
       _louerState.fetchData(widget._idReservation);
-      _emprunterState.fetchData(widget._idReservation);
+    _emprunterState.fetchData(widget._idReservation);
   }
 
   @override
@@ -109,9 +110,42 @@ class _ReservationDetailsState extends State<ReservationDetailsBody> {
                 children: <Widget>[
                   ReservationGlobalDetails(widget._idReservation),
                   ReservationDemiJournee(widget._idReservation),
-                  ReservationUstensile(widget._idReservation),
-                  ReservationSalle(widget._idReservation),
-                  ReservationMateriel(widget._idReservation),
+                  Consumer<ConcernerState>(
+                      builder: (ctx, concernerState, __) =>
+                          concernerState.sallesByIdReservation[
+                                          widget._idReservation] !=
+                                      null &&
+                                  concernerState
+                                          .sallesByIdReservation[
+                                              widget._idReservation]
+                                          .length >
+                                      0
+                              ? ReservationSalle(widget._idReservation)
+                              : Container()),
+                  Consumer<EmprunterState>(
+                      builder: (ctx, emprunterState, __) =>
+                          emprunterState.ustensilesEmprunteByIdReservation[
+                                          widget._idReservation] !=
+                                      null &&
+                                  emprunterState
+                                          .ustensilesEmprunteByIdReservation[
+                                              widget._idReservation]
+                                          .length >
+                                      0
+                              ? ReservationUstensile(widget._idReservation)
+                              : Container()),
+                  Consumer<LouerState>(
+                      builder: (ctx, louerState, __) =>
+                          louerState.materielsLoueeByIdReservation[
+                                          widget._idReservation] !=
+                                      null &&
+                                  louerState
+                                          .materielsLoueeByIdReservation[
+                                              widget._idReservation]
+                                          .length >
+                                      0
+                              ? ReservationMateriel(widget._idReservation)
+                              : Container()),
                   Consumer<JiramaState>(
                       builder: (ctx, jiramaState, __) =>
                           jiramaState.jiramaByIdReservation[
@@ -145,19 +179,87 @@ class _ReservationDetailsState extends State<ReservationDetailsBody> {
 
   List<Widget> _actionsAppBar(BuildContext context) {
     return <Widget>[
+      IconButton(
+        icon: Icon(Icons.delete),
+        onPressed: () async {
+          try {
+            if (await Confirm.showDeleteConfirm(context: context)) {
+              await ReservationState.removeData(
+                  idReservation: widget._idReservation);
+              Navigator.of(context).pop(true);
+              GlobalState().channel.sink.add("reservation");
+            }
+          } catch (error) {
+            print(error?.response?.data);
+          }
+        },
+      ),
       PopupMenuButton(
         onSelected: (value) async {
           switch (value) {
-            case Actions.supprimer:
-              try {
-                if (await Confirm.showDeleteConfirm(context: context)) {
-                  await ReservationState.removeData(
-                      idReservation: widget._idReservation);
-                  Navigator.of(context).pop(true);
-                  GlobalState().channel.sink.add("reservation");
-                }
-              } catch (error) {
-                print(error?.response?.data);
+            case Actions.ustensile:
+              var res = await showDialog(
+                context: context,
+                builder: (BuildContext context) => UstensileDialog(
+                  idReservation: widget._idReservation,
+                ),
+              );
+              if (res != null) {
+                await EmprunterState.saveData({"idUstensile": res},
+                        idReservation: widget._idReservation)
+                    .whenComplete(() {
+                  Provider.of<ConflitState>(context, listen: false)
+                      .fetchConflit(widget._idReservation)
+                      .then((bool containConflit) {
+                    if (containConflit) {
+                      Navigator.of(context)
+                          .pushNamed("conflit/:${widget._idReservation}");
+                    }
+                  });
+                });
+              }
+              break;
+            case Actions.materiel:
+              var res = await showDialog(
+                context: context,
+                builder: (BuildContext context) =>
+                    MaterielDialog(idReservation: widget._idReservation),
+              );
+              if (res != null) {
+                await LouerState.saveData({"idMateriel": res},
+                        idReservation: widget._idReservation)
+                    .whenComplete(() {
+                  Provider.of<ConflitState>(context, listen: false)
+                      .fetchConflit(widget._idReservation)
+                      .then((bool containConflit) {
+                    if (containConflit) {
+                      Navigator.of(context)
+                          .pushNamed("conflit/:${widget._idReservation}");
+                    }
+                  });
+                });
+              }
+              break;
+            case Actions.salle:
+              var res = await showDialog(
+                context: context,
+                builder: (BuildContext context) => SalleDialog(
+                  idReservation: widget._idReservation,
+                ),
+              );
+              if (res != null) {
+                await ConcernerState.saveData({"idSalle": res},
+                        idReservation: widget._idReservation)
+                    .whenComplete(() {
+                  Provider.of<ConflitState>(context, listen: false)
+                      .fetchConflit(widget._idReservation)
+                      .then((bool containConflit) {
+                    if (containConflit) {
+                      Navigator.of(context)
+                          .pushNamed("conflit/:${widget._idReservation}");
+                    }
+                  });
+                });
               }
               break;
             case Actions.jirama:
@@ -184,15 +286,23 @@ class _ReservationDetailsState extends State<ReservationDetailsBody> {
         },
         itemBuilder: (context) => [
           PopupMenuItem(
-            child: const Text("supprimer"),
-            value: Actions.supprimer,
+            child: const Text("Ustensile"),
+            value: Actions.ustensile,
           ),
           PopupMenuItem(
-            child: const Text("jirama"),
+            child: const Text("Materiels"),
+            value: Actions.materiel,
+          ),
+          PopupMenuItem(
+            child: const Text("Ustensile"),
+            value: Actions.ustensile,
+          ),
+          PopupMenuItem(
+            child: const Text("Jirama"),
             value: Actions.jirama,
           ),
           PopupMenuItem(
-            child: const Text("autres"),
+            child: const Text("Autres"),
             value: Actions.autres,
           ),
         ],
