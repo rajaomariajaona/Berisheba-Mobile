@@ -72,6 +72,7 @@ class PayerState extends ChangeNotifier {
       _refresh(idReservation);
       return true;
     } catch (error) {
+      print(error);
       print(error?.response?.data);
       return false;
     }
