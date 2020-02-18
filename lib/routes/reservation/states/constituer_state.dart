@@ -13,8 +13,8 @@ class ConstituerState extends ChangeNotifier {
     __isLoading = val;
   }
 
-  Map<String, dynamic> get stats => _stats;
-  Map<String, dynamic> _stats = {};
+  Map<int, Map<String, dynamic>> get statsByIdReservation => _stats;
+  Map<int, Map<String, dynamic>> _stats = {};
   Map<int, Map<DemiJournee, int>> _demiJournees = {};
   Map<int, Map<DemiJournee, int>> get demiJourneesByReservation =>
       _demiJournees;
@@ -84,7 +84,7 @@ class ConstituerState extends ChangeNotifier {
                           : TypeDemiJournee.nuit),
               value["nbPersonne"]);
         });
-        _stats = _data["stat"];
+        _stats[idReservation] = _data["stat"];
         notifyListeners();
         _isLoading = 0;
         return true;

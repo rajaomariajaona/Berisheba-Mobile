@@ -6,12 +6,14 @@ import 'package:berisheba/routes/reservation/states/constituer_state.dart';
 import 'package:berisheba/routes/reservation/states/emprunter_state.dart';
 import 'package:berisheba/routes/reservation/states/jirama_state.dart';
 import 'package:berisheba/routes/reservation/states/louer_state.dart';
+import 'package:berisheba/routes/reservation/states/payer_state.dart';
 import 'package:berisheba/routes/reservation/states/reservation_state.dart';
 import 'package:berisheba/routes/reservation/widget/details/autres.dart';
 import 'package:berisheba/routes/reservation/widget/details/demi_journee.dart';
 import 'package:berisheba/routes/reservation/widget/details/globaldetails.dart';
 import 'package:berisheba/routes/reservation/widget/details/jirama.dart';
 import 'package:berisheba/routes/reservation/widget/details/materiels.dart';
+import 'package:berisheba/routes/reservation/widget/details/paiement.dart';
 import 'package:berisheba/routes/reservation/widget/details/salles.dart';
 import 'package:berisheba/routes/reservation/widget/details/ustensiles.dart';
 import 'package:berisheba/states/global_state.dart';
@@ -19,7 +21,7 @@ import 'package:berisheba/tools/widgets/confirm.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-enum Actions { salle, materiel, ustensile, jirama, autres }
+enum Actions { salle, materiel, ustensile, jirama, autres, payer }
 
 class ReservationDetails extends StatelessWidget {
   final int _idReservation;
@@ -72,6 +74,8 @@ class _ReservationDetailsState extends State<ReservationDetailsBody> {
         Provider.of<LouerState>(context, listen: false);
     final EmprunterState _emprunterState =
         Provider.of<EmprunterState>(context, listen: false);
+    final PayerState _payerState =
+        Provider.of<PayerState>(context, listen: false);
     if (!_constituerState.demiJourneesByReservation
         .containsKey(widget._idReservation))
       _constituerState.fetchData(widget._idReservation);
@@ -85,7 +89,11 @@ class _ReservationDetailsState extends State<ReservationDetailsBody> {
     if (!_louerState.materielsLoueeByIdReservation
         .containsKey(widget._idReservation))
       _louerState.fetchData(widget._idReservation);
-    _emprunterState.fetchData(widget._idReservation);
+    if (!_emprunterState.ustensilesEmprunteByIdReservation
+        .containsKey(widget._idReservation))
+      _emprunterState.fetchData(widget._idReservation);
+    if (!_payerState.statsByIdReservation.containsKey(widget._idReservation))
+      _payerState.fetchData(widget._idReservation);
   }
 
   @override
@@ -170,6 +178,7 @@ class _ReservationDetailsState extends State<ReservationDetailsBody> {
                                       0
                               ? ReservationAutres(widget._idReservation)
                               : Container()),
+                  ReservationPayer(widget._idReservation)
                 ],
               ),
             ),
@@ -281,6 +290,15 @@ class _ReservationDetailsState extends State<ReservationDetailsBody> {
                     context: context);
               } catch (error) {}
               break;
+            case Actions.payer:
+              try {
+                showDialog(
+                    builder: (BuildContext context) {
+                      return PayerDialog(idReservation: widget._idReservation);
+                    },
+                    context: context);
+              } catch (error) {}
+              break;
             default:
           }
         },
@@ -304,6 +322,10 @@ class _ReservationDetailsState extends State<ReservationDetailsBody> {
           PopupMenuItem(
             child: const Text("Autres"),
             value: Actions.autres,
+          ),
+          PopupMenuItem(
+            child: const Text("Payer"),
+            value: Actions.payer,
           ),
         ],
       )

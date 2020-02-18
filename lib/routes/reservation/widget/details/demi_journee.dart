@@ -161,7 +161,7 @@ class _ReservationDemiJourneeState extends State<ReservationDemiJournee> {
         Provider.of<ConstituerState>(context);
     final Map<DemiJournee, int> demiJournees =
         constituerState.demiJourneesByReservation[widget._idReservation];
-    final Map<String, dynamic> stat = constituerState.stats;
+    final Map<String, dynamic> stat = constituerState.statsByIdReservation[widget._idReservation];
     List<Widget> listDemiJournees = [];
     if (editMode) constituerState.controllers.clear();
     editMode

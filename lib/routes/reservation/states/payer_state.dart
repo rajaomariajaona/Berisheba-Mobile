@@ -3,7 +3,7 @@ import 'package:berisheba/tools/http/request.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/widgets.dart';
 
-class PaiementState extends ChangeNotifier {
+class PayerState extends ChangeNotifier {
   int __isLoading = 0;
   int get isLoading => __isLoading;
   set _isLoading(int val) {
@@ -12,24 +12,23 @@ class PaiementState extends ChangeNotifier {
   }
 
   Map<int, Map<String, dynamic>> _stats = {};
-  Map<int, Map<Appareil, int>> _paiement = {};
+  Map<int, List<Payer>> _payer = {};
   Map<int, Map<String, dynamic>> get statsByIdReservation => _stats;
-  Map<int, Map<Appareil, int>> get paiementByIdReservation => _paiement;
+    Map<int, List<Payer>> get payerByIdReservation => _payer;
   Future fetchData(int idReservation) async {
 
     Dio _dio = await RestRequest().getDioInstance();
     try {
       _isLoading = idReservation;
-      var response = await _dio.get("/paiement/$idReservation");
+      var response = await _dio.get("/payer/$idReservation");
       _stats[idReservation] = response.data["stats"];
-      _paiement[idReservation] = {};
+      _payer[idReservation] = [];
        (response.data["data"] as List<dynamic>).forEach((dynamic item) {
-           _paiement[idReservation][Appareil(
-              id: item["appareilIdAppareil"]["idAppareil"],
-              nom: item["appareilIdAppareil"]["nomAppareil"],
-              puissance: item["appareilIdAppareil"]["puissance"] + 0.0,
-          )] = 
-            item["duree"];
+           _payer[idReservation].add(Payer(
+              idReservation: idReservation,
+              sommePayee: item["sommePayee"] + 0.0,
+              typePaiement: item["paiementTypePaiement"]["typePaiement"]
+          ));
       });
       notifyListeners();
       _isLoading = 0;
@@ -44,7 +43,7 @@ class PaiementState extends ChangeNotifier {
   static Future<bool> saveData(dynamic data, {@required idReservation}) async {
     Dio _dio = await RestRequest().getDioInstance();
     try {
-      await _dio.post("/paiement/$idReservation", data: data);
+      await _dio.post("/payer/$idReservation", data: data);
       _refresh(idReservation);
       return true;
     } catch (error) {
@@ -54,10 +53,10 @@ class PaiementState extends ChangeNotifier {
   }
 
   static Future<bool> modifyData(dynamic data,
-      {@required idReservation}) async {
+      {@required idReservation, @required typePaiement}) async {
     Dio _dio = await RestRequest().getDioInstance();
     try {
-      await _dio.put("/paiement/$idReservation", data: data);
+      await _dio.put("/payer/$idReservation/$typePaiement", data: data);
       _refresh(idReservation);
       return true;
     } catch (error) {
@@ -65,23 +64,11 @@ class PaiementState extends ChangeNotifier {
       return false;
     }
   }
-  static Future<bool> patchPrixKW(dynamic data,
-      {@required idReservation}) async {
-    Dio _dio = await RestRequest().getDioInstance();
-    try {
-      await _dio.patch("/reservations/$idReservation", data: data);
-      GlobalState().channel.sink.add("reservation $idReservation");
-      return true;
-    } catch (error) {
-      print(error?.response?.data);
-      return false;
-    }
-  }
 
-  static Future<bool> removeData({@required idAppareil,@required idReservation}) async {
+  static Future<bool> removeData({@required typePaiement,@required idReservation}) async {
     Dio _dio = await RestRequest().getDioInstance();
     try {
-      await _dio.delete("/paiement/$idAppareil");
+      await _dio.delete("/payer/$idReservation/$typePaiement");
       _refresh(idReservation);
       return true;
     } catch (error) {
@@ -90,29 +77,27 @@ class PaiementState extends ChangeNotifier {
     }
   }
   static void _refresh(int idReservation){
-    GlobalState().channel.sink.add("paiement $idReservation");
+    GlobalState().channel.sink.add("payer $idReservation");
   }
 
-  PaiementState() {
+  PayerState() {
     GlobalState().externalStreamController.stream.listen((msg) async {
-      if (msg.contains("paiement")) {
+      if (msg.contains("payer")) {
         await this.fetchData(int.parse(msg.split(" ")[1]));
       }
     });
   }
 }
+class Payer {
+  final String typePaiement;
+  final double sommePayee;
+  final int idReservation;
+  const Payer(
+      {@required this.typePaiement, @required this.sommePayee, @required this.idReservation});
 
-class Appareil {
-  final String nom;
-  final double puissance;
-  final int id;
-  const Appareil(
-      {@required this.nom, @required this.puissance, @required this.id});
-
-  bool operator ==(appareil) =>
-      appareil is Appareil &&
-      appareil.id == id &&
-      appareil.nom == nom &&
-      appareil.puissance == puissance;
-  int get hashCode => nom.hashCode ^ puissance.hashCode ^ id.hashCode;
+  bool operator ==(payer) =>
+      payer is Payer &&
+      payer.typePaiement == typePaiement &&
+      payer.idReservation == idReservation;
+  int get hashCode => typePaiement.hashCode ^ idReservation.hashCode;
 }
