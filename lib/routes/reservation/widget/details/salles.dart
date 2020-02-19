@@ -10,7 +10,9 @@ import 'package:provider/provider.dart';
 
 class ReservationSalle extends StatelessWidget {
   final int _idReservation;
-  const ReservationSalle(this._idReservation, {Key key}) : super(key: key);
+  final bool readOnly;
+  const ReservationSalle(this._idReservation, {this.readOnly, Key key})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -18,7 +20,8 @@ class ReservationSalle extends StatelessWidget {
     List<Widget> _listSalle = [];
     (concernerState.sallesByIdReservation[_idReservation] ?? {})
         .forEach((int idSalle, Salle salle) {
-      _listSalle.add(_SalleItem(salle: salle, idReservation: _idReservation));
+      _listSalle.add(_SalleItem(
+          readOnly: readOnly, salle: salle, idReservation: _idReservation));
       _listSalle.add(const Divider());
     });
     return ExpandableNotifier(
@@ -87,31 +90,45 @@ class ReservationSalle extends StatelessWidget {
                                               _idReservation]
                                           .length >
                                       0,
-                                  builder: (ctx, isNotEmpty, __) => isNotEmpty
-                                      ? IconButton(
-                                          icon: Icon(Icons.add),
-                                          onPressed: () async {
-                                            var res = await showDialog(
-                                              context: context,
-                                              builder: (BuildContext context) =>
-                                                  SalleDialog(
-                                                idReservation: _idReservation,
-                                              ),
-                                            );
-                                            if (res != null) {
-                                              await ConcernerState.saveData({
-                                                "idSalle": res
-                                              }, idReservation: _idReservation).whenComplete((){
-                                                Provider.of<ConflitState>(context,listen: false).fetchConflit(_idReservation).then((bool containConflit){
-                                                  if(containConflit){
-                                                    Navigator.of(context).pushNamed("conflit/:$_idReservation");
-                                                  }
-                                                });
-                                              });
-                                            }
-                                          },
-                                        )
-                                      : Container(),
+                                  builder: (ctx, isNotEmpty, __) => readOnly
+                                      ? Container()
+                                      : isNotEmpty
+                                          ? IconButton(
+                                              icon: Icon(Icons.add),
+                                              onPressed: () async {
+                                                var res = await showDialog(
+                                                  context: context,
+                                                  builder:
+                                                      (BuildContext context) =>
+                                                          SalleDialog(
+                                                    idReservation:
+                                                        _idReservation,
+                                                  ),
+                                                );
+                                                if (res != null) {
+                                                  await ConcernerState.saveData(
+                                                          {"idSalle": res},
+                                                          idReservation:
+                                                              _idReservation)
+                                                      .whenComplete(() {
+                                                    Provider.of<ConflitState>(
+                                                            context,
+                                                            listen: false)
+                                                        .fetchConflit(
+                                                            _idReservation)
+                                                        .then((bool
+                                                            containConflit) {
+                                                      if (containConflit) {
+                                                        Navigator.of(context)
+                                                            .pushNamed(
+                                                                "conflit/:$_idReservation");
+                                                      }
+                                                    });
+                                                  });
+                                                }
+                                              },
+                                            )
+                                          : Container(),
                                 ),
                               ],
                             ),
@@ -138,11 +155,13 @@ class ReservationSalle extends StatelessWidget {
 }
 
 class _SalleItem extends StatelessWidget {
-  const _SalleItem({
-    Key key,
-    @required this.salle,
-    @required this.idReservation,
-  }) : super(key: key);
+  const _SalleItem(
+      {Key key,
+      @required this.salle,
+      @required this.idReservation,
+      @required this.readOnly})
+      : super(key: key);
+  final bool readOnly;
   final Salle salle;
   final int idReservation;
   @override
@@ -153,13 +172,15 @@ class _SalleItem extends StatelessWidget {
         "${salle.nomSalle} ",
         overflow: TextOverflow.ellipsis,
       ),
-      trailing: IconButton(
-        icon: const Icon(Icons.delete),
-        onPressed: () async {
-          await ConcernerState.removeData(
-              idReservation: idReservation, idSalle: salle.idSalle);
-        },
-      ),
+      trailing: readOnly
+          ? null
+          : IconButton(
+              icon: const Icon(Icons.delete),
+              onPressed: () async {
+                await ConcernerState.removeData(
+                    idReservation: idReservation, idSalle: salle.idSalle);
+              },
+            ),
     );
   }
 }
@@ -220,4 +241,3 @@ class _SalleDialogState extends State<SalleDialog> {
     );
   }
 }
-

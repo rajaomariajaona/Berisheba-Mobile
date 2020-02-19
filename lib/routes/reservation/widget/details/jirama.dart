@@ -12,7 +12,8 @@ import 'package:provider/provider.dart';
 
 class ReservationJirama extends StatelessWidget {
   final int _idReservation;
-  const ReservationJirama(this._idReservation, {Key key}) : super(key: key);
+  final bool readOnly;
+  const ReservationJirama(this._idReservation, {this.readOnly,Key key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -21,6 +22,7 @@ class ReservationJirama extends StatelessWidget {
     (jiramaState.jiramaByIdReservation[_idReservation])
         .forEach((Appareil appareil, int duree) {
       _listJirama.add(_JiramaItem(
+        readOnly: readOnly,
         appareil: appareil,
         duree: duree,
         idReservation: _idReservation,
@@ -87,6 +89,9 @@ class ReservationJirama extends StatelessWidget {
                             Row(
                               mainAxisAlignment: MainAxisAlignment.end,
                               children: <Widget>[
+                                if(readOnly)
+                                Container()
+                                else
                                 IconButton(
                                   icon: Icon(Icons.add),
                                   onPressed: () {
@@ -129,7 +134,9 @@ class _JiramaItem extends StatelessWidget {
     @required this.appareil,
     @required this.duree,
     @required this.idReservation,
+    @required this.readOnly
   }) : super(key: key);
+  final bool readOnly;
   final int idReservation;
   final Appareil appareil;
   final int duree;
@@ -166,7 +173,10 @@ class _JiramaItem extends StatelessWidget {
           ),
         ],
       ),
-      trailing: PopupMenuButton(
+      trailing: 
+      readOnly ?
+      null:
+      PopupMenuButton(
         padding: EdgeInsets.all(0),
         itemBuilder: (BuildContext context) {
           return [

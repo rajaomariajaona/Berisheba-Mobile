@@ -12,7 +12,9 @@ import 'package:provider/provider.dart';
 
 class ReservationMateriel extends StatefulWidget {
   final int idReservation;
-  const ReservationMateriel(this.idReservation, {Key key}) : super(key: key);
+  final bool readOnly;
+  const ReservationMateriel(this.idReservation, {this.readOnly, Key key})
+      : super(key: key);
 
   @override
   State<StatefulWidget> createState() => _ReservationMaterielState();
@@ -45,6 +47,7 @@ class _ReservationMaterielState extends State<ReservationMateriel> {
     (louerState.materielsLoueeByIdReservation[widget.idReservation] ?? {})
         .forEach((int idMateriel, Louer louer) {
       _listMateriel.add(_MaterielItem(
+        readOnly: widget.readOnly,
         louer: louer,
         value: values[idMateriel] ?? 0,
         idReservation: widget.idReservation,
@@ -117,88 +120,94 @@ class _ReservationMaterielState extends State<ReservationMateriel> {
                             Row(
                               mainAxisAlignment: MainAxisAlignment.end,
                               children: <Widget>[
-                                if (editMode) ...[
-                                  IconButton(
-                                      icon: Icon(Icons.check),
-                                      onPressed: () {
-                                        LouerState.modifyData(values,
-                                                idReservation:
+                                if (widget.readOnly)
+                                  Container()
+                                else ...[
+                                  if (editMode) ...[
+                                    IconButton(
+                                        icon: Icon(Icons.check),
+                                        onPressed: () {
+                                          LouerState.modifyData(values,
+                                                  idReservation:
+                                                      widget.idReservation)
+                                              .then((bool isOk) {
+                                            setState(() {
+                                              editMode = false;
+                                            });
+                                            Provider.of<ConflitState>(context,
+                                                    listen: false)
+                                                .fetchConflit(
                                                     widget.idReservation)
-                                            .then((bool isOk) {
+                                                .then((bool containConflit) {
+                                              if (containConflit) {
+                                                Navigator.of(context).pushNamed(
+                                                    "conflit/:${widget.idReservation}");
+                                              }
+                                            });
+                                          });
+                                        }),
+                                    IconButton(
+                                        icon: Icon(Icons.close),
+                                        onPressed: () {
                                           setState(() {
                                             editMode = false;
                                           });
-                                          Provider.of<ConflitState>(context,
-                                                  listen: false)
-                                              .fetchConflit(
-                                                  widget.idReservation)
-                                              .then((bool containConflit) {
-                                            if (containConflit) {
-                                              Navigator.of(context).pushNamed(
-                                                  "conflit/:${widget.idReservation}");
-                                            }
-                                          });
-                                        });
-                                      }),
-                                  IconButton(
-                                      icon: Icon(Icons.close),
+                                        }),
+                                  ] else
+                                    IconButton(
+                                      icon: Icon(Icons.edit),
                                       onPressed: () {
                                         setState(() {
-                                          editMode = false;
+                                          editMode = true;
                                         });
-                                      }),
-                                ] else
-                                  IconButton(
-                                    icon: Icon(Icons.edit),
-                                    onPressed: () {
-                                      setState(() {
-                                        editMode = true;
-                                      });
-                                    },
-                                  ),
-                                Selector<LouerState, bool>(
-                                  selector: (_, _louerState) =>
-                                      _louerState
-                                          .listeMaterielDispoByIdReservation[
-                                              widget.idReservation]
-                                          .length >
-                                      0,
-                                  builder: (ctx, isNotEmpty, __) => isNotEmpty
-                                      ? IconButton(
-                                          icon: Icon(Icons.add),
-                                          onPressed: () async {
-                                            var res = await showDialog(
-                                              context: context,
-                                              builder: (BuildContext context) =>
-                                                  MaterielDialog(
-                                                idReservation:
-                                                    widget.idReservation,
-                                              ),
-                                            );
-                                            if (res != null) {
-                                              await LouerState.saveData(
-                                                      {"idMateriel": res},
-                                                      idReservation:
+                                      },
+                                    ),
+                                  Selector<LouerState, bool>(
+                                    selector: (_, _louerState) =>
+                                        _louerState
+                                            .listeMaterielDispoByIdReservation[
+                                                widget.idReservation]
+                                            .length >
+                                        0,
+                                    builder: (ctx, isNotEmpty, __) => isNotEmpty
+                                        ? IconButton(
+                                            icon: Icon(Icons.add),
+                                            onPressed: () async {
+                                              var res = await showDialog(
+                                                context: context,
+                                                builder:
+                                                    (BuildContext context) =>
+                                                        MaterielDialog(
+                                                  idReservation:
+                                                      widget.idReservation,
+                                                ),
+                                              );
+                                              if (res != null) {
+                                                await LouerState.saveData(
+                                                        {"idMateriel": res},
+                                                        idReservation: widget
+                                                            .idReservation)
+                                                    .whenComplete(() {
+                                                  Provider.of<ConflitState>(
+                                                          context,
+                                                          listen: false)
+                                                      .fetchConflit(
                                                           widget.idReservation)
-                                                  .whenComplete(() {
-                                                Provider.of<ConflitState>(
-                                                        context,
-                                                        listen: false)
-                                                    .fetchConflit(
-                                                        widget.idReservation)
-                                                    .then(
-                                                        (bool containConflit) {
-                                                  if (containConflit) {
-                                                    Navigator.of(context).pushNamed(
-                                                        "conflit/:${widget.idReservation}");
-                                                  }
+                                                      .then((bool
+                                                          containConflit) {
+                                                    if (containConflit) {
+                                                      Navigator.of(context)
+                                                          .pushNamed(
+                                                              "conflit/:${widget.idReservation}");
+                                                    }
+                                                  });
                                                 });
-                                              });
-                                            }
-                                          },
-                                        )
-                                      : Container(),
-                                ),
+                                              }
+                                            },
+                                          )
+                                        : Container(),
+                                  ),
+                                ]
                               ],
                             ),
                           ],
@@ -230,8 +239,10 @@ class _MaterielItem extends StatelessWidget {
       @required this.idReservation,
       @required this.editMode,
       @required this.setValue,
+      @required this.readOnly,
       @required this.value})
       : super(key: key);
+  final bool readOnly;
   final int value;
   final Louer louer;
   final bool editMode;
@@ -248,24 +259,28 @@ class _MaterielItem extends StatelessWidget {
             "${louer.materiel.nomMateriel} ${editMode ? "" : "\n Louee: ${louer.nbLouee}"}",
             overflow: TextOverflow.clip,
           ),
-          if (!editMode)
-            IconButton(
-                icon: Icon(Icons.delete),
-                onPressed: () {
-                  LouerState.removeData(
-                      idReservation: idReservation,
-                      idMateriel: louer.materiel.idMateriel);
-                })
-          else
-            GestureDetector(
-              onTap: () {},
-              child: NumberSelector(
-                min: 0,
-                max: louer.materiel.nbStock,
-                value: value,
-                setValue: setValue,
-              ),
-            )
+          if (readOnly)
+            Container()
+          else ...[
+            if (!editMode)
+              IconButton(
+                  icon: Icon(Icons.delete),
+                  onPressed: () {
+                    LouerState.removeData(
+                        idReservation: idReservation,
+                        idMateriel: louer.materiel.idMateriel);
+                  })
+            else
+              GestureDetector(
+                onTap: () {},
+                child: NumberSelector(
+                  min: 0,
+                  max: louer.materiel.nbStock,
+                  value: value,
+                  setValue: setValue,
+                ),
+              )
+          ]
         ],
       ),
     );

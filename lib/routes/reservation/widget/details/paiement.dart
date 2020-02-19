@@ -7,7 +7,8 @@ import 'package:provider/provider.dart';
 
 class ReservationPayer extends StatelessWidget {
   final int _idReservation;
-  const ReservationPayer(this._idReservation, {Key key}) : super(key: key);
+  final bool readOnly;
+  const ReservationPayer(this._idReservation, {this.readOnly,Key key}) : super(key: key);
   @override
   Widget build(BuildContext context) {
     final PayerState payerState = Provider.of<PayerState>(context);
@@ -15,6 +16,7 @@ class ReservationPayer extends StatelessWidget {
     (payerState.payerByIdReservation[_idReservation] ?? [])
         .forEach((Payer payer) {
       _listPayer.add(_PayerItem(
+        readOnly: readOnly,
         prixPayer: payer.sommePayee,
         payer: payer,
         idReservation: _idReservation,
@@ -79,6 +81,9 @@ class ReservationPayer extends StatelessWidget {
                             Row(
                               mainAxisAlignment: MainAxisAlignment.end,
                               children: <Widget>[
+                                if(readOnly)
+                                  Container()
+                                else
                                 IconButton(
                                   icon: Icon(Icons.add),
                                   onPressed: () {
@@ -121,8 +126,10 @@ class _PayerItem extends StatelessWidget {
     @required this.payer,
     @required this.prixPayer,
     @required this.idReservation,
+    @required this.readOnly
   }) : super(key: key);
   final int idReservation;
+  final bool readOnly;
   final Payer payer;
   final double prixPayer;
   @override
@@ -137,7 +144,9 @@ class _PayerItem extends StatelessWidget {
         "prixPayer: $prixPayer",
         overflow: TextOverflow.ellipsis,
       ),
-      trailing: PopupMenuButton(
+      trailing:
+      readOnly? null:
+       PopupMenuButton(
         padding: EdgeInsets.all(0),
         itemBuilder: (BuildContext context) {
           return [

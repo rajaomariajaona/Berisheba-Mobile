@@ -8,7 +8,9 @@ import 'package:provider/provider.dart';
 
 class ReservationAutres extends StatelessWidget {
   final int _idReservation;
-  const ReservationAutres(this._idReservation, {Key key}) : super(key: key);
+  final bool readOnly;
+  const ReservationAutres(this._idReservation, {this.readOnly, Key key})
+      : super(key: key);
   @override
   Widget build(BuildContext context) {
     final AutresState autresState = Provider.of<AutresState>(context);
@@ -16,6 +18,7 @@ class ReservationAutres extends StatelessWidget {
     (autresState.autresByIdReservation[_idReservation] ?? {})
         .forEach((Autre autre, double prixAutre) {
       _listAutres.add(_AutresItem(
+        readOnly: readOnly,
         autre: autre,
         prixAutre: prixAutre,
         idReservation: _idReservation,
@@ -47,42 +50,53 @@ class ReservationAutres extends StatelessWidget {
                       "Autres",
                       style: Theme.of(context).textTheme.body2,
                     )),
-                collapsed: autresState.isLoading == _idReservation ? const Loading() : Container(
-                  child:
-                      Text("Prix Total: ${autresState.statsByIdReservation[_idReservation]["somme"] ?? 0}"),
-                ),
+                collapsed: autresState.isLoading == _idReservation
+                    ? const Loading()
+                    : Container(
+                        child: Text(
+                            "Prix Total: ${autresState.statsByIdReservation[_idReservation]["somme"] ?? 0}"),
+                      ),
                 expanded: Container(
-                  height: autresState.autresByIdReservation[_idReservation].length > 0 ? 250: 50,
-                  child: autresState.isLoading == _idReservation ? const Loading() : Column(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: <Widget>[
-                      Expanded(
-                        child: SingleChildScrollView(
-                          child: Column(
-                            children: _listAutres,
-                          ),
-                        ),
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: <Widget>[
-                          IconButton(
-                            icon: Icon(Icons.add),
-                            onPressed: () {
-                              showDialog(
-                                context: context,
-                                builder: (BuildContext context) =>
-                                    AutresDialog(
-                                  idReservation: _idReservation,
+                  height:
+                      autresState.autresByIdReservation[_idReservation].length >
+                              0
+                          ? 250
+                          : 50,
+                  child: autresState.isLoading == _idReservation
+                      ? const Loading()
+                      : Column(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: <Widget>[
+                            Expanded(
+                              child: SingleChildScrollView(
+                                child: Column(
+                                  children: _listAutres,
                                 ),
-                              );
-                            },
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
+                              ),
+                            ),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              children: <Widget>[
+                                if (readOnly)
+                                  Container()
+                                else
+                                  IconButton(
+                                    icon: Icon(Icons.add),
+                                    onPressed: () {
+                                      showDialog(
+                                        context: context,
+                                        builder: (BuildContext context) =>
+                                            AutresDialog(
+                                          idReservation: _idReservation,
+                                        ),
+                                      );
+                                    },
+                                  ),
+                              ],
+                            ),
+                          ],
+                        ),
                 ),
                 builder: (_, collapsed, expanded) {
                   return Padding(
@@ -104,12 +118,14 @@ class ReservationAutres extends StatelessWidget {
 }
 
 class _AutresItem extends StatelessWidget {
-  const _AutresItem({
-    Key key,
-    @required this.autre,
-    @required this.prixAutre,
-    @required this.idReservation,
-  }) : super(key: key);
+  const _AutresItem(
+      {Key key,
+      @required this.autre,
+      @required this.prixAutre,
+      @required this.idReservation,
+      @required this.readOnly})
+      : super(key: key);
+  final bool readOnly;
   final int idReservation;
   final Autre autre;
   final double prixAutre;
@@ -121,37 +137,43 @@ class _AutresItem extends StatelessWidget {
         "${autre.motif} ",
         overflow: TextOverflow.ellipsis,
       ),
-      subtitle: Text("prixAutre: $prixAutre",overflow: TextOverflow.ellipsis,),
-      trailing: PopupMenuButton(
-        padding: EdgeInsets.all(0),
-        itemBuilder: (BuildContext context) {
-          return [
-            PopupMenuItem(
-              child: Text("modifier"),
-              value: "edit",
-            ),
-            PopupMenuItem(
-              child: Text("supprimer"),
-              value: "delete",
-            )
-          ];
-        },
-        onSelected: (dynamic value) {
-          if (value == "delete") {
-            AutresState.removeData(idAutre: autre.id, idReservation: idReservation);
-          } else if (value == "edit") {
-            showDialog(
-                builder: (BuildContext context) {
-                  return AutresDialog(
-                    autre: autre,
-                    prixAutre: prixAutre,
-                    idReservation: idReservation,
-                  );
-                },
-                context: context);
-          }
-        },
+      subtitle: Text(
+        "prixAutre: $prixAutre",
+        overflow: TextOverflow.ellipsis,
       ),
+      trailing: readOnly
+          ? null
+          : PopupMenuButton(
+              padding: EdgeInsets.all(0),
+              itemBuilder: (BuildContext context) {
+                return [
+                  PopupMenuItem(
+                    child: Text("modifier"),
+                    value: "edit",
+                  ),
+                  PopupMenuItem(
+                    child: Text("supprimer"),
+                    value: "delete",
+                  )
+                ];
+              },
+              onSelected: (dynamic value) {
+                if (value == "delete") {
+                  AutresState.removeData(
+                      idAutre: autre.id, idReservation: idReservation);
+                } else if (value == "edit") {
+                  showDialog(
+                      builder: (BuildContext context) {
+                        return AutresDialog(
+                          autre: autre,
+                          prixAutre: prixAutre,
+                          idReservation: idReservation,
+                        );
+                      },
+                      context: context);
+                }
+              },
+            ),
     );
   }
 }
@@ -195,7 +217,6 @@ class _AutresDialogState extends State<AutresDialog> {
                           WhitelistingTextInputFormatter(RegExp("[A-Za-z ]")),
                           LengthLimitingTextInputFormatter(50),
                           CapitalizeWordsInputFormatter()
-                          
                         ],
                         decoration: InputDecoration(
                           border: UnderlineInputBorder(),
@@ -206,7 +227,8 @@ class _AutresDialogState extends State<AutresDialog> {
                         },
                       ),
                       TextFormField(
-                        initialValue: widget.modifier ? "${widget.prixAutre}" : "",
+                        initialValue:
+                            widget.modifier ? "${widget.prixAutre}" : "",
                         keyboardType: TextInputType.number,
                         inputFormatters: [
                           WhitelistingTextInputFormatter(RegExp("[0-9]+")),

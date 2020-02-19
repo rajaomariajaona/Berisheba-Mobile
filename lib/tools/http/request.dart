@@ -42,10 +42,12 @@ class RestRequest {
             if (error?.response?.statusCode != 401) {
               _dio.reject(error);
             } else {
+              _dio.lock();
               RequestOptions options = error?.response?.request;
               print(options.headers["Authorization"]);
               await _refreshToken(options).whenComplete(() async {
                 print(options.headers["Authorization"]);
+                _dio.unlock();
               }).then((_) async {
                 await _dio.request(options.path, options: options);
               }).catchError((error) {

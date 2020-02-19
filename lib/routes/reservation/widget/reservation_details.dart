@@ -42,6 +42,7 @@ class ReservationDetailsBody extends StatefulWidget {
 }
 
 class _ReservationDetailsState extends State<ReservationDetailsBody> {
+  bool isReadOnly = true;
   @override
   void initState() {
     final ConflitState _conflitState =
@@ -62,6 +63,10 @@ class _ReservationDetailsState extends State<ReservationDetailsBody> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
+    refresh();
+  }
+
+  Future refresh({bool force = false}) async {
     final ConstituerState _constituerState =
         Provider.of<ConstituerState>(context, listen: false);
     final JiramaState _jiramaState =
@@ -77,23 +82,23 @@ class _ReservationDetailsState extends State<ReservationDetailsBody> {
     final PayerState _payerState =
         Provider.of<PayerState>(context, listen: false);
     if (!_constituerState.demiJourneesByReservation
-        .containsKey(widget._idReservation))
-      _constituerState.fetchData(widget._idReservation);
-    if (!_jiramaState.jiramaByIdReservation.containsKey(widget._idReservation))
-      _jiramaState.fetchData(widget._idReservation);
-    if (!_autresState.autresByIdReservation.containsKey(widget._idReservation))
-      _autresState.fetchData(widget._idReservation);
+        .containsKey(widget._idReservation) || force)
+      await _constituerState.fetchData(widget._idReservation);
+    if (!_jiramaState.jiramaByIdReservation.containsKey(widget._idReservation) || force)
+      await _jiramaState.fetchData(widget._idReservation);
+    if (!_autresState.autresByIdReservation.containsKey(widget._idReservation) || force)
+      await _autresState.fetchData(widget._idReservation);
     if (!_concernerState.sallesByIdReservation
-        .containsKey(widget._idReservation))
+        .containsKey(widget._idReservation) || force)
       _concernerState.fetchData(widget._idReservation);
     if (!_louerState.materielsLoueeByIdReservation
-        .containsKey(widget._idReservation))
-      _louerState.fetchData(widget._idReservation);
+        .containsKey(widget._idReservation) || force)
+      await _louerState.fetchData(widget._idReservation);
     if (!_emprunterState.ustensilesEmprunteByIdReservation
-        .containsKey(widget._idReservation))
-      _emprunterState.fetchData(widget._idReservation);
-    if (!_payerState.statsByIdReservation.containsKey(widget._idReservation))
-      _payerState.fetchData(widget._idReservation);
+        .containsKey(widget._idReservation) || force)
+      await _emprunterState.fetchData(widget._idReservation);
+    if (!_payerState.statsByIdReservation.containsKey(widget._idReservation) || force)
+      await _payerState.fetchData(widget._idReservation);
   }
 
   @override
@@ -116,8 +121,8 @@ class _ReservationDetailsState extends State<ReservationDetailsBody> {
             body: SingleChildScrollView(
               child: Column(
                 children: <Widget>[
-                  ReservationGlobalDetails(widget._idReservation),
-                  ReservationDemiJournee(widget._idReservation),
+                  ReservationGlobalDetails(widget._idReservation,readOnly: isReadOnly),
+                  ReservationDemiJournee(widget._idReservation,readOnly: isReadOnly),
                   Consumer<ConcernerState>(
                       builder: (ctx, concernerState, __) =>
                           concernerState.sallesByIdReservation[
@@ -128,7 +133,7 @@ class _ReservationDetailsState extends State<ReservationDetailsBody> {
                                               widget._idReservation]
                                           .length >
                                       0
-                              ? ReservationSalle(widget._idReservation)
+                              ? ReservationSalle(widget._idReservation,readOnly: isReadOnly)
                               : Container()),
                   Consumer<EmprunterState>(
                       builder: (ctx, emprunterState, __) =>
@@ -140,7 +145,7 @@ class _ReservationDetailsState extends State<ReservationDetailsBody> {
                                               widget._idReservation]
                                           .length >
                                       0
-                              ? ReservationUstensile(widget._idReservation)
+                              ? ReservationUstensile(widget._idReservation,readOnly: isReadOnly)
                               : Container()),
                   Consumer<LouerState>(
                       builder: (ctx, louerState, __) =>
@@ -152,7 +157,7 @@ class _ReservationDetailsState extends State<ReservationDetailsBody> {
                                               widget._idReservation]
                                           .length >
                                       0
-                              ? ReservationMateriel(widget._idReservation)
+                              ? ReservationMateriel(widget._idReservation,readOnly: isReadOnly)
                               : Container()),
                   Consumer<JiramaState>(
                       builder: (ctx, jiramaState, __) =>
@@ -164,7 +169,7 @@ class _ReservationDetailsState extends State<ReservationDetailsBody> {
                                               widget._idReservation]
                                           .length >
                                       0
-                              ? ReservationJirama(widget._idReservation)
+                              ? ReservationJirama(widget._idReservation,readOnly: isReadOnly)
                               : Container()),
                   Consumer<AutresState>(
                       builder: (ctx, autresState, __) =>
@@ -176,9 +181,9 @@ class _ReservationDetailsState extends State<ReservationDetailsBody> {
                                               widget._idReservation]
                                           .length >
                                       0
-                              ? ReservationAutres(widget._idReservation)
+                              ? ReservationAutres(widget._idReservation,readOnly: isReadOnly)
                               : Container()),
-                  ReservationPayer(widget._idReservation)
+                  ReservationPayer(widget._idReservation,readOnly: isReadOnly)
                 ],
               ),
             ),
@@ -188,6 +193,18 @@ class _ReservationDetailsState extends State<ReservationDetailsBody> {
 
   List<Widget> _actionsAppBar(BuildContext context) {
     return <Widget>[
+      if(isReadOnly)
+        IconButton(
+          icon: Icon(Icons.lock_outline),
+          onPressed: (){
+            //TODO: Delete some xD
+            setState((){
+              isReadOnly = false;
+            });
+          },
+        )
+      else
+      ...[
       IconButton(
         icon: Icon(Icons.delete),
         onPressed: () async {
@@ -304,6 +321,10 @@ class _ReservationDetailsState extends State<ReservationDetailsBody> {
         },
         itemBuilder: (context) => [
           PopupMenuItem(
+            child: const Text("Salle"),
+            value: Actions.salle,
+          ),
+          PopupMenuItem(
             child: const Text("Ustensile"),
             value: Actions.ustensile,
           ),
@@ -328,7 +349,7 @@ class _ReservationDetailsState extends State<ReservationDetailsBody> {
             value: Actions.payer,
           ),
         ],
-      )
+      )]
     ];
   }
 }

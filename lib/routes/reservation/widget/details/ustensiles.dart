@@ -12,7 +12,9 @@ import 'package:provider/provider.dart';
 
 class ReservationUstensile extends StatefulWidget {
   final int idReservation;
-  const ReservationUstensile(this.idReservation, {Key key}) : super(key: key);
+  final bool readOnly;
+  const ReservationUstensile(this.idReservation, {this.readOnly, Key key})
+      : super(key: key);
 
   @override
   State<StatefulWidget> createState() => _ReservationUstensileState();
@@ -42,9 +44,11 @@ class _ReservationUstensileState extends State<ReservationUstensile> {
   Widget build(BuildContext context) {
     final EmprunterState emprunterState = Provider.of<EmprunterState>(context);
     List<Widget> _listUstensile = [];
-    (emprunterState.ustensilesEmprunteByIdReservation[widget.idReservation] ?? {})
+    (emprunterState.ustensilesEmprunteByIdReservation[widget.idReservation] ??
+            {})
         .forEach((int idUstensile, Emprunter emprunter) {
       _listUstensile.add(_UstensileItem(
+        readOnly: widget.readOnly,
         emprunter: emprunter,
         value: values[idUstensile] ?? 0,
         idReservation: widget.idReservation,
@@ -86,8 +90,7 @@ class _ReservationUstensileState extends State<ReservationUstensile> {
                     )),
                 collapsed: emprunterState.isLoading == widget.idReservation
                     ? const Loading()
-                    : Container(
-                      ),
+                    : Container(),
                 expanded: Container(
                   height: emprunterState.ustensilesEmprunteByIdReservation[
                                   widget.idReservation] !=
@@ -115,88 +118,94 @@ class _ReservationUstensileState extends State<ReservationUstensile> {
                             Row(
                               mainAxisAlignment: MainAxisAlignment.end,
                               children: <Widget>[
-                                if (editMode) ...[
-                                  IconButton(
-                                      icon: Icon(Icons.check),
-                                      onPressed: () {
-                                        EmprunterState.modifyData(values,
-                                                idReservation:
+                                if (widget.readOnly)
+                                  Container()
+                                else ...[
+                                  if (editMode) ...[
+                                    IconButton(
+                                        icon: Icon(Icons.check),
+                                        onPressed: () {
+                                          EmprunterState.modifyData(values,
+                                                  idReservation:
+                                                      widget.idReservation)
+                                              .then((bool isOk) {
+                                            setState(() {
+                                              editMode = false;
+                                            });
+                                            Provider.of<ConflitState>(context,
+                                                    listen: false)
+                                                .fetchConflit(
                                                     widget.idReservation)
-                                            .then((bool isOk) {
+                                                .then((bool containConflit) {
+                                              if (containConflit) {
+                                                Navigator.of(context).pushNamed(
+                                                    "conflit/:${widget.idReservation}");
+                                              }
+                                            });
+                                          });
+                                        }),
+                                    IconButton(
+                                        icon: Icon(Icons.close),
+                                        onPressed: () {
                                           setState(() {
                                             editMode = false;
                                           });
-                                          Provider.of<ConflitState>(context,
-                                                  listen: false)
-                                              .fetchConflit(
-                                                  widget.idReservation)
-                                              .then((bool containConflit) {
-                                            if (containConflit) {
-                                              Navigator.of(context).pushNamed(
-                                                  "conflit/:${widget.idReservation}");
-                                            }
-                                          });
-                                        });
-                                      }),
-                                  IconButton(
-                                      icon: Icon(Icons.close),
+                                        }),
+                                  ] else
+                                    IconButton(
+                                      icon: Icon(Icons.edit),
                                       onPressed: () {
                                         setState(() {
-                                          editMode = false;
+                                          editMode = true;
                                         });
-                                      }),
-                                ] else
-                                  IconButton(
-                                    icon: Icon(Icons.edit),
-                                    onPressed: () {
-                                      setState(() {
-                                        editMode = true;
-                                      });
-                                    },
-                                  ),
-                                Selector<EmprunterState, bool>(
-                                  selector: (_, _emprunterState) =>
-                                      _emprunterState
-                                          .listeUstensileDispoByIdReservation[
-                                              widget.idReservation]
-                                          .length >
-                                      0,
-                                  builder: (ctx, isNotEmpty, __) => isNotEmpty
-                                      ? IconButton(
-                                          icon: Icon(Icons.add),
-                                          onPressed: () async {
-                                            var res = await showDialog(
-                                              context: context,
-                                              builder: (BuildContext context) =>
-                                                  UstensileDialog(
-                                                idReservation:
-                                                    widget.idReservation,
-                                              ),
-                                            );
-                                            if (res != null) {
-                                              await EmprunterState.saveData(
-                                                      {"idUstensile": res},
-                                                      idReservation:
+                                      },
+                                    ),
+                                  Selector<EmprunterState, bool>(
+                                    selector: (_, _emprunterState) =>
+                                        _emprunterState
+                                            .listeUstensileDispoByIdReservation[
+                                                widget.idReservation]
+                                            .length >
+                                        0,
+                                    builder: (ctx, isNotEmpty, __) => isNotEmpty
+                                        ? IconButton(
+                                            icon: Icon(Icons.add),
+                                            onPressed: () async {
+                                              var res = await showDialog(
+                                                context: context,
+                                                builder:
+                                                    (BuildContext context) =>
+                                                        UstensileDialog(
+                                                  idReservation:
+                                                      widget.idReservation,
+                                                ),
+                                              );
+                                              if (res != null) {
+                                                await EmprunterState.saveData(
+                                                        {"idUstensile": res},
+                                                        idReservation: widget
+                                                            .idReservation)
+                                                    .whenComplete(() {
+                                                  Provider.of<ConflitState>(
+                                                          context,
+                                                          listen: false)
+                                                      .fetchConflit(
                                                           widget.idReservation)
-                                                  .whenComplete(() {
-                                                Provider.of<ConflitState>(
-                                                        context,
-                                                        listen: false)
-                                                    .fetchConflit(
-                                                        widget.idReservation)
-                                                    .then(
-                                                        (bool containConflit) {
-                                                  if (containConflit) {
-                                                    Navigator.of(context).pushNamed(
-                                                        "conflit/:${widget.idReservation}");
-                                                  }
+                                                      .then((bool
+                                                          containConflit) {
+                                                    if (containConflit) {
+                                                      Navigator.of(context)
+                                                          .pushNamed(
+                                                              "conflit/:${widget.idReservation}");
+                                                    }
+                                                  });
                                                 });
-                                              });
-                                            }
-                                          },
-                                        )
-                                      : Container(),
-                                ),
+                                              }
+                                            },
+                                          )
+                                        : Container(),
+                                  ),
+                                ]
                               ],
                             ),
                           ],
@@ -228,8 +237,10 @@ class _UstensileItem extends StatelessWidget {
       @required this.idReservation,
       @required this.editMode,
       @required this.setValue,
+      @required this.readOnly,
       @required this.value})
       : super(key: key);
+  final bool readOnly;
   final int value;
   final Emprunter emprunter;
   final bool editMode;
@@ -246,24 +257,28 @@ class _UstensileItem extends StatelessWidget {
             "${emprunter.ustensile.nomUstensile} ${editMode ? "" : "\n Emprunte: ${emprunter.nbEmprunte}"}",
             overflow: TextOverflow.clip,
           ),
-          if (!editMode)
-            IconButton(
-                icon: Icon(Icons.delete),
-                onPressed: () {
-                  EmprunterState.removeData(
-                      idReservation: idReservation,
-                      idUstensile: emprunter.ustensile.idUstensile);
-                })
-          else
-            GestureDetector(
-              onTap: () {},
-              child: NumberSelector(
-                min: 0,
-                max: emprunter.ustensile.nbTotal,
-                value: value,
-                setValue: setValue,
-              ),
-            )
+          if (readOnly)
+            Container()
+          else ...[
+            if (!editMode)
+              IconButton(
+                  icon: Icon(Icons.delete),
+                  onPressed: () {
+                    EmprunterState.removeData(
+                        idReservation: idReservation,
+                        idUstensile: emprunter.ustensile.idUstensile);
+                  })
+            else
+              GestureDetector(
+                onTap: () {},
+                child: NumberSelector(
+                  min: 0,
+                  max: emprunter.ustensile.nbTotal,
+                  value: value,
+                  setValue: setValue,
+                ),
+              )
+          ]
         ],
       ),
     );
@@ -295,7 +310,8 @@ class _UstensileDialogState extends State<UstensileDialog> {
                 builder: (ctx, emprunterState, __) {
                   var liste = [
                     for (Ustensile s in emprunterState
-                        .listeUstensileDispoByIdReservation[widget.idReservation]
+                        .listeUstensileDispoByIdReservation[
+                            widget.idReservation]
                         .values) ...[
                       ListTile(
                         contentPadding: const EdgeInsets.symmetric(

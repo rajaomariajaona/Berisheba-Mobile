@@ -9,7 +9,8 @@ import 'package:provider/provider.dart';
 
 class ReservationGlobalDetails extends StatefulWidget {
   final int _idReservation;
-  ReservationGlobalDetails(this._idReservation, {Key key}) : super(key: key);
+  final bool readOnly;
+  ReservationGlobalDetails(this._idReservation, {this.readOnly, Key key}) : super(key: key);
   @override
   _ReservationGlobalDetailsState createState() =>
       _ReservationGlobalDetailsState();
@@ -65,7 +66,7 @@ class _ReservationGlobalDetailsState extends State<ReservationGlobalDetails> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: <Widget>[
-                  editMode
+                  editMode || widget.readOnly
                       ? Container()
                       : GestureDetector(
                           child: const Padding(
@@ -81,7 +82,7 @@ class _ReservationGlobalDetailsState extends State<ReservationGlobalDetails> {
                         ),
                 ],
               ),
-              editMode
+              editMode 
                   ? Form(
                       key: _formKey,
                       child: Column(

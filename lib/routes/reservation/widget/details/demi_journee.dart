@@ -15,7 +15,8 @@ import 'package:provider/provider.dart';
 //TODO: resolve tsy hita tampoka izy rht xD
 class ReservationDemiJournee extends StatefulWidget {
   final int _idReservation;
-  ReservationDemiJournee(this._idReservation, {Key key}) : super(key: key);
+  final bool readOnly;
+  ReservationDemiJournee(this._idReservation, {this.readOnly, Key key}) : super(key: key);
   @override
   _ReservationDemiJourneeState createState() => _ReservationDemiJourneeState();
 }
@@ -324,7 +325,7 @@ class _ReservationDemiJourneeState extends State<ReservationDemiJournee> {
                             ),
                             Row(
                               mainAxisAlignment: MainAxisAlignment.end,
-                              children: !_editMode
+                              children: widget.readOnly? [Container()]: !_editMode 
                                   ? <Widget>[
                                       IconButton(
                                         icon: Icon(Icons.edit),
