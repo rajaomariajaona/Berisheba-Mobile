@@ -1,8 +1,7 @@
 import 'package:berisheba/routes/salle/salle_state.dart';
 import 'package:berisheba/states/config.dart';
 import 'package:berisheba/states/global_state.dart';
-import 'package:berisheba/tools/formatters/CaseInputFormatter.dart';
-import 'package:berisheba/tools/formatters/NumTelInputFormatter.dart';
+import 'package:berisheba/tools/formatters/case_input_formatter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 

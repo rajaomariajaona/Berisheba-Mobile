@@ -1,10 +1,8 @@
 import 'package:berisheba/routes/reservation/states/payer_state.dart';
-import 'package:berisheba/tools/formatters/CaseInputFormatter.dart';
 import 'package:berisheba/tools/widgets/loading.dart';
 import 'package:expandable/expandable.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:berisheba/routes/reservation/states/payer_state.dart';
 import 'package:provider/provider.dart';
 
 class ReservationPayer extends StatelessWidget {

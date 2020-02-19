@@ -1,5 +1,5 @@
 import 'package:berisheba/routes/reservation/states/reservation_state.dart';
-import 'package:berisheba/tools/formatters/CaseInputFormatter.dart';
+import 'package:berisheba/tools/formatters/case_input_formatter.dart';
 import 'package:berisheba/tools/widgets/loading.dart';
 import 'package:expandable/expandable.dart';
 import 'package:flutter/cupertino.dart';

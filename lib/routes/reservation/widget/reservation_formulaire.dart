@@ -1,6 +1,5 @@
 import 'dart:math';
 
-import 'package:berisheba/routes/client/client_portrait.dart';
 import 'package:berisheba/routes/client/widgets/client_selector.dart';
 import 'package:berisheba/routes/reservation/states/constituer_state.dart';
 import 'package:berisheba/routes/reservation/states/reservation_state.dart';
@@ -8,7 +7,7 @@ import 'package:berisheba/states/config.dart';
 import 'package:berisheba/routes/client/client_state.dart';
 import 'package:berisheba/states/global_state.dart';
 import 'package:berisheba/tools/date.dart';
-import 'package:berisheba/tools/formatters/CaseInputFormatter.dart';
+import 'package:berisheba/tools/formatters/case_input_formatter.dart';
 import 'package:date_range_picker/date_range_picker.dart' as DateRangePicker;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
