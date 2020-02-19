@@ -2,9 +2,11 @@ import 'package:berisheba/routes/reservation/states/reservation_state.dart';
 import 'package:berisheba/tools/formatters/CaseInputFormatter.dart';
 import 'package:berisheba/tools/widgets/loading.dart';
 import 'package:expandable/expandable.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:berisheba/routes/reservation/states/jirama_state.dart';
+import 'package:flutter_picker/Picker.dart';
 import 'package:provider/provider.dart';
 
 class ReservationJirama extends StatelessWidget {
@@ -54,15 +56,14 @@ class ReservationJirama extends StatelessWidget {
                 collapsed: jiramaState.isLoading == _idReservation
                     ? const Loading()
                     : Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.start,
                         children: <Widget>[
-                          Text(
-                            "Consommation: ${jiramaState.statsByIdReservation[_idReservation]["consommation"] ?? ""} kw"),
-                          Text(
-                            "Prix: ${jiramaState.statsByIdReservation[_idReservation]["prix"] ?? ""}"),
-                      ]
-                      ),
+                            Text(
+                                "Consommation: ${jiramaState.statsByIdReservation[_idReservation]["consommation"] ?? ""} kw"),
+                            Text(
+                                "Prix: ${jiramaState.statsByIdReservation[_idReservation]["prix"] ?? ""}"),
+                          ]),
                 expanded: Container(
                   height:
                       jiramaState.jiramaByIdReservation[_idReservation].length >
@@ -217,7 +218,16 @@ class _JiramaDialogState extends State<_JiramaDialog> {
   Puissance _puissance = Puissance.watt;
   String _nom;
   double _puissanceValue;
-  int _duree;
+  Duration _duree;
+  @override
+  void initState() {
+    if (widget.modifier)
+      _duree = Duration(seconds: widget.duree);
+    else
+      _duree = Duration(seconds: 0);
+    super.initState();
+  }
+
   final GlobalKey<FormState> _formState = GlobalKey<FormState>();
   @override
   Widget build(BuildContext context) {
@@ -290,21 +300,70 @@ class _JiramaDialogState extends State<_JiramaDialog> {
                           ),
                         ],
                       ),
-                      TextFormField(
-                        initialValue: widget.modifier ? "${widget.duree}" : "",
-                        keyboardType: TextInputType.number,
-                        inputFormatters: [
-                          WhitelistingTextInputFormatter(RegExp("[0-9]+")),
+                      Picker(
+                        adapter: NumberPickerAdapter(data: [
+                          NumberPickerColumn(
+                              initValue: _duree.inDays,
+                              begin: 0,
+                              end: 99,
+                              onFormatValue: (int value) =>
+                                  (value < 10) ? '0$value' : '$value'),
+                          NumberPickerColumn(
+                              initValue: _duree.inHours % 24,
+                              begin: 0,
+                              end: 23,
+                              onFormatValue: (int value) =>
+                                  (value < 10) ? '0$value' : '$value'),
+                          NumberPickerColumn(
+                              initValue: _duree.inMinutes % 60,
+                              begin: 0,
+                              end: 59,
+                              onFormatValue: (int value) =>
+                                  (value < 10) ? '0$value' : '$value'),
+                        ]),
+                        delimiter: [
+                          PickerDelimiter(
+                              column: 1,
+                              child: Container(
+                                width: 10.0,
+                                alignment: Alignment.center,
+                                child: const Text(
+                                  ":",
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              )),
+                          PickerDelimiter(
+                              column: 3,
+                              child: Container(
+                                width: 10.0,
+                                alignment: Alignment.center,
+                                child: const Text(
+                                  ":",
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              )),
                         ],
-                        decoration: InputDecoration(
-                          border: UnderlineInputBorder(),
-                          labelText: "Duree",
+                        hideHeader: true,
+                        title: const Text("Choisir"),
+                        footer: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: <Widget>[
+                            Text("Jours"),
+                            Text("Heures"),
+                            Text("Minutes")
+                          ],
                         ),
-                        onSaved: (val) {
-                          _duree = int.parse(val);
+                        onSelect: (Picker picker, int index, List value) {
+                          _duree = Duration(
+                              days: value[0],
+                              hours: value[1],
+                              minutes: value[2]);
                         },
-                      ),
-                      //TODO: Switch to Time picker
+                      ).makePicker()
                     ],
                   ),
                 ),
@@ -332,14 +391,14 @@ class _JiramaDialogState extends State<_JiramaDialog> {
                                 "puissance": _puissanceValue.toString(),
                                 "puissanceType":
                                     _puissance == Puissance.watt ? "w" : "a",
-                                "duree": _duree.toString()
+                                "duree": _duree.inSeconds.toString()
                               }, idReservation: widget.idReservation)
                             : JiramaState.saveData({
                                 "nomAppareil": _nom,
                                 "puissance": _puissanceValue.toString(),
                                 "puissanceType":
                                     _puissance == Puissance.watt ? "w" : "a",
-                                "duree": _duree.toString()
+                                "duree": _duree.inSeconds.toString()
                               }, idReservation: widget.idReservation);
                         Navigator.of(context).pop(null);
                       }
@@ -415,17 +474,19 @@ class _JiramaPriceDialogState extends State<JiramaPriceDialog> {
                         _formState.currentState.save();
                         JiramaState.patchPrixKW({"prixKW": prixKW.toString()},
                             idReservation: widget.idReservation);
-                        if(jiramaState.jiramaByIdReservation[widget.idReservation]
-                                    .length >
-                                0)
-                            Navigator.of(context).pop(null);
+                        if (jiramaState
+                                .jiramaByIdReservation[widget.idReservation]
+                                .length >
+                            0)
+                          Navigator.of(context).pop(null);
                         else {
                           Navigator.of(context).pop(null);
                           showDialog(
-                                builder: (BuildContext context) {
-                                  return _JiramaDialog(idReservation: widget.idReservation);
-                                },
-                                context: context);
+                              builder: (BuildContext context) {
+                                return _JiramaDialog(
+                                    idReservation: widget.idReservation);
+                              },
+                              context: context);
                         }
                       }
                     },
