@@ -14,21 +14,19 @@ class PayerState extends ChangeNotifier {
   Map<int, Map<String, dynamic>> _stats = {};
   Map<int, List<Payer>> _payer = {};
   Map<int, Map<String, dynamic>> get statsByIdReservation => _stats;
-    Map<int, List<Payer>> get payerByIdReservation => _payer;
+  Map<int, List<Payer>> get payerByIdReservation => _payer;
   Future fetchData(int idReservation) async {
-
     Dio _dio = await RestRequest().getDioInstance();
     try {
       _isLoading = idReservation;
       var response = await _dio.get("/payer/$idReservation");
       _stats[idReservation] = response.data["stats"];
       _payer[idReservation] = [];
-       (response.data["data"] as List<dynamic>).forEach((dynamic item) {
-           _payer[idReservation].add(Payer(
-              idReservation: idReservation,
-              sommePayee: item["sommePayee"] + 0.0,
-              typePaiement: item["paiementTypePaiement"]["typePaiement"]
-          ));
+      (response.data["data"] as List<dynamic>).forEach((dynamic item) {
+        _payer[idReservation].add(Payer(
+            idReservation: idReservation,
+            sommePayee: item["sommePayee"] + 0.0,
+            typePaiement: item["paiementTypePaiement"]["typePaiement"]));
       });
       notifyListeners();
       _isLoading = 0;
@@ -65,7 +63,8 @@ class PayerState extends ChangeNotifier {
     }
   }
 
-  static Future<bool> removeData({@required typePaiement,@required idReservation}) async {
+  static Future<bool> removeData(
+      {@required typePaiement, @required idReservation}) async {
     Dio _dio = await RestRequest().getDioInstance();
     try {
       await _dio.delete("/payer/$idReservation/$typePaiement");
@@ -77,24 +76,32 @@ class PayerState extends ChangeNotifier {
       return false;
     }
   }
-  static void _refresh(int idReservation){
+
+  static void _refresh(int idReservation) {
     GlobalState().channel.sink.add("payer $idReservation");
   }
 
   PayerState() {
     GlobalState().externalStreamController.stream.listen((msg) async {
-      if (msg.contains("payer")) {
-        await this.fetchData(int.parse(msg.split(" ")[1]));
+      if (msg.contains("payer") ||
+          msg.contains("jirama") ||
+          msg.contains("autres") ||
+          msg.contains("constituer")) {
+        if (_payer.containsKey(int.parse(msg.split(" ")[1])))
+          await this.fetchData(int.parse(msg.split(" ")[1]));
       }
     });
   }
 }
+
 class Payer {
   final String typePaiement;
   final double sommePayee;
   final int idReservation;
   const Payer(
-      {@required this.typePaiement, @required this.sommePayee, @required this.idReservation});
+      {@required this.typePaiement,
+      @required this.sommePayee,
+      @required this.idReservation});
 
   bool operator ==(payer) =>
       payer is Payer &&
