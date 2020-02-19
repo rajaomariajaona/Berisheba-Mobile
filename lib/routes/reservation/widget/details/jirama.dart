@@ -230,6 +230,23 @@ class _JiramaDialogState extends State<_JiramaDialog> {
   }
 
   final GlobalKey<FormState> _formState = GlobalKey<FormState>();
+  Map<String, Function(String)> _validators = {
+    "nom": (String value){
+      if(value.trim().isEmpty){
+        return "Champs vide";
+      }
+      return null;
+    },
+    "puissance": (String value){
+      if(value.trim().isEmpty){
+        return "Champs vide";
+      }
+      if(double.tryParse(value) == null){
+        return "Valeur incorrecte";
+      }
+      return null;
+    }
+  };
   @override
   Widget build(BuildContext context) {
     return Dialog(
@@ -246,6 +263,7 @@ class _JiramaDialogState extends State<_JiramaDialog> {
                   child: Column(
                     children: <Widget>[
                       TextFormField(
+                        validator: _validators["nom"],
                         initialValue:
                             widget.modifier ? "${widget.appareil.nom}" : "",
                         textCapitalization: TextCapitalization.words,
@@ -268,6 +286,7 @@ class _JiramaDialogState extends State<_JiramaDialog> {
                         children: <Widget>[
                           Expanded(
                             child: TextFormField(
+                               validator: _validators["puissance"],
                               initialValue: widget.modifier
                                   ? "${widget.appareil.puissance}"
                                   : "",
@@ -359,10 +378,19 @@ class _JiramaDialogState extends State<_JiramaDialog> {
                           ],
                         ),
                         onSelect: (Picker picker, int index, List value) {
-                          _duree = Duration(
+                          Duration _selected = Duration(
                               days: value[0],
                               hours: value[1],
                               minutes: value[2]);
+                          if ((_duree.inSeconds == 0 &&
+                              _selected.inSeconds != 0) || (_duree.inSeconds != 0 &&
+                              _selected.inSeconds == 0)) {
+                            setState(() {
+                              _duree = _selected;
+                            });
+                          }else{
+                            _duree = _selected;
+                          }
                         },
                       ).makePicker()
                     ],
@@ -382,28 +410,35 @@ class _JiramaDialogState extends State<_JiramaDialog> {
                   ),
                   IconButton(
                     icon: Icon(Icons.check),
-                    onPressed: () {
-                      if (_formState.currentState.validate()) {
-                        _formState.currentState.save();
-                        widget.modifier
-                            ? JiramaState.modifyData({
-                                "idAppareil": widget.appareil.id.toString(),
-                                "nomAppareil": _nom,
-                                "puissance": _puissanceValue.toString(),
-                                "puissanceType":
-                                    _puissance == Puissance.watt ? "w" : "a",
-                                "duree": _duree.inSeconds.toString()
-                              }, idReservation: widget.idReservation)
-                            : JiramaState.saveData({
-                                "nomAppareil": _nom,
-                                "puissance": _puissanceValue.toString(),
-                                "puissanceType":
-                                    _puissance == Puissance.watt ? "w" : "a",
-                                "duree": _duree.inSeconds.toString()
-                              }, idReservation: widget.idReservation);
-                        Navigator.of(context).pop(null);
-                      }
-                    },
+                    onPressed: _duree.inSeconds == 0
+                        ? null
+                        : () {
+                            if (_formState.currentState.validate()) {
+                              _formState.currentState.save();
+                              widget.modifier
+                                  ? JiramaState.modifyData({
+                                      "idAppareil":
+                                          widget.appareil.id.toString(),
+                                      "nomAppareil": _nom,
+                                      "puissance": _puissanceValue.toString(),
+                                      "puissanceType":
+                                          _puissance == Puissance.watt
+                                              ? "w"
+                                              : "a",
+                                      "duree": _duree.inSeconds.toString()
+                                    }, idReservation: widget.idReservation)
+                                  : JiramaState.saveData({
+                                      "nomAppareil": _nom,
+                                      "puissance": _puissanceValue.toString(),
+                                      "puissanceType":
+                                          _puissance == Puissance.watt
+                                              ? "w"
+                                              : "a",
+                                      "duree": _duree.inSeconds.toString()
+                                    }, idReservation: widget.idReservation);
+                              Navigator.of(context).pop(null);
+                            }
+                          },
                   ),
                 ],
               ),
