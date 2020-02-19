@@ -10,7 +10,6 @@ import 'package:berisheba/routes/materiel/materiel_portrait.dart';
 import 'package:berisheba/routes/materiel/widgets/materiel_app_bar.dart';
 import 'package:berisheba/routes/materiel/widgets/materiel_float_button.dart';
 import 'package:berisheba/routes/reservation/reservation_portrait.dart';
-import 'package:berisheba/routes/reservation/widget/details/salles.dart';
 import 'package:berisheba/routes/reservation/widget/reservation_app_bar.dart';
 import 'package:berisheba/routes/reservation/widget/reservation_float_button.dart';
 import 'package:berisheba/routes/salle/salle_portrait.dart';

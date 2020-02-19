@@ -1,4 +1,4 @@
-import 'package:berisheba/tools/formatters/CaseInputFormatter.dart';
+import 'package:berisheba/tools/formatters/case_input_formatter.dart';
 import 'package:berisheba/tools/widgets/loading.dart';
 import 'package:expandable/expandable.dart';
 import 'package:flutter/material.dart';
@@ -195,6 +195,7 @@ class _AutresDialogState extends State<AutresDialog> {
                           WhitelistingTextInputFormatter(RegExp("[A-Za-z ]")),
                           LengthLimitingTextInputFormatter(50),
                           CapitalizeWordsInputFormatter()
+                          
                         ],
                         decoration: InputDecoration(
                           border: UnderlineInputBorder(),

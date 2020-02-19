@@ -1,8 +1,8 @@
 import 'package:berisheba/routes/client/client_state.dart';
 import 'package:berisheba/states/config.dart';
 import 'package:berisheba/states/global_state.dart';
-import 'package:berisheba/tools/formatters/CaseInputFormatter.dart';
-import 'package:berisheba/tools/formatters/NumTelInputFormatter.dart';
+import 'package:berisheba/tools/formatters/case_input_formatter.dart';
+import 'package:berisheba/tools/formatters/num_tel_input_formatter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -61,6 +61,7 @@ class _ClientFormulaireState extends State<ClientFormulaire> {
       WhitelistingTextInputFormatter.digitsOnly,
       LengthLimitingTextInputFormatter(10),
       NumTelInputFormatter(),
+      
     ],
     "adresse": <TextInputFormatter>[LengthLimitingTextInputFormatter(100)],
   };

@@ -1,5 +1,6 @@
 import 'package:berisheba/routes/reservation/states/reservation_state.dart';
 import 'package:berisheba/tools/formatters/case_input_formatter.dart';
+import 'package:berisheba/tools/formatters/second_to_string_formatter.dart';
 import 'package:berisheba/tools/widgets/loading.dart';
 import 'package:expandable/expandable.dart';
 import 'package:flutter/cupertino.dart';
@@ -156,7 +157,7 @@ class _JiramaItem extends StatelessWidget {
                 Padding(
                   padding: const EdgeInsets.symmetric(vertical: 4.0),
                   child: Text(
-                    "duree: $duree s",
+                    "duree: ${SecondToStringFormatter.format(duree)}",
                     overflow: TextOverflow.ellipsis,
                   ),
                 ),

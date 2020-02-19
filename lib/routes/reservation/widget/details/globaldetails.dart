@@ -1,10 +1,8 @@
-import 'package:berisheba/routes/client/client_portrait.dart';
 import 'package:berisheba/routes/client/client_state.dart';
-import 'package:berisheba/routes/client/widgets/client_float_button.dart';
 import 'package:berisheba/routes/client/widgets/client_selector.dart';
 import 'package:berisheba/routes/reservation/states/reservation_state.dart';
 import 'package:berisheba/states/global_state.dart';
-import 'package:berisheba/tools/formatters/CaseInputFormatter.dart';
+import 'package:berisheba/tools/formatters/case_input_formatter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_colorpicker/block_picker.dart';
 import 'package:provider/provider.dart';
