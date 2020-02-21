@@ -8,7 +8,8 @@ import 'package:provider/provider.dart';
 class ReservationPayer extends StatelessWidget {
   final int _idReservation;
   final bool readOnly;
-  const ReservationPayer(this._idReservation, {this.readOnly,Key key}) : super(key: key);
+  const ReservationPayer(this._idReservation, {this.readOnly, Key key})
+      : super(key: key);
   @override
   Widget build(BuildContext context) {
     final PayerState payerState = Provider.of<PayerState>(context);
@@ -62,7 +63,9 @@ class ReservationPayer extends StatelessWidget {
                       ),
                 expanded: Container(
                   height:
-                      (payerState.payerByIdReservation[_idReservation] ?? []).length > 0
+                      (payerState.payerByIdReservation[_idReservation] ?? [])
+                                  .length >
+                              0
                           ? 250
                           : 50,
                   child: payerState.isLoading == _idReservation
@@ -81,21 +84,21 @@ class ReservationPayer extends StatelessWidget {
                             Row(
                               mainAxisAlignment: MainAxisAlignment.end,
                               children: <Widget>[
-                                if(readOnly)
+                                if (readOnly)
                                   Container()
                                 else
-                                IconButton(
-                                  icon: Icon(Icons.add),
-                                  onPressed: () {
-                                    showDialog(
-                                      context: context,
-                                      builder: (BuildContext context) =>
-                                          PayerDialog(
-                                        idReservation: _idReservation,
-                                      ),
-                                    );
-                                  },
-                                ),
+                                  IconButton(
+                                    icon: Icon(Icons.add),
+                                    onPressed: () {
+                                      showDialog(
+                                        context: context,
+                                        builder: (BuildContext context) =>
+                                            PayerDialog(
+                                          idReservation: _idReservation,
+                                        ),
+                                      );
+                                    },
+                                  ),
                               ],
                             ),
                           ],
@@ -121,13 +124,13 @@ class ReservationPayer extends StatelessWidget {
 }
 
 class _PayerItem extends StatelessWidget {
-  const _PayerItem({
-    Key key,
-    @required this.payer,
-    @required this.prixPayer,
-    @required this.idReservation,
-    @required this.readOnly
-  }) : super(key: key);
+  const _PayerItem(
+      {Key key,
+      @required this.payer,
+      @required this.prixPayer,
+      @required this.idReservation,
+      @required this.readOnly})
+      : super(key: key);
   final int idReservation;
   final bool readOnly;
   final Payer payer;
@@ -144,39 +147,40 @@ class _PayerItem extends StatelessWidget {
         "prixPayer: $prixPayer",
         overflow: TextOverflow.ellipsis,
       ),
-      trailing:
-      readOnly? null:
-       PopupMenuButton(
-        padding: EdgeInsets.all(0),
-        itemBuilder: (BuildContext context) {
-          return [
-            if (payer.typePaiement != 'reste')
-              PopupMenuItem(
-                child: Text("modifier"),
-                value: "edit",
-              ),
-            PopupMenuItem(
-              child: Text("supprimer"),
-              value: "delete",
-            )
-          ];
-        },
-        onSelected: (dynamic value) {
-          if (value == "delete") {
-            PayerState.removeData(
-                typePaiement: payer.typePaiement, idReservation: idReservation);
-          } else if (value == "edit") {
-            showDialog(
-                builder: (BuildContext context) {
-                  return PayerDialog(
-                    payer: payer,
-                    idReservation: idReservation,
-                  );
-                },
-                context: context);
-          }
-        },
-      ),
+      trailing: readOnly
+          ? null
+          : PopupMenuButton(
+              padding: EdgeInsets.all(0),
+              itemBuilder: (BuildContext context) {
+                return [
+                  if (payer.typePaiement != 'reste')
+                    PopupMenuItem(
+                      child: Text("modifier"),
+                      value: "edit",
+                    ),
+                  PopupMenuItem(
+                    child: Text("supprimer"),
+                    value: "delete",
+                  )
+                ];
+              },
+              onSelected: (dynamic value) {
+                if (value == "delete") {
+                  PayerState.removeData(
+                      typePaiement: payer.typePaiement,
+                      idReservation: idReservation);
+                } else if (value == "edit") {
+                  showDialog(
+                      builder: (BuildContext context) {
+                        return PayerDialog(
+                          payer: payer,
+                          idReservation: idReservation,
+                        );
+                      },
+                      context: context);
+                }
+              },
+            ),
     );
   }
 }
@@ -241,11 +245,61 @@ class _PayerDialogState extends State<PayerDialog> {
                               initialValue: widget.modifier
                                   ? "${widget.payer.sommePayee}"
                                   : "",
+                              validator: (String val) {
+                                if (val.trim().isEmpty) {
+                                  return "Champ vide";
+                                }
+                                if (double.tryParse(val) == null && double.parse(val) == 0) {
+                                  return "Valeur incorrecte";
+                                }
+                                if (_typePaiement.compareTo("avance") == 0) {
+                                  double value = double.parse(val);
+                                  PayerState _payerState =
+                                      Provider.of<PayerState>(context,
+                                          listen: false);
+                                  var stats = _payerState.statsByIdReservation[
+                                      widget.idReservation];
+                                  var data = _payerState.payerByIdReservation[
+                                      widget.idReservation];
+                                  double avance = 0;
+                                  if (!widget.modifier) {
+                                    data.forEach((Payer payer) {
+                                      if (payer.typePaiement == "avance") {
+                                        avance += payer.sommePayee;
+                                      }
+                                    });
+                                  }
+                                  var prixDu =
+                                      stats["prixTotal"] - stats["remise"] - avance;
+                                  if (value > prixDu) {
+                                    return "Valeur trop grande";
+                                  }
+                                }
+                                if (_typePaiement.compareTo("remise") == 0) {
+                                  double value = double.parse(val);
+                                  PayerState _payerState =
+                                      Provider.of<PayerState>(context,
+                                          listen: false);
+                                  var stats = _payerState.statsByIdReservation[
+                                      widget.idReservation];
+                                  var data = _payerState.payerByIdReservation[
+                                      widget.idReservation];
+                                  double remise = 0;
+                                  if (!widget.modifier) {
+                                    data.forEach((Payer payer) {
+                                      if (payer.typePaiement == "remise") {
+                                        remise += payer.sommePayee;
+                                      }
+                                    });
+                                  }
+                                  var prixDu = stats["prixTotal"];
+                                  if ((value + remise) > (prixDu / 2)) {
+                                    return remise == 0 ? "Valeur superieur a 50%": "$remise + valeur superieur a 50%";
+                                  }
+                                }
+                                return null;
+                              },
                               keyboardType: TextInputType.number,
-                              inputFormatters: [
-                                WhitelistingTextInputFormatter(
-                                    RegExp("[0-9]+")),
-                              ],
                               decoration: InputDecoration(
                                 border: UnderlineInputBorder(),
                                 labelText: "Somme payee",

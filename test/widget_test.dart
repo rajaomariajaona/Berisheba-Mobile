@@ -1,7 +1,8 @@
 import 'package:berisheba/tools/date.dart';
+import 'package:berisheba/tools/printing/pdf_generator.dart';
 
 void main() {
-  testIsoWeekNumber();
+  PdfGenerator();
 }
 
 void testIsoWeekNumber() {
