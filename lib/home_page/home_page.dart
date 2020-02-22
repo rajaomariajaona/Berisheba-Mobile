@@ -15,6 +15,7 @@ import 'package:berisheba/routes/reservation/widget/reservation_float_button.dar
 import 'package:berisheba/routes/salle/salle_portrait.dart';
 import 'package:berisheba/routes/salle/widgets/salle_app_bar.dart';
 import 'package:berisheba/routes/salle/widgets/salle_float_button.dart';
+import 'package:berisheba/routes/statistique/statistique_app_bar.dart';
 import 'package:berisheba/routes/statistique/statistique_portrait.dart';
 import 'package:berisheba/routes/ustensile/ustensile_portrait.dart';
 import 'package:berisheba/routes/ustensile/widgets/ustensile_float_button.dart';
@@ -37,19 +38,6 @@ class _SquelleteState extends State<Squellete> {
     //Connect the app to the websocket
     GlobalState().connect();
     bool show = false;
-    // GlobalState().internalStreamController.stream.listen((msg) async {
-    //   if (msg == "conflict") {
-    //     if(!show){
-    //     show = true;
-    //     await showDialog(
-    //         context: context,
-    //         builder: (ctx) {
-    //           return ConflictSalleDialog();
-    //         });
-    //     show = false;
-    //     }
-    //   }
-    // });
   }
 
   @override
@@ -68,7 +56,6 @@ class _SquelleteState extends State<Squellete> {
         title,
         style: TextStyle(color: Config.bottomNavTextColor, fontSize: 11),
       ),
-//      backgroundColor: Config.bottomNavBgColor,
     );
   }
 
@@ -99,7 +86,7 @@ class _SquelleteState extends State<Squellete> {
     SalleFloatButton(),
     MaterielFloatButton(),
     UstensileFloatButton(),
-    ClientFloatButton(),
+    null,
   ];
 
   @override
@@ -132,7 +119,7 @@ class _SquelleteState extends State<Squellete> {
       SalleAppBar(context).appbar,
       MaterielAppBar(context).appbar,
       ClientAppBar(context).appbar,
-      ClientAppBar(context).appbar,
+      StatistiqueAppBar(context).appbar,
     ];
 
     //Verify if Items are enough

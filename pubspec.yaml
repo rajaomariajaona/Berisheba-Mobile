@@ -56,6 +56,8 @@ dependencies:
   image: ^2.1.4
   flutter_share: ^1.0.2+1
   pdf_viewer_plugin: ^1.0.0+2
+  charts_flutter: ^0.8.1
+  fl_chart: ^0.8.1
 
 
   # The following adds the Cupertino Icons font to your application.
