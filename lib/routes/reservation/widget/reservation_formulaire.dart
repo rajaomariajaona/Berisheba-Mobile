@@ -274,7 +274,7 @@ class _ReservationFormulaireState extends State<ReservationFormulaire> {
     if (result != null && int.tryParse("$result") != null) {
       idClient = int.parse("$result");
       var client =
-          Provider.of<ClientState>(context).listClientByIdClient["$result"];
+          Provider.of<ClientState>(context, listen: false).listClientByIdClient["$result"];
       _client.text = "${client["nomClient"]} ${client["prenomClient"]}";
     }
   }

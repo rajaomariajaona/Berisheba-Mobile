@@ -1,9 +1,9 @@
 import 'dart:async';
 import 'dart:core';
 
+import 'package:berisheba/states/global_state.dart';
 import 'package:berisheba/tools/http/request.dart';
 import 'package:dio/dio.dart';
-import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 
 class StatistiqueState extends ChangeNotifier {
@@ -19,12 +19,15 @@ class StatistiqueState extends ChangeNotifier {
   Map<int, Map<String, dynamic>> _revenuMensuelleByYear = {};
   Map<int, Map<String, dynamic>> get revenuMensuelleByYear =>
       _revenuMensuelleByYear;
-  Future<void> fetchData(int annee) async {
+  Future<void> fetchDataByAnnee(int annee) async {
     try {
       _isLoading = true;
       Dio _dio = await RestRequest().getDioInstance();
       var result = (await _dio.get("statistique/$annee")).data;
-      _revenuMensuelleByYear[annee] = result;
+      _revenuMensuelleByYear[annee] = {
+        ...result,
+        ...{"annee": annee}
+      };
     } catch (_) {
       print(_.toString());
     } finally {
@@ -32,7 +35,30 @@ class StatistiqueState extends ChangeNotifier {
       notifyListeners();
     }
   }
-  StatistiqueState(){
-    this.fetchData(DateTime.now().year);
+
+  Future<void> fetchData() async {
+    try {
+      _isLoading = true;
+      Dio _dio = await RestRequest().getDioInstance();
+      var result = (await _dio.get("statistique")).data;
+      result["data"].forEach((dynamic data) {
+        _revenuMensuelleByYear[data["annee"]] = data;
+      });
+    } catch (_) {
+      print(_.toString());
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  StatistiqueState() {
+    GlobalState().externalStreamController.stream.listen((msg) async {
+      if (msg == "statistique") {
+        await this.fetchData();
+      } else if (msg.contains("statistique")) {
+        await this.fetchDataByAnnee(int.parse(msg.split(" ")[1]));
+      }
+    });
   }
 }
