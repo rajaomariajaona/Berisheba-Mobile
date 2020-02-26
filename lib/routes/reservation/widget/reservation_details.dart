@@ -21,6 +21,8 @@ import 'package:berisheba/tools/printing/pdf_generator.dart';
 import 'package:berisheba/tools/widgets/confirm.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_full_pdf_viewer/flutter_full_pdf_viewer.dart';
+import 'package:flutter_share/flutter_share.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 
 enum Actions { salle, materiel, ustensile, jirama, autres, payer }
@@ -395,8 +397,22 @@ class PDFScreen extends StatelessWidget {
           title: Text("Facture"),
           actions: <Widget>[
             IconButton(
+              icon: Icon(Icons.refresh),
+              onPressed: () async {
+                PermissionStatus permission = await PermissionHandler()
+                    .checkPermissionStatus(PermissionGroup.storage);
+                print(permission);
+              },
+            ),
+            IconButton(
               icon: Icon(Icons.share),
-              onPressed: () {},
+              onPressed: () async {
+                await FlutterShare.shareFile(
+                  title: 'Example share',
+                  text: 'Example share text',
+                  filePath: pathPDF,
+                );
+              },
             ),
           ],
         ),

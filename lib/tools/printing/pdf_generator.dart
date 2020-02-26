@@ -1,15 +1,17 @@
 import 'dart:io';
-import 'dart:math';
 import 'dart:ui';
 
 import 'package:berisheba/tools/http/request.dart';
 import 'package:image/image.dart' as images;
 import 'package:path_provider/path_provider.dart';
+import 'package:path_provider_ex/path_provider_ex.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart';
 import 'package:flutter/services.dart' show rootBundle;
+import 'package:permission_handler/permission_handler.dart';
 
 class PdfGenerator {
+  bool canShare = false;
   Document pdf;
   PdfGenerator() {
     pdf = Document();
@@ -71,10 +73,17 @@ class PdfGenerator {
         Container(padding: EdgeInsets.all(25)),
         Table.fromTextArray(context: context, data: <List<String>>[
           <String>["Description", "Prix"],
-          <String>["Sejour: (nombre de jours: ${donnee["nbJours"]}, nombre de personne en moyenne: ${donnee["nbPersonne"]})", "${donnee["prixTotalChambre"]} ar"],
-          for(var autre in donnee["autresMotifs"])
+          <String>[
+            "Sejour: (nombre de jours: ${donnee["nbJours"]}, nombre de personne en moyenne: ${donnee["nbPersonne"]})",
+            "${donnee["prixTotalChambre"]} ar"
+          ],
+          for (var autre in (donnee["autresMotifs"] ?? []))
             <String>[autre.keys.toList()[0], "${autre.values.toList()[0]} ar"],
-          <String>["Jirama : ${donnee["appareilListe"].join(", ")}", "${donnee["prixJirama"]} ar"],
+          if(donnee["appareilListe"] != null)
+          <String>[
+            "Jirama : ${donnee["appareilListe"].join(", ")}",
+            "${donnee["prixJirama"]} ar"
+          ],
         ]),
         Container(padding: EdgeInsets.all(5)),
         Row(mainAxisAlignment: MainAxisAlignment.end, children: <Widget>[
@@ -86,7 +95,6 @@ class PdfGenerator {
                   Text("Avance : ${donnee["avance"]} ar"),
                 if (donnee["remise"] != null && donnee["remise"] != 0)
                   Text("Remise : ${donnee["remise"]} ar"),
-              
                 Text("Prix total : ${donnee["prixTotal"]} ar"),
               ])
         ]),
@@ -101,9 +109,33 @@ class PdfGenerator {
             ])
       ]);
     }));
+    PermissionHandler permissionHandler = PermissionHandler();
+    await permissionHandler.checkPermissionStatus(PermissionGroup.storage).then((permissionStatus) async {
+      if(permissionStatus != PermissionStatus.granted){
+        await permissionHandler.requestPermissions([PermissionGroup.storage]);
+      }else{
+        canShare = true;
+      }
+    });
+    // TODO: Add parametre sd card or internal storage
+    List<StorageInfo> storageInfos = await PathProviderEx.getStorageInfo();
+    var path;
+    if(storageInfos.length > 1){
+      path = storageInfos[1].rootDir;
+    }else if(storageInfos.length > 0){
+      path = storageInfos[0].rootDir;
+    }else{
+      path = (await getExternalStorageDirectory()).path;
+    }
+    var dir = Directory("$path/berisheba");
+    dir.exists().then((isExist) async {
+      if(!isExist){
+        await dir.create();
+      }
+    });
     final File fichier =
-        File("${(await getExternalStorageDirectory()).path}/test.pdf");
+        File("$path/berisheba/facture.pdf");
     await fichier.writeAsBytes(pdf.save());
-    return "${(await getExternalStorageDirectory()).path}/test.pdf";
+    return "$path/berisheba/facture.pdf";
   }
 }
