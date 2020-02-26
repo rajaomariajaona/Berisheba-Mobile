@@ -20,6 +20,7 @@ import 'package:berisheba/states/global_state.dart';
 import 'package:berisheba/tools/printing/pdf_generator.dart';
 import 'package:berisheba/tools/widgets/confirm.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_full_pdf_viewer/flutter_full_pdf_viewer.dart';
 import 'package:provider/provider.dart';
 
 enum Actions { salle, materiel, ustensile, jirama, autres, payer }
@@ -207,8 +208,10 @@ class _ReservationDetailsState extends State<ReservationDetailsBody> {
         icon: Icon(Icons.picture_as_pdf),
         onPressed: () async {
           PdfGenerator pdf = PdfGenerator();
-          await pdf.savePdf().whenComplete((){
-            print("VITA");
+          await pdf.saveFacture(widget._idReservation).then((path) async {
+            await Navigator.of(context).push(MaterialPageRoute(builder: (ctx) {
+              return PDFScreen(path);
+            }));
           });
         },
       ),
@@ -378,5 +381,25 @@ class _ReservationDetailsState extends State<ReservationDetailsBody> {
         )
       ]
     ];
+  }
+}
+
+class PDFScreen extends StatelessWidget {
+  String pathPDF = "";
+  PDFScreen(this.pathPDF);
+
+  @override
+  Widget build(BuildContext context) {
+    return PDFViewerScaffold(
+        appBar: AppBar(
+          title: Text("Facture"),
+          actions: <Widget>[
+            IconButton(
+              icon: Icon(Icons.share),
+              onPressed: () {},
+            ),
+          ],
+        ),
+        path: pathPDF);
   }
 }

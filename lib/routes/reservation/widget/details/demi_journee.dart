@@ -125,7 +125,7 @@ class _ReservationDemiJourneeState extends State<ReservationDemiJournee> {
 
   void _addNewDemiJournee(DateTime dateToAdd, TypeDemiJournee type,
       Map<String, dynamic> rangePickerData, BuildContext context) {
-    ConstituerState constituerState = Provider.of<ConstituerState>(context);
+    ConstituerState constituerState = Provider.of<ConstituerState>(context, listen: false);
     DemiJournee currentDemiJournee = DemiJournee(
       date: "${dateToAdd.toIso8601String().substring(0, 10)}",
       typeDemiJournee: type,

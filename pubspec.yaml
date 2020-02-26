@@ -62,7 +62,7 @@ dependencies:
   mp_chart: ^0.1.7
   bezier_chart: ^1.0.16
   wave: ^0.0.8
-
+  flutter_full_pdf_viewer: ^1.0.6
 
 
   # The following adds the Cupertino Icons font to your application.
