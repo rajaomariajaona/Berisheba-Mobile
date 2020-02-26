@@ -1,4 +1,5 @@
 import 'package:berisheba/routes/reservation/states/reservation_state.dart';
+import 'package:berisheba/states/config.dart';
 import 'package:berisheba/tools/formatters/case_input_formatter.dart';
 import 'package:berisheba/tools/formatters/second_to_string_formatter.dart';
 import 'package:berisheba/tools/widgets/loading.dart';
@@ -13,7 +14,8 @@ import 'package:provider/provider.dart';
 class ReservationJirama extends StatelessWidget {
   final int _idReservation;
   final bool readOnly;
-  const ReservationJirama(this._idReservation, {this.readOnly,Key key}) : super(key: key);
+  const ReservationJirama(this._idReservation, {this.readOnly, Key key})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -43,8 +45,6 @@ class ReservationJirama extends StatelessWidget {
             child: ExpandableNotifier(
               initialExpanded: false,
               child: ExpandablePanel(
-                tapHeaderToExpand: true,
-                tapBodyToCollapse: false,
                 theme: const ExpandableThemeData(
                   headerAlignment: ExpandablePanelHeaderAlignment.center,
                 ),
@@ -89,21 +89,41 @@ class ReservationJirama extends StatelessWidget {
                             Row(
                               mainAxisAlignment: MainAxisAlignment.end,
                               children: <Widget>[
-                                if(readOnly)
-                                Container()
-                                else
-                                IconButton(
-                                  icon: Icon(Icons.add),
-                                  onPressed: () {
-                                    showDialog(
-                                      context: context,
-                                      builder: (BuildContext context) =>
-                                          _JiramaDialog(
-                                        idReservation: _idReservation,
+                                if (readOnly)
+                                  Container()
+                                else ...[
+                                  RawMaterialButton(
+                                      constraints: BoxConstraints(
+                                          minWidth: 0, minHeight: 0),
+                                      padding: EdgeInsets.all(3),
+                                      child: Text(
+                                        "Kw",
+                                        style: TextStyle(
+                                            color: Config.primaryBlue,
+                                            fontWeight: FontWeight.bold),
                                       ),
-                                    );
-                                  },
-                                ),
+                                      onPressed: () async {
+                                        await showDialog(
+                                            builder: (BuildContext context) {
+                                              return JiramaPriceDialog(
+                                                  idReservation:
+                                                     _idReservation);
+                                            },
+                                            context: context);
+                                      }),
+                                  IconButton(
+                                    icon: Icon(Icons.add),
+                                    onPressed: () {
+                                      showDialog(
+                                        context: context,
+                                        builder: (BuildContext context) =>
+                                            _JiramaDialog(
+                                          idReservation: _idReservation,
+                                        ),
+                                      );
+                                    },
+                                  )
+                                ],
                               ],
                             ),
                           ],
@@ -129,13 +149,13 @@ class ReservationJirama extends StatelessWidget {
 }
 
 class _JiramaItem extends StatelessWidget {
-  const _JiramaItem({
-    Key key,
-    @required this.appareil,
-    @required this.duree,
-    @required this.idReservation,
-    @required this.readOnly
-  }) : super(key: key);
+  const _JiramaItem(
+      {Key key,
+      @required this.appareil,
+      @required this.duree,
+      @required this.idReservation,
+      @required this.readOnly})
+      : super(key: key);
   final bool readOnly;
   final int idReservation;
   final Appareil appareil;
@@ -173,40 +193,39 @@ class _JiramaItem extends StatelessWidget {
           ),
         ],
       ),
-      trailing: 
-      readOnly ?
-      null:
-      PopupMenuButton(
-        padding: EdgeInsets.all(0),
-        itemBuilder: (BuildContext context) {
-          return [
-            PopupMenuItem(
-              child: Text("modifier"),
-              value: "edit",
+      trailing: readOnly
+          ? null
+          : PopupMenuButton(
+              padding: EdgeInsets.all(0),
+              itemBuilder: (BuildContext context) {
+                return [
+                  PopupMenuItem(
+                    child: Text("modifier"),
+                    value: "edit",
+                  ),
+                  PopupMenuItem(
+                    child: Text("supprimer"),
+                    value: "delete",
+                  )
+                ];
+              },
+              onSelected: (dynamic value) {
+                if (value == "delete") {
+                  JiramaState.removeData(
+                      idAppareil: appareil.id, idReservation: idReservation);
+                } else if (value == "edit") {
+                  showDialog(
+                      builder: (BuildContext context) {
+                        return _JiramaDialog(
+                          appareil: appareil,
+                          duree: duree,
+                          idReservation: idReservation,
+                        );
+                      },
+                      context: context);
+                }
+              },
             ),
-            PopupMenuItem(
-              child: Text("supprimer"),
-              value: "delete",
-            )
-          ];
-        },
-        onSelected: (dynamic value) {
-          if (value == "delete") {
-            JiramaState.removeData(
-                idAppareil: appareil.id, idReservation: idReservation);
-          } else if (value == "edit") {
-            showDialog(
-                builder: (BuildContext context) {
-                  return _JiramaDialog(
-                    appareil: appareil,
-                    duree: duree,
-                    idReservation: idReservation,
-                  );
-                },
-                context: context);
-          }
-        },
-      ),
     );
   }
 }
@@ -241,17 +260,17 @@ class _JiramaDialogState extends State<_JiramaDialog> {
 
   final GlobalKey<FormState> _formState = GlobalKey<FormState>();
   Map<String, Function(String)> _validators = {
-    "nom": (String value){
-      if(value.trim().isEmpty){
+    "nom": (String value) {
+      if (value.trim().isEmpty) {
         return "Champs vide";
       }
       return null;
     },
-    "puissance": (String value){
-      if(value.trim().isEmpty){
+    "puissance": (String value) {
+      if (value.trim().isEmpty) {
         return "Champs vide";
       }
-      if(double.tryParse(value) == null){
+      if (double.tryParse(value) == null) {
         return "Valeur incorrecte";
       }
       return null;
@@ -296,7 +315,7 @@ class _JiramaDialogState extends State<_JiramaDialog> {
                         children: <Widget>[
                           Expanded(
                             child: TextFormField(
-                               validator: _validators["puissance"],
+                              validator: _validators["puissance"],
                               initialValue: widget.modifier
                                   ? "${widget.appareil.puissance}"
                                   : "",
@@ -393,12 +412,13 @@ class _JiramaDialogState extends State<_JiramaDialog> {
                               hours: value[1],
                               minutes: value[2]);
                           if ((_duree.inSeconds == 0 &&
-                              _selected.inSeconds != 0) || (_duree.inSeconds != 0 &&
-                              _selected.inSeconds == 0)) {
+                                  _selected.inSeconds != 0) ||
+                              (_duree.inSeconds != 0 &&
+                                  _selected.inSeconds == 0)) {
                             setState(() {
                               _duree = _selected;
                             });
-                          }else{
+                          } else {
                             _duree = _selected;
                           }
                         },
