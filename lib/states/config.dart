@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+
+enum ErrorType {internet,authorization, none}
 class Config {
   //api
   static String get baseURI => _apiURI.replaceFirst("/api/", "");

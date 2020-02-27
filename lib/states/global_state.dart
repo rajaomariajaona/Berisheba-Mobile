@@ -1,11 +1,11 @@
 import 'dart:async';
+import 'dart:io';
 import 'package:berisheba/states/config.dart';
 import 'package:flutter/material.dart';
 import 'package:web_socket_channel/io.dart';
 
 class GlobalState extends ChangeNotifier {
   GlobalKey<NavigatorState> _navigatorState;
-
 
   set navigatorState(GlobalKey value) {
     _navigatorState = value;
@@ -14,7 +14,7 @@ class GlobalState extends ChangeNotifier {
   GlobalKey<NavigatorState> get navigatorState => _navigatorState;
 
   // App State if the Websocket is connected or not
-  bool _isConnected = false;
+  bool _isConnected = true;
 
   bool get isConnected => _isConnected;
 
@@ -35,35 +35,37 @@ class GlobalState extends ChangeNotifier {
       _externalStreamController;
 
   Future<bool> connect() async {
+    bool res;
     try {
+      await WebSocket.connect(Config.wsURI).timeout(Duration(seconds: 2));
       _channel = IOWebSocketChannel.connect(Config.wsURI,
           pingInterval: Duration(seconds: 30));
-      this.isConnected = true;
       _channel.stream.listen(
         (msg) {
           _externalStreamController.sink.add(msg);
         },
         onError: (error) {
-          this.isConnected = false;
+          res = false;
         },
         onDone: () {
-          this.isConnected = false;
+          res = false;
           _channel = null;
         },
       );
+      res = true;
       this.refreshAll();
     } catch (_) {
+      res = false;
       if (_channel != null) _channel.sink.close();
-      this.isConnected = false;
     }
-    return this.isConnected;
+    this.isConnected = res;
+    return res;
   }
 
   set isConnected(bool value) {
     if (_isConnected != value) {
       _isConnected = value;
-      if (!_isConnected)
-        _navigatorState.currentState.pushNamed("no-internet");
+      if (!_isConnected) _navigatorState.currentState.pushNamed("no-internet");
       notifyListeners();
     }
   }

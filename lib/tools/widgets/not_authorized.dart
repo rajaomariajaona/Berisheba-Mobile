@@ -1,7 +1,6 @@
 
 import 'package:berisheba/states/authorization_state.dart';
 import 'package:flutter/material.dart';
-import 'package:berisheba/states/global_state.dart';
 
 class NotAuthorized extends StatelessWidget {
   @override

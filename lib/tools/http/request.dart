@@ -64,12 +64,10 @@ class RestRequest {
           case DioErrorType.CONNECT_TIMEOUT:
             print("TIMEOUT ERROR RECEIVE OR CONNECT");
             _dio.resolve({});
-            GlobalState().isConnected = false;
             break;
           case DioErrorType.DEFAULT:
             if (error.message.contains("SocketException")) {
               _dio.resolve({});
-              GlobalState().isConnected = false;
             } else {
               _dio.reject(error);
             }

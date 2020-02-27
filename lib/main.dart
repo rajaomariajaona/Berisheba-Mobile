@@ -20,13 +20,14 @@ import 'package:berisheba/states/tab_state.dart';
 import 'package:berisheba/tools/widgets/conflit.dart';
 import 'package:berisheba/tools/widgets/no_internet.dart';
 import 'package:berisheba/tools/widgets/not_authorized.dart';
+import 'package:berisheba/tools/widgets/splash_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-void main() {
+void main() async {
   runApp(MyApp());
   SharedPreferences.getInstance().then((sharedPreference) {
     if (!sharedPreference.containsKey("api")) {
@@ -46,7 +47,6 @@ void main() {
 }
 
 class MyApp extends StatelessWidget {
-  // This widget is the root of your application.
   final ThemeData t = ThemeData(
     primarySwatch: Colors.green,
   ).copyWith(
@@ -91,7 +91,6 @@ class MyApp extends StatelessWidget {
     highlightColor: Config.secondaryBlue,
     focusColor: Config.primaryBlue,
     buttonColor: Config.primaryBlue,
-    
   );
   final GlobalKey navigatorState = GlobalKey<NavigatorState>();
 
@@ -119,10 +118,11 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => ConflitState()),
         ChangeNotifierProvider(create: (_) => PayerState()),
         ChangeNotifierProvider(create: (_) => StatistiqueState()),
-        ChangeNotifierProvider(create: (_) => AuthorizationState(),)
+        ChangeNotifierProvider(
+          create: (_) => AuthorizationState(),
+        )
       ],
       child: MaterialApp(
-        
         localizationsDelegates: [
           GlobalMaterialLocalizations.delegate,
           GlobalWidgetsLocalizations.delegate,
@@ -135,40 +135,44 @@ class MyApp extends StatelessWidget {
         title: 'Berisheba',
         debugShowCheckedModeBanner: false,
         theme: t,
-        home: Squellete(),
+        initialRoute: "splash-screen",
         onGenerateRoute: _handleRoute,
       ),
     );
   }
 
   Route<dynamic> _handleRoute(RouteSettings settings) {
-    String routeName =  settings.name;
-    if(routeName.contains("conflit")){
+    String routeName = settings.name;
+    if (routeName.contains("conflit")) {
       List<String> params = routeName.split(":");
-      if(params.length == 2){
-
-      int idReservation = int.tryParse(params[1]);
-      if(idReservation != null)
-        return MaterialPageRoute(
-            builder: (ctx) => ConflitResolver(idReservation: idReservation,)
-        );
+      if (params.length == 2) {
+        int idReservation = int.tryParse(params[1]);
+        if (idReservation != null)
+          return MaterialPageRoute(
+              builder: (ctx) => ConflitResolver(
+                    idReservation: idReservation,
+                  ));
       }
-    }else{
+    } else {
       switch (routeName) {
         case "no-internet":
-          return MaterialPageRoute(
-            builder: (ctx) => NoInternet()
-          );
+          return MyApp.noInternet;
           break;
         case "not-authorized":
-          return MaterialPageRoute(
-            builder: (ctx) => NotAuthorized()
-          );
+          return MyApp.notAuthorized;
           break;
+        case "splash-screen":
+          return MyApp.splashScreen;
+        case "/":
+          return MyApp.home;
         default:
-        return null;
+          return null;
       }
     }
     return null;
   }
+  static Route home = MaterialPageRoute(builder: (ctx) =>  Squellete());
+  static Route splashScreen = MaterialPageRoute(builder: (ctx) =>  SplashScreen());
+  static Route noInternet = MaterialPageRoute(builder: (ctx) => NoInternet());
+  static Route notAuthorized = MaterialPageRoute(builder: (ctx) => NotAuthorized());
 }
