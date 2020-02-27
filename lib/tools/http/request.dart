@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:berisheba/states/authorization_state.dart';
 import 'package:berisheba/states/config.dart';
 import 'package:berisheba/states/global_state.dart';
 import 'package:device_info/device_info.dart';
@@ -53,7 +54,7 @@ class RestRequest {
                 await _dio.request(options.path, options: options);
               }).catchError((error) {
                 if (error is DioError) {
-                  GlobalState().isAuthorized = false;
+                  AuthorizationState().isAuthorized = false;
                   _dio.resolve({});
                 }
               });
@@ -103,7 +104,7 @@ class RestRequest {
       });
     } catch (error) {
       if (error is DioError && error.type == DioErrorType.RESPONSE) {
-        GlobalState().isAuthorized = false;
+        AuthorizationState().isAuthorized = false;
         return _dio.reject("Device not Authorized by admin");
       } else {
         print(error);

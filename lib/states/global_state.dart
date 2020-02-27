@@ -5,15 +5,7 @@ import 'package:web_socket_channel/io.dart';
 
 class GlobalState extends ChangeNotifier {
   GlobalKey<NavigatorState> _navigatorState;
-  bool _isAuthorized = true;
-  set isAuthorized(bool val) {
-    if (_isAuthorized != val) {
-      _isAuthorized = val;
-      notifyListeners();
-    }
-  }
 
-  bool get isAuthorized => _isAuthorized;
 
   set navigatorState(GlobalKey value) {
     _navigatorState = value;
@@ -70,8 +62,7 @@ class GlobalState extends ChangeNotifier {
   set isConnected(bool value) {
     if (_isConnected != value) {
       _isConnected = value;
-      if (!_isConnected && _isAuthorized)
-      
+      if (!_isConnected)
         _navigatorState.currentState.pushNamed("no-internet");
       notifyListeners();
     }
