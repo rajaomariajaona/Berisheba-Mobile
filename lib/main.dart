@@ -18,6 +18,7 @@ import 'package:berisheba/states/global_state.dart';
 import 'package:berisheba/states/tab_state.dart';
 import 'package:berisheba/tools/widgets/conflit.dart';
 import 'package:berisheba/tools/widgets/no_internet.dart';
+import 'package:berisheba/tools/widgets/not_authorized.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -155,6 +156,11 @@ class MyApp extends StatelessWidget {
         case "no-internet":
           return MaterialPageRoute(
             builder: (ctx) => NoInternet()
+          );
+          break;
+        case "not-authorized":
+          return MaterialPageRoute(
+            builder: (ctx) => NotAuthorized()
           );
           break;
         default:

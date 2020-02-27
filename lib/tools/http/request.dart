@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:berisheba/states/config.dart';
 import 'package:berisheba/states/global_state.dart';
+import 'package:device_info/device_info.dart';
 import 'package:dio/dio.dart';
 import 'package:imei_plugin/imei_plugin.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -82,7 +83,10 @@ class RestRequest {
   }
 
   Future<dynamic> _refreshToken(RequestOptions options) async {
-    var imei = await ImeiPlugin.getImei();
+    DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
+    AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
+    var info = [androidInfo.device, androidInfo.brand,androidInfo.model];
+    var deviceid = await ImeiPlugin.getId();
     try {
       _dio.interceptors.requestLock.lock();
       _dio.interceptors.responseLock.lock();
@@ -91,8 +95,7 @@ class RestRequest {
         connectTimeout: 5000,
         receiveTimeout: 3000,
         contentType: Headers.formUrlEncodedContentType,
-      )).post("/device", data: {"deviceid": imei}).then(
-          (response) async {
+      )).post("/device", data: {"deviceid": deviceid, "information": info.join(", ")}).then((response) async {
         String token = response.data["token"];
         await this._writeToken(token);
         options.headers["Authorization"] = "Bearer $token";

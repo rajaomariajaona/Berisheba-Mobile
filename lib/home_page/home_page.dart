@@ -127,37 +127,34 @@ class _SquelleteState extends State<Squellete> {
     assert(_bottomNavBar.items.length == routesLandscape.length);
     assert(_bottomNavBar.items.length == appBar.length);
 
-    return globalState.isAuthorized
-        ? Scaffold(
-            resizeToAvoidBottomInset: false,
-            //fix render flex
-            appBar: appBar[TabState.index],
-            body:
-                //Orientation Builder detect if Orientation Changes
-                OrientationBuilder(
-              builder: (BuildContext context, Orientation orientation) {
+    return Scaffold(
+      resizeToAvoidBottomInset: false,
+      //fix render flex
+      appBar: appBar[TabState.index],
+      body:
+          //Orientation Builder detect if Orientation Changes
+          OrientationBuilder(
+        builder: (BuildContext context, Orientation orientation) {
 //          return orientation == Orientation.portrait
 //              ? routesPortrait[tabState.index]
 //              : routesLandscape[tabState.index];
 
-                return PageView(
-                  children: orientation == Orientation.portrait
-                      ? routesPortrait
-                      : routesLandscape,
-                  controller: TabState.controllerPage,
-                  onPageChanged: (int tabIndex) {
-                    tabState.changeIndex(tabIndex);
-                  },
-                );
-              },
-            ),
+          return PageView(
+            children: orientation == Orientation.portrait
+                ? routesPortrait
+                : routesLandscape,
+            controller: TabState.controllerPage,
+            onPageChanged: (int tabIndex) {
+              tabState.changeIndex(tabIndex);
+            },
+          );
+        },
+      ),
 
-            //Drawer is Menu on the Left side
-            drawer: const MenuDrawer(),
-            bottomNavigationBar:
-                globalState.hideBottomNavBar ? null : _bottomNavBar,
-            floatingActionButton: floatButtons[TabState.index],
-          )
-        : NotAuthorized();
+      //Drawer is Menu on the Left side
+      drawer: const MenuDrawer(),
+      bottomNavigationBar: globalState.hideBottomNavBar ? null : _bottomNavBar,
+      floatingActionButton: floatButtons[TabState.index],
+    );
   }
 }
