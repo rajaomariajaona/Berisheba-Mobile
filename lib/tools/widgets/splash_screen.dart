@@ -9,11 +9,12 @@ class SplashScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return _StatefulWrapper(
       onInit: () async {
-        await AuthorizationState.checkAuthorizationAndInternet().whenComplete(() async {
+        await AuthorizationState.checkAuthorizationAndInternet()
+            .whenComplete(() async {
           await Future.delayed(Duration(seconds: 1)).whenComplete(() async {
             var route = "/";
             if (!AuthorizationState().isAuthorized) route = "not-authorized";
-            if(!MyApp.noInternet.isCurrent){
+            if (!MyApp.noInternet.isCurrent) {
               await Navigator.of(context).pushReplacementNamed(route);
             }
           });
@@ -50,7 +51,17 @@ class __StatefulWrapperState extends State<_StatefulWrapper> {
       }
     });
     return Scaffold(
-      body: Loading(),
+      body: Column(
+        children: <Widget>[
+          Expanded(
+            flex: 2,
+            child: Image.asset("assets/logo.png"),
+          ),
+          Flexible(
+            child: Loading(),
+          ),
+        ],
+      ),
     );
   }
 }

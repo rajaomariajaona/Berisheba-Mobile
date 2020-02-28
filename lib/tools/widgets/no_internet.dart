@@ -41,16 +41,22 @@ class __NoInternetBodyState extends State<_NoInternetBody> {
                         isPressing = true;
                       });
                       await GlobalState().connect();
-                      await Future.delayed(Duration(seconds: 1)).then((_) {
+                      await Future.delayed(Duration(seconds: 1))
+                          .then((_) async {
                         if (GlobalState().isConnected) {
                           if (Navigator.of(context).canPop()) {
                             Navigator.of(context).pop();
                             if (MyApp.splashScreen.isCurrent) {
-                              if (AuthorizationState().isAuthorized)
-                                Navigator.of(context).pushReplacementNamed('/');
-                              else
-                                Navigator.of(context)
-                                    .pushReplacementNamed('not-authorized');
+                              await AuthorizationState
+                                      .checkAuthorizationAndInternet()
+                                  .whenComplete(() {
+                                if (AuthorizationState().isAuthorized)
+                                  Navigator.of(context)
+                                      .pushReplacementNamed('/');
+                                else
+                                  Navigator.of(context)
+                                      .pushReplacementNamed('not-authorized');
+                              });
                             }
                           } else {
                             if (AuthorizationState().isAuthorized)

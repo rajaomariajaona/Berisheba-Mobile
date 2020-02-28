@@ -2,7 +2,6 @@ import 'dart:convert';
 
 import 'package:berisheba/states/authorization_state.dart';
 import 'package:berisheba/states/config.dart';
-import 'package:berisheba/states/global_state.dart';
 import 'package:device_info/device_info.dart';
 import 'package:dio/dio.dart';
 import 'package:imei_plugin/imei_plugin.dart';
@@ -39,43 +38,26 @@ class RestRequest {
           }
         });
       }, onError: (DioError error) async {
-        switch (error.type) {
-          case DioErrorType.RESPONSE:
-            if (error?.response?.statusCode != 401) {
-              _dio.reject(error);
-            } else {
-              _dio.lock();
-              RequestOptions options = error?.response?.request;
-              print(options.headers["Authorization"]);
-              await _refreshToken(options).whenComplete(() async {
-                print(options.headers["Authorization"]);
-                _dio.unlock();
-              }).then((_) async {
-                await _dio.request(options.path, options: options);
-              }).catchError((error) {
-                if (error is DioError) {
-                  AuthorizationState().isAuthorized = false;
-                  _dio.resolve({});
-                }
-              });
-            }
-            break;
-          case DioErrorType.RECEIVE_TIMEOUT:
-          case DioErrorType.CONNECT_TIMEOUT:
-            print("TIMEOUT ERROR RECEIVE OR CONNECT");
-            _dio.resolve({});
-            break;
-          case DioErrorType.DEFAULT:
-            if (error.message.contains("SocketException")) {
+        if (error.type == DioErrorType.RESPONSE &&
+            error?.response?.statusCode == 401) {
+          _dio.lock();
+          RequestOptions options = error?.response?.request;
+          print(options.headers["Authorization"]);
+          await _refreshToken(options).whenComplete(() async {
+            print(options.headers["Authorization"]);
+            _dio.unlock();
+          }).then((_) async {
+            await _dio.request(options.path, options: options);
+          }).catchError((error) {
+            if (error is DioError) {
+              AuthorizationState().isAuthorized = false;
               _dio.resolve({});
-            } else {
-              _dio.reject(error);
             }
-            break;
-          default:
-            print("OTHER");
+          });
+          _dio.unlock();
+        }else{
+          _dio.reject(error);
         }
-        _dio.unlock();
       }),
     );
     return _dio;
@@ -84,7 +66,7 @@ class RestRequest {
   Future<dynamic> _refreshToken(RequestOptions options) async {
     DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
     AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
-    var info = [androidInfo.device, androidInfo.brand,androidInfo.model];
+    var info = [androidInfo.device, androidInfo.brand, androidInfo.model];
     var deviceid = await ImeiPlugin.getId();
     try {
       _dio.interceptors.requestLock.lock();
@@ -94,7 +76,10 @@ class RestRequest {
         connectTimeout: 5000,
         receiveTimeout: 3000,
         contentType: Headers.formUrlEncodedContentType,
-      )).post("/device", data: {"deviceid": deviceid, "information": info.join(", ")}).then((response) async {
+      )).post("/device", data: {
+        "deviceid": deviceid,
+        "information": info.join(", ")
+      }).then((response) async {
         String token = response.data["token"];
         await this._writeToken(token);
         options.headers["Authorization"] = "Bearer $token";

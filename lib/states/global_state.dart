@@ -37,7 +37,7 @@ class GlobalState extends ChangeNotifier {
   Future<bool> connect() async {
     bool res;
     try {
-      await WebSocket.connect(Config.wsURI).timeout(Duration(seconds: 2));
+      await WebSocket.connect(Config.wsURI).timeout(Duration(seconds: 15));
       _channel = IOWebSocketChannel.connect(Config.wsURI,
           pingInterval: Duration(seconds: 30));
       _channel.stream.listen(

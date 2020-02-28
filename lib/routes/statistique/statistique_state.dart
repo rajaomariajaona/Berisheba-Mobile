@@ -3,6 +3,7 @@ import 'dart:core';
 
 import 'package:berisheba/states/global_state.dart';
 import 'package:berisheba/tools/http/request.dart';
+import 'package:berisheba/tools/others/handle_dio_error.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 
@@ -28,8 +29,8 @@ class StatistiqueState extends ChangeNotifier {
         ...result,
         ...{"annee": annee}
       };
-    } catch (_) {
-      print(_.toString());
+    } catch (err) {
+      HandleDioError(err);
     } finally {
       _isLoading = false;
       notifyListeners();
@@ -44,8 +45,8 @@ class StatistiqueState extends ChangeNotifier {
       result["data"].forEach((dynamic data) {
         _revenuMensuelleByYear[data["annee"]] = data;
       });
-    } catch (_) {
-      print(_.toString());
+    } catch (err) {
+      HandleDioError(err);
     } finally {
       _isLoading = false;
       notifyListeners();
