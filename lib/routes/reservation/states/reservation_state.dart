@@ -1,10 +1,10 @@
 import 'dart:convert';
 
-import 'package:berisheba/states/config.dart';
 import 'package:berisheba/states/global_state.dart';
 import 'package:berisheba/tools/date.dart';
 import 'package:berisheba/tools/http/request.dart';
 import 'package:berisheba/tools/others/cast.dart';
+import 'package:berisheba/tools/others/handle_dio_error.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 
@@ -58,12 +58,12 @@ class ReservationState extends ChangeNotifier {
       _isLoading = true;
       _dio.options.headers["range"] = weekRange;
       var response = await _dio.get("/reservations");
-      _reservationsById = Cast.stringToIntMap(response.data["data"], (value) => value);
+      _reservationsById =
+          Cast.stringToIntMap(response.data["data"], (value) => value);
       notifyListeners();
       this.generateEvents();
     } catch (err) {
-      print(err);
-      print(err?.response?.data);
+      HandleDioError(err);
     } finally {
       _isLoading = false;
     }
@@ -79,13 +79,11 @@ class ReservationState extends ChangeNotifier {
         _reservationsById[idReservation] = response.data["data"];
         notifyListeners();
         this.generateEvents();
-      }else{
+      } else {
         throw "No data";
       }
-    } catch (err) {
-      if(err?.response?.statusCode != 404){
-        print(err);
-      }
+    } catch (error) {
+      HandleDioError(error);
     } finally {
       _isLoading = false;
     }
@@ -97,7 +95,7 @@ class ReservationState extends ChangeNotifier {
       await _dio.post("/reservations", data: data);
       return true;
     } catch (error) {
-      print(error?.response?.data);
+      HandleDioError(error);
       return false;
     }
   }
@@ -109,7 +107,7 @@ class ReservationState extends ChangeNotifier {
       await _dio.put("/reservations/$idReservation", data: data);
       return true;
     } catch (error) {
-      print(error?.response?.data);
+      HandleDioError(error);
       return false;
     }
   }
@@ -120,7 +118,7 @@ class ReservationState extends ChangeNotifier {
       await _dio.delete("/reservations/$idReservation");
       return true;
     } catch (error) {
-      print(error?.response?.data);
+      HandleDioError(error);
       return false;
     }
   }

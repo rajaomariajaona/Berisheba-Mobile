@@ -1,6 +1,7 @@
 import 'package:berisheba/routes/reservation/states/reservation_state.dart';
 import 'package:berisheba/states/global_state.dart';
 import 'package:berisheba/tools/http/request.dart';
+import 'package:berisheba/tools/others/handle_dio_error.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/widgets.dart';
 
@@ -89,12 +90,11 @@ class ConstituerState extends ChangeNotifier {
         _isLoading = 0;
         return true;
       } catch (error) {
+
         if (error?.response?.data["error"] == "This Reservation not found") {
           ReservationState().reservationsById[idReservation] = null;
-        } else {
-          print(error?.response?.data);
-        }
-
+        } 
+        HandleDioError(error);
         _isLoading = 0;
         return false;
       }
@@ -111,7 +111,7 @@ class ConstituerState extends ChangeNotifier {
       await _dio.put("/reservations/$idReservation/demijournee", data: data);
       return true;
     } catch (error) {
-      print(error?.response?.data);
+      HandleDioError(error);
       return false;
     }
   }

@@ -5,6 +5,7 @@ import 'package:berisheba/routes/salle/salle_state.dart';
 import 'package:berisheba/states/global_state.dart';
 import 'package:berisheba/tools/http/request.dart';
 import 'package:berisheba/tools/others/cast.dart';
+import 'package:berisheba/tools/others/handle_dio_error.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 
@@ -46,10 +47,7 @@ class ConcernerState extends ChangeNotifier {
                 idSalle: salle["idSalle"],
                 nomSalle: salle["nomSalle"])).cast<int, Salle>();
       } catch (error) {
-        print(error);
-        if (error is DioError && error.type == DioErrorType.RESPONSE) {
-          print(error);
-        }
+        HandleDioError(error);
       }
     } catch (_) {
       print(_.toString());
@@ -68,7 +66,7 @@ class ConcernerState extends ChangeNotifier {
       GlobalState().channel.sink.add("concerner $idReservation");
       return true;
     } catch (error) {
-      print(error?.response?.data);
+     HandleDioError(error);
       return false;
     }
   }
@@ -81,8 +79,7 @@ class ConcernerState extends ChangeNotifier {
       GlobalState().channel.sink.add("concerner $idReservation");
       return true;
     } catch (error) {
-      print(error);
-      print(error?.response?.data);
+      HandleDioError(error);
       return false;
     }
   }
@@ -93,7 +90,7 @@ class ConcernerState extends ChangeNotifier {
       await _dio.put("/salles/$idSalle", data: data);
       return true;
     } catch (error) {
-      print(error?.response?.data);
+      HandleDioError(error);
       return false;
     }
   }

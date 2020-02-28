@@ -1,5 +1,6 @@
 import 'package:berisheba/states/global_state.dart';
 import 'package:berisheba/tools/http/request.dart';
+import 'package:berisheba/tools/others/handle_dio_error.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/widgets.dart';
 
@@ -34,7 +35,7 @@ class AutresState extends ChangeNotifier {
       _isLoading = 0;
       return true;
     } catch (error) {
-      print(error);
+      HandleDioError(error);
       _isLoading = 0;
       return false;
     }
@@ -47,7 +48,7 @@ class AutresState extends ChangeNotifier {
       _refresh(idReservation);
       return true;
     } catch (error) {
-      print(error?.response?.data);
+      HandleDioError(error);
       return false;
     }
   }
@@ -60,7 +61,7 @@ class AutresState extends ChangeNotifier {
       _refresh(idReservation);
       return true;
     } catch (error) {
-      print(error?.response?.data);
+      HandleDioError(error);
       return false;
     }
   }
@@ -72,7 +73,7 @@ class AutresState extends ChangeNotifier {
       _refresh(idReservation);
       return true;
     } catch (error) {
-      print(error?.response?.data);
+     HandleDioError(error);
       return false;
     }
   }

@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:berisheba/tools/http/request.dart';
 import 'package:berisheba/tools/others/cast.dart';
+import 'package:berisheba/tools/others/handle_dio_error.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 
@@ -39,7 +40,7 @@ class ConflitState extends ChangeNotifier {
       }
       return res;
     } catch (error) {
-      print(error?.response?.data);
+      HandleDioError(error);
       return false;
     }
   }
@@ -50,7 +51,7 @@ class ConflitState extends ChangeNotifier {
       await _dio.put("/salles/$idSalle", data: data);
       return true;
     } catch (error) {
-      print(error?.response?.data);
+      HandleDioError(error);
       return false;
     }
   }
@@ -62,7 +63,7 @@ class ConflitState extends ChangeNotifier {
           .patch("/conflits/salles", data: {"deleteList": json.encode(data)});
       return true;
     } catch (error) {
-      print(error?.response?.data);
+     HandleDioError(error);
       return false;
     }
   }
@@ -79,8 +80,7 @@ class ConflitState extends ChangeNotifier {
       });
       return true;
     } catch (error) {
-      print(error);
-      print(error?.response?.data);
+     HandleDioError(error);
       return false;
     }
   }

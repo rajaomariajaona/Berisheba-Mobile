@@ -7,6 +7,7 @@ import 'package:berisheba/states/global_state.dart';
 import 'package:berisheba/states/parametres.dart';
 import 'package:berisheba/tools/http/request.dart';
 import 'package:berisheba/tools/others/cast.dart';
+import 'package:berisheba/tools/others/handle_dio_error.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -121,10 +122,7 @@ class UstensileState extends ChangeNotifier {
 
         _listUstensileByIdUstensile = Cast.stringToIntMap(data["data"], (value) => value);
       } catch (error) {
-        print(error);
-        if (error is DioError && error.type == DioErrorType.RESPONSE) {
-          print(error);
-        }
+        HandleDioError(error);
       }
       _ustensiles = _listUstensileByIdUstensile.values.toList();
       _ustensilesFiltered = _ustensiles;
@@ -146,7 +144,7 @@ class UstensileState extends ChangeNotifier {
       this.isDeletingUstensile = false;
       return true;
     } catch (error) {
-      print(error?.response?.data);
+      HandleDioError(error);
       return false;
     }
   }
@@ -158,7 +156,7 @@ class UstensileState extends ChangeNotifier {
       GlobalState().channel.sink.add("ustensile");
       return true;
     } catch (error) {
-      print(error?.response?.data);
+      HandleDioError(error);
       return false;
     }
   }
@@ -169,7 +167,7 @@ class UstensileState extends ChangeNotifier {
       await _dio.post("/ustensiles", data: data);
       return true;
     } catch (error) {
-      print(error?.response?.data);
+      HandleDioError(error);
       return false;
     }
   }
@@ -180,7 +178,7 @@ class UstensileState extends ChangeNotifier {
       await _dio.put("/ustensiles/$idUstensile", data: data);
       return true;
     } catch (error) {
-      print(error?.response?.data);
+      HandleDioError(error);
       return false;
     }
   }

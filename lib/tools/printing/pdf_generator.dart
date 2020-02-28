@@ -2,6 +2,8 @@ import 'dart:io';
 import 'dart:ui';
 
 import 'package:berisheba/tools/http/request.dart';
+import 'package:berisheba/tools/others/handle_dio_error.dart';
+import 'package:dio/dio.dart';
 import 'package:image/image.dart' as images;
 import 'package:path_provider/path_provider.dart';
 import 'package:path_provider_ex/path_provider_ex.dart';
@@ -18,11 +20,12 @@ class PdfGenerator {
   }
   Future<String> saveFacture(int idReservation) async {
     Map<String, dynamic> donnee;
-    await RestRequest().getDioInstance().then((_dio) async {
-      await _dio.get("/facture/$idReservation").then((response) async {
-        donnee = response.data;
-      });
-    });
+    Dio _dio = await RestRequest().getDioInstance();
+      try{
+        donnee = (await _dio.get("/facture/$idReservation")).data;
+      }catch (error){
+        HandleDioError(error);
+      }
     var data = await rootBundle.load("assets/logo.png");
     var img = images.decodeImage(data.buffer.asUint8List());
     pdf.addPage(Page(build: (context) {

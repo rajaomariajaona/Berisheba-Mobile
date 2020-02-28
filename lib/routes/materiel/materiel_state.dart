@@ -7,6 +7,7 @@ import 'package:berisheba/states/global_state.dart';
 import 'package:berisheba/states/parametres.dart';
 import 'package:berisheba/tools/http/request.dart';
 import 'package:berisheba/tools/others/cast.dart';
+import 'package:berisheba/tools/others/handle_dio_error.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -121,10 +122,7 @@ class MaterielState extends ChangeNotifier {
 
         _listMaterielByIdMateriel = Cast.stringToIntMap(data["data"], (value) => value);
       } catch (error) {
-        print(error);
-        if (error is DioError && error.type == DioErrorType.RESPONSE) {
-          print(error);
-        }
+        HandleDioError(error);
       }
       _materiels = _listMaterielByIdMateriel.values.toList();
       _materielsFiltered = _materiels;
@@ -146,8 +144,7 @@ class MaterielState extends ChangeNotifier {
       this.isDeletingMateriel = false;
       return true;
     } catch (error) {
-      print(error?.response?.data);
-      return false;
+      HandleDioError(error);
     }
   }
 
@@ -158,8 +155,7 @@ class MaterielState extends ChangeNotifier {
       GlobalState().channel.sink.add("materiel");
       return true;
     } catch (error) {
-      print(error?.response?.data);
-      return false;
+      HandleDioError(error);
     }
   }
 
@@ -169,8 +165,7 @@ class MaterielState extends ChangeNotifier {
       await _dio.post("/materiels", data: data);
       return true;
     } catch (error) {
-      print(error?.response?.data);
-      return false;
+      HandleDioError(error);
     }
   }
 
@@ -180,8 +175,7 @@ class MaterielState extends ChangeNotifier {
       await _dio.put("/materiels/$idMateriel", data: data);
       return true;
     } catch (error) {
-      print(error?.response?.data);
-      return false;
+      HandleDioError(error);
     }
   }
 

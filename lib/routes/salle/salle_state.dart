@@ -7,6 +7,7 @@ import 'package:berisheba/states/global_state.dart';
 import 'package:berisheba/states/parametres.dart';
 import 'package:berisheba/tools/http/request.dart';
 import 'package:berisheba/tools/others/cast.dart';
+import 'package:berisheba/tools/others/handle_dio_error.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -120,10 +121,7 @@ class SalleState extends ChangeNotifier {
         var data = response?.data;
         _listSalleByIdSalle = Cast.stringToIntMap(data["data"], (value) => value);
       } catch (error) {
-        print(error);
-        if (error is DioError && error.type == DioErrorType.RESPONSE) {
-          print(error);
-        }
+        HandleDioError(error);
       }
       _salles = _listSalleByIdSalle.values.toList();
       _sallesFiltered = _salles;
@@ -145,7 +143,7 @@ class SalleState extends ChangeNotifier {
       this.isDeletingSalle = false;
       return true;
     } catch (error) {
-      print(error?.response?.data);
+      HandleDioError(error);
       return false;
     }
   }
@@ -157,7 +155,7 @@ class SalleState extends ChangeNotifier {
       GlobalState().channel.sink.add("salle delete");
       return true;
     } catch (error) {
-      print(error?.response?.data);
+      HandleDioError(error);
       return false;
     }
   }
@@ -168,7 +166,7 @@ class SalleState extends ChangeNotifier {
       await _dio.post("/salles", data: data);
       return true;
     } catch (error) {
-      print(error?.response?.data);
+      HandleDioError(error);
       return false;
     }
   }
@@ -179,7 +177,7 @@ class SalleState extends ChangeNotifier {
       await _dio.put("/salles/$idSalle", data: data);
       return true;
     } catch (error) {
-      print(error?.response?.data);
+      HandleDioError(error);
       return false;
     }
   }

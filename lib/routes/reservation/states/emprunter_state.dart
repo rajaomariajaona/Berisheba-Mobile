@@ -6,6 +6,7 @@ import 'package:berisheba/routes/ustensile/ustensile_state.dart';
 import 'package:berisheba/states/global_state.dart';
 import 'package:berisheba/tools/http/request.dart';
 import 'package:berisheba/tools/others/cast.dart';
+import 'package:berisheba/tools/others/handle_dio_error.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 
@@ -53,10 +54,7 @@ class EmprunterState extends ChangeNotifier {
                 nomUstensile: ustensile["nomUstensile"],
                 nbTotal: ustensile["nbTotal"])).cast<int, Ustensile>();
       } catch (error) {
-        print(error);
-        if (error is DioError && error.type == DioErrorType.RESPONSE) {
-          print(error);
-        }
+        HandleDioError(error);
       }
     } catch (_) {
       print(_.toString());
@@ -88,8 +86,7 @@ class EmprunterState extends ChangeNotifier {
       GlobalState().channel.sink.add("emprunter $idReservation");
       return true;
     } catch (error) {
-      print(error);
-      print(error?.response?.data);
+      HandleDioError(error);
       return false;
     }
   }
@@ -103,8 +100,7 @@ class EmprunterState extends ChangeNotifier {
       GlobalState().channel.sink.add("emprunter $idReservation");
       return true;
     } catch (error) {
-      print(error);
-      print(error?.response?.data);
+      HandleDioError(error);
       return false;
     }
   }
