@@ -1,5 +1,6 @@
 import 'package:berisheba/main.dart';
 import 'package:berisheba/states/authorization_state.dart';
+import 'package:berisheba/states/connected_state.dart';
 import 'package:berisheba/states/global_state.dart';
 import 'package:flutter/material.dart';
 
@@ -43,7 +44,7 @@ class __NoInternetBodyState extends State<_NoInternetBody> {
                       await GlobalState().connect();
                       await Future.delayed(Duration(seconds: 1))
                           .then((_) async {
-                        if (GlobalState().isConnected) {
+                        if (ConnectedState().isConnected) {
                           if (Navigator.of(context).canPop()) {
                             Navigator.of(context).pop();
                             if (MyApp.splashScreen.isCurrent) {

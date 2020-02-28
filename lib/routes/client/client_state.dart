@@ -117,18 +117,14 @@ class ClientState extends ChangeNotifier {
     try {
       _isLoading = true;
       Dio _dio = await RestRequest().getDioInstance();
-      try {
-        var response = await _dio.get("/clients");
-        var data = response?.data;
-        _listClientByIdClient = data["data"];
-      } catch (error) {
-        HandleDioError(error);
-      }
+      var response = await _dio.get("/clients");
+      var data = response?.data;
+      _listClientByIdClient = data["data"];
       _clients = _listClientByIdClient.values.toList();
       _clientsFiltered = _clients;
       await this.sort();
-    } catch (_) {
-      print(_.toString());
+    } catch (error) {
+      HandleDioError(error);
     } finally {
       _isLoading = false;
       notifyListeners();

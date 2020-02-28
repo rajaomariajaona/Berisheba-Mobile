@@ -1,3 +1,4 @@
+import 'package:berisheba/states/connected_state.dart';
 import 'package:berisheba/states/global_state.dart';
 import 'package:dio/dio.dart';
 
@@ -7,11 +8,11 @@ class HandleDioError {
       switch (error.type) {
         case DioErrorType.RECEIVE_TIMEOUT:
         case DioErrorType.CONNECT_TIMEOUT:
-          GlobalState().isConnected = false;
+          ConnectedState().setIsConnected(false);
           break;
         case DioErrorType.DEFAULT:
-          if (error.message.contains("SocketException")) {
-            GlobalState().isConnected = false;
+          if (error.toString().contains("SocketException")) {
+            ConnectedState().setIsConnected(false);
           } else {
             print(error.toString());
           }

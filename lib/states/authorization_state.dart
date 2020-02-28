@@ -1,4 +1,5 @@
 import 'package:berisheba/states/config.dart';
+import 'package:berisheba/states/connected_state.dart';
 import 'package:berisheba/states/global_state.dart';
 import 'package:device_info/device_info.dart';
 import 'package:dio/dio.dart';
@@ -10,6 +11,9 @@ class AuthorizationState extends ChangeNotifier {
   set isAuthorized(bool val) {
     if (_isAuthorized != val) {
       _isAuthorized = val;
+      if(!_isAuthorized){
+        GlobalState().navigatorState.currentState.pushNamed("not-authorized");
+      }
       notifyListeners();
     }
   }
@@ -34,7 +38,7 @@ class AuthorizationState extends ChangeNotifier {
       if (error is DioError && error.type == DioErrorType.RESPONSE && error?.response?.statusCode == 401) {
         AuthorizationState().isAuthorized = false;
       } else {
-        GlobalState().isConnected = false;
+        ConnectedState().setIsConnected(false);
       }
     }
   }

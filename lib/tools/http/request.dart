@@ -2,6 +2,8 @@ import 'dart:convert';
 
 import 'package:berisheba/states/authorization_state.dart';
 import 'package:berisheba/states/config.dart';
+import 'package:berisheba/states/connected_state.dart';
+import 'package:berisheba/states/global_state.dart';
 import 'package:device_info/device_info.dart';
 import 'package:dio/dio.dart';
 import 'package:imei_plugin/imei_plugin.dart';
@@ -37,6 +39,9 @@ class RestRequest {
             return options;
           }
         });
+      }, onResponse: (Response response) async {
+        if (!ConnectedState().isConnected) await GlobalState().connect();
+          AuthorizationState().isAuthorized = true;
       }, onError: (DioError error) async {
         if (error.type == DioErrorType.RESPONSE &&
             error?.response?.statusCode == 401) {
@@ -55,7 +60,7 @@ class RestRequest {
             }
           });
           _dio.unlock();
-        }else{
+        } else {
           _dio.reject(error);
         }
       }),
