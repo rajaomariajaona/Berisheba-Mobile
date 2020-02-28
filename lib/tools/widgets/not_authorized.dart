@@ -78,12 +78,12 @@ class __NotAuthorizedBodyState extends State<_NotAuthorizedBody> {
     utilisateurController.text = state.details["utilisateur"];
     emailController.text = state.details["email"];
     descriptionController.text = state.details["description"];
-    utilisateurController.selection = TextSelection.collapsed(
-        offset: (state.details["utilisateur"] as String).length);
-    emailController.selection = TextSelection.collapsed(
-        offset: (state.details["email"] as String).length);
-    descriptionController.selection = TextSelection.collapsed(
-        offset: (state.details["description"] as String).length);
+    // utilisateurController.selection = TextSelection.collapsed(
+    //     offset: (state.details["utilisateur"] as String).length);
+    // emailController.selection = TextSelection.collapsed(
+    //     offset: (state.details["email"] as String).length);
+    // descriptionController.selection = TextSelection.collapsed(
+    //     offset: (state.details["description"] as String).length);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (state.details["authorized"] ?? false) {
         if (Navigator.of(context).canPop()) {

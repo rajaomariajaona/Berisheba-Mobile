@@ -15,14 +15,15 @@ import android.app.Activity;
 import android.net.Uri;
 import android.os.Bundle;
 
+import java.io.BufferedWriter;
 import java.io.IOException;
-import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 
 public class MainActivity extends FlutterActivity {
     private static final int WRITE_REQUEST_CODE = 77777; //unique request code
     Result _result;
-    Byte[] _data;
+    String _data;
   @Override
   public void configureFlutterEngine(@NonNull FlutterEngine flutterEngine) {
     GeneratedPluginRegistrant.registerWith(flutterEngine);
@@ -82,7 +83,7 @@ public class MainActivity extends FlutterActivity {
         String[] splitted = raw.substring(1, raw.length()-1).split(", ");
         byte[] data = new byte[splitted.length];
         for(int i = 0; i < splitted.length; i++){
-            data[i] = Byte.parseByte(splitted[i]);
+            data[i] = (byte) Integer.parseInt(splitted[i]);
         }
         return data;
     }
@@ -91,10 +92,8 @@ public class MainActivity extends FlutterActivity {
     OutputStream outputStream;
     try {
       outputStream = getContentResolver().openOutputStream(uri);
-      ByteArrayOutputStream bos = new ByteArrayOutputStream();
-      bos.write(parseStringToByteArray(_data));
-      bos.writeTo(outputStream);
-      bos.close();
+      outputStream.write(parseStringToByteArray(_data));
+      outputStream.flush();
       _result.success("Success");
     } catch (IOException e) {
       _result.error("ERROR", "Unable to write", null);

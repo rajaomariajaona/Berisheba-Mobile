@@ -144,7 +144,10 @@ class MyApp extends StatelessWidget {
 
   Route<dynamic> _handleRoute(RouteSettings settings) {
     String routeName = settings.name;
-    if (routeName.contains("conflit")) {
+    // if(routeName.contains("pdf")){
+    //   List<String> params = 
+    // }else
+     if (routeName.contains("conflit")) {
       List<String> params = routeName.split(":");
       if (params.length == 2) {
         int idReservation = int.tryParse(params[1]);
