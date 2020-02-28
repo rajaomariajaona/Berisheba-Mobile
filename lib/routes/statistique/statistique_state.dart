@@ -54,6 +54,7 @@ class StatistiqueState extends ChangeNotifier {
   }
 
   StatistiqueState() {
+    fetchData();
     GlobalState().externalStreamController.stream.listen((msg) async {
       if (msg == "statistique") {
         await this.fetchData();
