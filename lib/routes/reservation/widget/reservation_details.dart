@@ -408,8 +408,8 @@ class PDFScreen extends StatelessWidget {
               icon: Icon(Icons.share),
               onPressed: () async {
                 await FlutterShare.shareFile(
-                  title: 'Example share',
-                  text: 'Example share text',
+                  title: 'Facture',
+                  text: 'Facture ',
                   filePath: pathPDF,
                 );
               },
