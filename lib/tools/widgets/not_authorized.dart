@@ -120,6 +120,7 @@ class __NotAuthorizedBodyState extends State<_NotAuthorizedBody> {
             ),
           ),
         ),
+        Text("Status: En attente"),
         Row(
           mainAxisAlignment: MainAxisAlignment.end,
           children: <Widget>[

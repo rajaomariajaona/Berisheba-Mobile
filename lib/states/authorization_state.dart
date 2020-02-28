@@ -1,3 +1,4 @@
+import 'package:berisheba/main.dart';
 import 'package:berisheba/states/config.dart';
 import 'package:berisheba/states/connected_state.dart';
 import 'package:berisheba/states/global_state.dart';
@@ -11,7 +12,7 @@ class AuthorizationState extends ChangeNotifier {
   set isAuthorized(bool val) {
     if (_isAuthorized != val) {
       _isAuthorized = val;
-      if(!_isAuthorized){
+      if(!_isAuthorized && !MyApp.notAuthorized.isCurrent){
         GlobalState().navigatorState.currentState.pushNamed("not-authorized");
       }
       notifyListeners();

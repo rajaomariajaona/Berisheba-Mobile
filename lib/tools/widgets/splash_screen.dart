@@ -15,7 +15,11 @@ class SplashScreen extends StatelessWidget {
             var route = "/";
             if (!AuthorizationState().isAuthorized) route = "not-authorized";
             if (!MyApp.noInternet.isCurrent) {
-              await Navigator.of(context).pushReplacementNamed(route);
+              if (!MyApp.notAuthorized.isCurrent)
+                await GlobalState()
+                    .navigatorState
+                    .currentState
+                    .pushReplacementNamed(route);
             }
           });
         });
