@@ -2,6 +2,7 @@ import 'dart:io';
 import 'dart:ui';
 
 import 'package:berisheba/tools/http/request.dart';
+import 'package:berisheba/tools/others/file_saver.dart';
 import 'package:berisheba/tools/others/handle_dio_error.dart';
 import 'package:dio/dio.dart';
 import 'package:image/image.dart' as images;
@@ -21,11 +22,11 @@ class PdfGenerator {
   Future<String> saveFacture(int idReservation) async {
     Map<String, dynamic> donnee;
     Dio _dio = await RestRequest().getDioInstance();
-      try{
-        donnee = (await _dio.get("/facture/$idReservation")).data;
-      }catch (error){
-        HandleDioError(error);
-      }
+    try {
+      donnee = (await _dio.get("/facture/$idReservation")).data;
+    } catch (error) {
+      HandleDioError(error);
+    }
     var data = await rootBundle.load("assets/logo.png");
     var img = images.decodeImage(data.buffer.asUint8List());
     pdf.addPage(Page(build: (context) {
@@ -82,11 +83,11 @@ class PdfGenerator {
           ],
           for (var autre in (donnee["autresMotifs"] ?? []))
             <String>[autre.keys.toList()[0], "${autre.values.toList()[0]} ar"],
-          if(donnee["appareilListe"] != null)
-          <String>[
-            "Jirama : ${donnee["appareilListe"].join(", ")}",
-            "${donnee["prixJirama"]} ar"
-          ],
+          if (donnee["appareilListe"] != null)
+            <String>[
+              "Jirama : ${donnee["appareilListe"].join(", ")}",
+              "${donnee["prixJirama"]} ar"
+            ],
         ]),
         Container(padding: EdgeInsets.all(5)),
         Row(mainAxisAlignment: MainAxisAlignment.end, children: <Widget>[
@@ -113,32 +114,38 @@ class PdfGenerator {
       ]);
     }));
     PermissionHandler permissionHandler = PermissionHandler();
-    await permissionHandler.checkPermissionStatus(PermissionGroup.storage).then((permissionStatus) async {
-      if(permissionStatus != PermissionStatus.granted){
+    await permissionHandler
+        .checkPermissionStatus(PermissionGroup.storage)
+        .then((permissionStatus) async {
+      if (permissionStatus != PermissionStatus.granted) {
         await permissionHandler.requestPermissions([PermissionGroup.storage]);
-      }else{
+      } else {
         canShare = true;
       }
     });
     // TODO: Add parametre sd card or internal storage
     List<StorageInfo> storageInfos = await PathProviderEx.getStorageInfo();
     var path;
-    if(storageInfos.length > 1){
+    if (storageInfos.length > 1) {
       path = storageInfos[1].rootDir;
-    }else if(storageInfos.length > 0){
+    } else if (storageInfos.length > 0) {
       path = storageInfos[0].rootDir;
-    }else{
+    } else {
       path = (await getExternalStorageDirectory()).path;
     }
     var dir = Directory("$path/berisheba");
     dir.exists().then((isExist) async {
-      if(!isExist){
+      if (!isExist) {
         await dir.create();
       }
     });
-    final File fichier =
-        File("$path/berisheba/facture.pdf");
+    final File fichier = File("$path/berisheba/facture.pdf");
     await fichier.writeAsBytes(pdf.save());
+    try {
+      var res = await saveFile("application/pdf", "facture.pdf", "${pdf.save()}");
+    } catch (error) {
+      print(error.toString());
+    }
     return "$path/berisheba/facture.pdf";
   }
 }

@@ -17,6 +17,7 @@ import 'package:berisheba/routes/reservation/widget/details/paiement.dart';
 import 'package:berisheba/routes/reservation/widget/details/salles.dart';
 import 'package:berisheba/routes/reservation/widget/details/ustensiles.dart';
 import 'package:berisheba/states/global_state.dart';
+import 'package:berisheba/tools/others/file_saver.dart';
 import 'package:berisheba/tools/printing/pdf_generator.dart';
 import 'package:berisheba/tools/widgets/confirm.dart';
 import 'package:flutter/material.dart';
@@ -209,12 +210,9 @@ class _ReservationDetailsState extends State<ReservationDetailsBody> {
       IconButton(
         icon: Icon(Icons.picture_as_pdf),
         onPressed: () async {
-          PdfGenerator pdf = PdfGenerator();
-          await pdf.saveFacture(widget._idReservation).then((path) async {
-            await Navigator.of(context).push(MaterialPageRoute(builder: (ctx) {
-              return PDFScreen(path);
-            }));
-          });
+          
+           PdfGenerator pdf = PdfGenerator();
+          await pdf.saveFacture(widget._idReservation);
         },
       ),
       IconButton(
@@ -396,6 +394,17 @@ class PDFScreen extends StatelessWidget {
         appBar: AppBar(
           title: Text("Facture"),
           actions: <Widget>[
+            IconButton(
+              icon: Icon(Icons.save),
+              onPressed: () async {
+                try {
+                  var res = await saveFile(
+                      "application/pdf", "facture.pdf", "dfssdfg");
+                } catch (error) {
+                  print(error.toString());
+                }
+              },
+            ),
             IconButton(
               icon: Icon(Icons.refresh),
               onPressed: () async {
