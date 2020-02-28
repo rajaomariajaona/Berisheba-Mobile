@@ -102,6 +102,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
+        ChangeNotifierProvider(create: (_) => AuthorizationState()),
         ChangeNotifierProvider(create: (_) => GlobalState()),
         ChangeNotifierProvider(create: (_) => TabState()),
         ChangeNotifierProvider(create: (_) => ClientState()),

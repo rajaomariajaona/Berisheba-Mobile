@@ -54,10 +54,15 @@ class __NoInternetBodyState extends State<_NoInternetBody> {
                                 if (AuthorizationState().isAuthorized)
                                   Navigator.of(context)
                                       .pushReplacementNamed('/');
-                                else
-                                  Navigator.of(context)
-                                      .pushReplacementNamed('not-authorized');
+                                else {
+                                  if (!MyApp.notAuthorized.isCurrent)
+                                    Navigator.of(context)
+                                        .pushReplacementNamed('not-authorized');
+                                }
                               });
+                            }
+                            if (MyApp.notAuthorized.isCurrent) {
+                              AuthorizationState().fetchData();
                             }
                           } else {
                             if (AuthorizationState().isAuthorized)
