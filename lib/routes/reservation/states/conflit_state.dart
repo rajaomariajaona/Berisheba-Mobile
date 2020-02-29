@@ -9,11 +9,12 @@ import 'package:flutter/material.dart';
 class ConflitState extends ChangeNotifier {
   int __isLoading = 0;
   int get isLoading => __isLoading;
-  // set _isLoading(int val) {
-  //   if (val != __isLoading) {
-  //     __isLoading = val;
-  //   }
-  // }
+  set _isLoading(int val) {
+    if (val != __isLoading) {
+      __isLoading = val;
+      notifyListeners();
+    }
+  }
 
   Map<int, Map<String, dynamic>> _conflit = {};
 
@@ -22,6 +23,7 @@ class ConflitState extends ChangeNotifier {
   Future<bool> fetchConflit(int idReservation) async {
     Dio _dio = await RestRequest().getDioInstance();
     try {
+      _isLoading = idReservation;
       var res = false;
       var conflit = (await _dio.get("/conflits/$idReservation")).data;
       if (conflit["salle"] != null &&
@@ -36,11 +38,21 @@ class ConflitState extends ChangeNotifier {
         _conflit[idReservation]["materiel"] =
             Cast.stringToIntMap(conflit["materiel"], (value) => value);
         res = true;
+      } else if (conflit["ustensile"] != null &&
+          (conflit["ustensile"] as Map<String, dynamic>).isNotEmpty) {
+        _conflit[idReservation] = {"ustensile": {}};
+        _conflit[idReservation]["ustensile"] =
+            Cast.stringToIntMap(conflit["ustensile"], (value) => value);
+        res = true;
       }
+      _isLoading = 0;
       return res;
     } catch (error) {
+      _isLoading = 0;
       HandleDioError(error);
       return false;
+    }finally{
+      _isLoading = 0;
     }
   }
 
@@ -54,6 +66,7 @@ class ConflitState extends ChangeNotifier {
       return false;
     }
   }
+
 
   static Future<bool> fixSalle(List<Map<String, String>> data) async {
     Dio _dio = await RestRequest().getDioInstance();
@@ -71,6 +84,23 @@ class ConflitState extends ChangeNotifier {
     Dio _dio = await RestRequest().getDioInstance();
     try {
       await _dio.patch("/conflits/materiels", data: {
+        "changes": json.encode(data.map<String, dynamic>((key, value) =>
+            MapEntry(
+                key.toString(),
+                value.map<String, dynamic>(
+                    (k, val) => MapEntry(k.toString(), val)))))
+      });
+      return true;
+    } catch (error) {
+     HandleDioError(error);
+      return false;
+    }
+  }
+
+    static Future<bool> fixUstensile(dynamic data) async {
+    Dio _dio = await RestRequest().getDioInstance();
+    try {
+      await _dio.patch("/conflits/ustensiles", data: {
         "changes": json.encode(data.map<String, dynamic>((key, value) =>
             MapEntry(
                 key.toString(),

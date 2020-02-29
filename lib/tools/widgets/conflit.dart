@@ -2,6 +2,7 @@ import 'package:berisheba/routes/reservation/states/conflit_state.dart';
 import 'package:berisheba/states/global_state.dart';
 import 'package:berisheba/tools/widgets/conflit/conflit_materiel.dart';
 import 'package:berisheba/tools/widgets/conflit/conflit_salle.dart';
+import 'package:berisheba/tools/widgets/conflit/conflit_ustensile.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -14,8 +15,15 @@ class ConflitResolver extends StatelessWidget {
       onWillPop: () async {
         return false;
       },
-      child: ChangeNotifierProvider(
-        create: (_) => ConflitMaterielState(),
+      child: MultiProvider(
+        providers: [
+          ChangeNotifierProvider(
+            create: (_) => ConflitMaterielState(),
+          ),
+          ChangeNotifierProvider(
+            create: (_) => ConflitUstensileState(),
+          ),
+        ],
         child: Scaffold(
           body: SafeArea(child: ConflitBody(idReservation: idReservation)),
         ),
@@ -40,6 +48,7 @@ class _ConflitBodyState extends State<ConflitBody> {
   Map<int, Choice> choix = {};
   Map<int, dynamic> _salle;
   Map<int, dynamic> _materiel;
+  Map<int, dynamic> _ustensile;
   int idReservation;
   @override
   void initState() {
@@ -56,6 +65,7 @@ class _ConflitBodyState extends State<ConflitBody> {
       if (_salle != null)
         for (int idSalle in _salle.keys) choix[idSalle] = Choice.change;
       _materiel = temp["materiel"];
+      _ustensile = temp["ustensile"];
     } else {
       Navigator.of(context).pop(null);
     }
@@ -74,21 +84,19 @@ class _ConflitBodyState extends State<ConflitBody> {
                   const EdgeInsets.symmetric(horizontal: 10.0, vertical: 4.0),
               child: Column(
                 children: <Widget>[
-                  _salle != null
-                      ? ConflitSalle(
-                          idReservation: idReservation,
-                          choix: choix,
-                          conflit: _salle,
-                          callback: (int idSalle, Choice val) {
-                            setState(() {
-                              choix[idSalle] = val;
-                            });
-                          },
-                        )
-                      : Container(),
-                  _materiel != null
-                      ? ConflitMateriel(conflit: _materiel)
-                      : Container(),
+                  if (_salle != null)
+                    ConflitSalle(
+                      idReservation: idReservation,
+                      choix: choix,
+                      conflit: _salle,
+                      callback: (int idSalle, Choice val) {
+                        setState(() {
+                          choix[idSalle] = val;
+                        });
+                      },
+                    ),
+                  if (_materiel != null) ConflitMateriel(conflit: _materiel),
+                  if (_ustensile != null) ConflitUstensile(conflit: _ustensile)
                 ],
               ),
             ),
@@ -102,17 +110,23 @@ class _ConflitBodyState extends State<ConflitBody> {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.end,
             children: <Widget>[
-              Consumer<ConflitMaterielState>(
-                builder: (ctx, conflitMaterielState, _) => FlatButton(
+              Consumer2<ConflitMaterielState, ConflitUstensileState>(
+                builder:
+                    (ctx, conflitMaterielState, conflitUstensileState, _) =>
+                        FlatButton(
                   child: const Text("Enregistrer"),
-                  onPressed: !conflitMaterielState.canSave
+                  onPressed: !conflitMaterielState.canSave ||
+                          !conflitUstensileState.canSave
                       ? null
                       : () async {
                           if (conflitMaterielState.values.isNotEmpty) {
                             await fixMateriel(conflitMaterielState);
                           }
+                          if (conflitUstensileState.values.isNotEmpty) {
+                            await fixUstensile(conflitUstensileState);
+                          }
                           if (choix.isNotEmpty) await fixSalle();
-                          Provider.of<ConflitState>(context)
+                          Provider.of<ConflitState>(context, listen: false)
                               .conflictByIdReservation[widget.idReservation]
                               .clear();
                           Navigator.of(context).pop(null);
@@ -137,6 +151,23 @@ class _ConflitBodyState extends State<ConflitBody> {
 
         toRefresh.toSet().toList().forEach((int idReservation) {
           GlobalState().channel.sink.add("louer $idReservation");
+        });
+        //To set to List delete duplicate entries
+      }
+    });
+  }
+
+  Future fixUstensile(ConflitUstensileState conflitUstensileState) async {
+    ConflitState.fixUstensile(conflitUstensileState.values).then((v) {
+      if (v) {
+        List<int> toRefresh = [];
+        conflitUstensileState.values
+            .forEach((int idUstensile, Map<int, int> value) {
+          toRefresh.insertAll(0, value.keys);
+        });
+
+        toRefresh.toSet().toList().forEach((int idReservation) {
+          GlobalState().channel.sink.add("emprunter $idReservation");
         });
         //To set to List delete duplicate entries
       }

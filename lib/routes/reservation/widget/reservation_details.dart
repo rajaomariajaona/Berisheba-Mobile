@@ -111,11 +111,15 @@ class _ReservationDetailsState extends State<ReservationDetailsBody> {
   Widget build(BuildContext context) {
     final ReservationState reservationState =
         Provider.of<ReservationState>(context);
+    final ConflitState conflitState =
+        Provider.of<ConflitState>(context);
     return reservationState.reservationsById[widget._idReservation] == null
         ? Scaffold(
             appBar: AppBar(),
             body: Center(
-              child: reservationState.isLoading ? Loading() : Text("La reservation a été supprimée"),
+              child: (reservationState.isLoading || (conflitState.isLoading == widget._idReservation))
+                  ? Loading()
+                  : Text("La reservation a été supprimée"),
             ),
           )
         : Scaffold(
@@ -200,7 +204,6 @@ class _ReservationDetailsState extends State<ReservationDetailsBody> {
                 ],
               ),
             ),
-            // floatingActionButton: _customFloatButton(),
           );
   }
 
@@ -209,8 +212,7 @@ class _ReservationDetailsState extends State<ReservationDetailsBody> {
       IconButton(
         icon: Icon(Icons.picture_as_pdf),
         onPressed: () async {
-          
-           PdfGenerator pdf = PdfGenerator();
+          PdfGenerator pdf = PdfGenerator();
           await pdf.saveFacture(widget._idReservation);
         },
       ),
@@ -396,8 +398,7 @@ class PDFScreen extends StatelessWidget {
               icon: Icon(Icons.save),
               onPressed: () async {
                 try {
-                  await saveFile(
-                      "application/pdf", "facture.pdf", "dfssdfg");
+                  await saveFile("application/pdf", "facture.pdf", "dfssdfg");
                 } catch (error) {
                   print(error.toString());
                 }
