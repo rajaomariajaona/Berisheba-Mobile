@@ -61,7 +61,6 @@ class _ReservationDetailsState extends State<ReservationDetailsBody> {
         Navigator.of(context).pushNamed("conflit/:${widget._idReservation}");
       }
     });
-    // TODO: implement initState
     super.initState();
   }
 
@@ -225,7 +224,6 @@ class _ReservationDetailsState extends State<ReservationDetailsBody> {
         IconButton(
           icon: Icon(Icons.lock_outline),
           onPressed: () {
-            //TODO: Delete some xD
             setState(() {
               isReadOnly = false;
             });
@@ -385,8 +383,8 @@ class _ReservationDetailsState extends State<ReservationDetailsBody> {
 }
 
 class PDFScreen extends StatelessWidget {
-  String pathPDF = "";
-  PDFScreen(this.pathPDF);
+  final String pathPDF;
+  PDFScreen({this.pathPDF = ""});
 
   @override
   Widget build(BuildContext context) {
@@ -398,7 +396,7 @@ class PDFScreen extends StatelessWidget {
               icon: Icon(Icons.save),
               onPressed: () async {
                 try {
-                  var res = await saveFile(
+                  await saveFile(
                       "application/pdf", "facture.pdf", "dfssdfg");
                 } catch (error) {
                   print(error.toString());

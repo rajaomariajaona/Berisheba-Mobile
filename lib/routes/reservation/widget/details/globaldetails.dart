@@ -19,7 +19,6 @@ class ReservationGlobalDetails extends StatefulWidget {
 class _ReservationGlobalDetailsState extends State<ReservationGlobalDetails> {
   Map<String, dynamic> _modifiedGlobalDetails = {};
   bool _editMode = false;
-  bool _isPosting = false;
   bool get editMode => _editMode;
   void setEditMode(bool v, {Map<String, dynamic> currentGlobalDetails}) {
     setState(() {

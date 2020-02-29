@@ -9,11 +9,11 @@ import 'package:flutter/material.dart';
 class ConflitState extends ChangeNotifier {
   int __isLoading = 0;
   int get isLoading => __isLoading;
-  set _isLoading(int val) {
-    if (val != __isLoading) {
-      __isLoading = val;
-    }
-  }
+  // set _isLoading(int val) {
+  //   if (val != __isLoading) {
+  //     __isLoading = val;
+  //   }
+  // }
 
   Map<int, Map<String, dynamic>> _conflit = {};
 
@@ -24,7 +24,6 @@ class ConflitState extends ChangeNotifier {
     try {
       var res = false;
       var conflit = (await _dio.get("/conflits/$idReservation")).data;
-      //TODO: AMPIANA Conflit materiel sy ustensile
       if (conflit["salle"] != null &&
           (conflit["salle"] as Map<String, dynamic>).isNotEmpty) {
         _conflit[idReservation] = {"salle": {}};

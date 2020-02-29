@@ -61,12 +61,11 @@ class ConcernerState extends ChangeNotifier {
       {@required int idReservation, @required int idSalle}) async {
     Dio _dio = await RestRequest().getDioInstance();
     try {
-      Response response =
-          await _dio.delete("/reservations/$idReservation/salles/$idSalle");
+      await _dio.delete("/reservations/$idReservation/salles/$idSalle");
       GlobalState().channel.sink.add("concerner $idReservation");
       return true;
     } catch (error) {
-     HandleDioError(error);
+      HandleDioError(error);
       return false;
     }
   }

@@ -190,7 +190,7 @@ class __NotAuthorizedBodyState extends State<_NotAuthorizedBody> {
           children: <Widget>[
             FlatButton(
                 onPressed: () async {
-                  var res = await showDialog(
+                  await showDialog(
                       context: context,
                       builder: (ctx) {
                         return AlertDialog(

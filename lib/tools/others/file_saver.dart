@@ -11,9 +11,8 @@ Future<String> saveFile(String mime, String name, String data) async {
     }); //name in native code
 
     return result;
-  } on PlatformException catch (e) {
-    //fails native call
-    //handle error
+  } on PlatformException catch (_) {
+    print(_.toString());
     return null;
   }
 }

@@ -123,7 +123,6 @@ class PdfGenerator {
         canShare = true;
       }
     });
-    // TODO: Add parametre sd card or internal storage
     List<StorageInfo> storageInfos = await PathProviderEx.getStorageInfo();
     var path;
     if (storageInfos.length > 1) {
@@ -142,7 +141,7 @@ class PdfGenerator {
     final File fichier = File("$path/berisheba/facture.pdf");
     await fichier.writeAsBytes(pdf.save());
     try {
-      var res = await saveFile("application/pdf", "facture.pdf", "${pdf.save()}");
+      await saveFile("application/pdf", "facture.pdf", "${pdf.save()}");
     } catch (error) {
       print(error.toString());
     }

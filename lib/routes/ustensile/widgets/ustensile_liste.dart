@@ -94,8 +94,7 @@ class _UstensileItemState extends State<UstensileItem> {
                       });
                       break;
                     case Actions.modifier:
-                      var t =
-                          await Navigator.of(context).push(MaterialPageRoute(
+                      await Navigator.of(context).push(MaterialPageRoute(
                         builder: (context) => UstensileFormulaire(
                           ustensile: _ustensile,
                         ),

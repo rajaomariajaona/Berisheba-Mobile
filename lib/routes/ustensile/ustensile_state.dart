@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:core';
 
-import 'package:berisheba/routes/reservation/states/reservation_state.dart';
 import 'package:berisheba/states/global_state.dart';
 import 'package:berisheba/states/parametres.dart';
 import 'package:berisheba/tools/http/request.dart';
@@ -42,8 +41,6 @@ class UstensileState extends ChangeNotifier {
       _listIdUstensileSelected.add(idUstensile);
     notifyListeners();
   }
-
-  //TODO : clean search
 
   void deleteSelected(int idUstensile) {
     if (_listIdUstensileSelected.contains(idUstensile))
@@ -139,7 +136,7 @@ class UstensileState extends ChangeNotifier {
     Dio _dio = await RestRequest().getDioInstance();
     _dio.options.headers["deletelist"] = json.encode(_listIdUstensileSelected);
     try {
-      Response response = await _dio.delete("/ustensiles");
+      await _dio.delete("/ustensiles");
       GlobalState().internalStreamController.sink.add("ustensile delete");
       this.isDeletingUstensile = false;
       return true;
@@ -152,7 +149,7 @@ class UstensileState extends ChangeNotifier {
   static Future<bool> removeData(int idUstensile) async {
     Dio _dio = await RestRequest().getDioInstance();
     try {
-      Response response = await _dio.delete("/ustensiles/$idUstensile");
+      await _dio.delete("/ustensiles/$idUstensile");
       GlobalState().internalStreamController.sink.add("ustensile delete");
       return true;
     } catch (error) {

@@ -233,13 +233,11 @@ class _JiramaItem extends StatelessWidget {
 enum Puissance { watt, ampere }
 
 class _JiramaDialog extends StatefulWidget {
-  _JiramaDialog({this.appareil, this.duree, @required this.idReservation}) {
-    modifier = appareil != null && duree != null;
-  }
+  _JiramaDialog({this.appareil, this.duree, @required this.idReservation, Key key}): super(key: key);
   final int idReservation;
   final Appareil appareil;
   final int duree;
-  bool modifier;
+
   @override
   State<StatefulWidget> createState() => _JiramaDialogState();
 }
@@ -249,9 +247,11 @@ class _JiramaDialogState extends State<_JiramaDialog> {
   String _nom;
   double _puissanceValue;
   Duration _duree;
+  bool modifier = false;
   @override
   void initState() {
-    if (widget.modifier)
+    modifier = (widget.appareil != null);
+    if (modifier)
       _duree = Duration(seconds: widget.duree);
     else
       _duree = Duration(seconds: 0);
@@ -294,7 +294,7 @@ class _JiramaDialogState extends State<_JiramaDialog> {
                       TextFormField(
                         validator: _validators["nom"],
                         initialValue:
-                            widget.modifier ? "${widget.appareil.nom}" : "",
+                            modifier ? "${widget.appareil.nom}" : "",
                         textCapitalization: TextCapitalization.words,
                         inputFormatters: <TextInputFormatter>[
                           WhitelistingTextInputFormatter(RegExp("[A-Za-z ]")),
@@ -316,7 +316,7 @@ class _JiramaDialogState extends State<_JiramaDialog> {
                           Expanded(
                             child: TextFormField(
                               validator: _validators["puissance"],
-                              initialValue: widget.modifier
+                              initialValue: modifier
                                   ? "${widget.appareil.puissance}"
                                   : "",
                               keyboardType: TextInputType.number,
@@ -445,7 +445,7 @@ class _JiramaDialogState extends State<_JiramaDialog> {
                         : () {
                             if (_formState.currentState.validate()) {
                               _formState.currentState.save();
-                              widget.modifier
+                              modifier
                                   ? JiramaState.modifyData({
                                       "idAppareil":
                                           widget.appareil.id.toString(),

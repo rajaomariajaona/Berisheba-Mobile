@@ -34,8 +34,6 @@ class ConstituerState extends ChangeNotifier {
     notifyListeners();
   }
 
-  //TODO : clean search
-
   void deleteSelected(DemiJournee demiJournee) {
     if (_listDemiJourneeSelected.contains(demiJournee))
       _listDemiJourneeSelected.remove(demiJournee);

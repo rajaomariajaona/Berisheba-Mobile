@@ -1,6 +1,5 @@
 import 'package:berisheba/routes/materiel/materiel_state.dart';
 import 'package:berisheba/routes/materiel/widgets/materiel_formulaire.dart';
-import 'package:berisheba/routes/reservation/widget/reservation_details.dart';
 import 'package:berisheba/states/config.dart';
 import 'package:berisheba/tools/widgets/confirm.dart';
 import 'package:flutter/material.dart';
@@ -95,8 +94,7 @@ class _MaterielItemState extends State<MaterielItem> {
                       });
                       break;
                     case Actions.modifier:
-                      var t =
-                          await Navigator.of(context).push(MaterialPageRoute(
+                      await Navigator.of(context).push(MaterialPageRoute(
                         builder: (context) => MaterielFormulaire(
                           materiel: _materiel,
                         ),

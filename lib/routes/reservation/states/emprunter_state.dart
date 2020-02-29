@@ -24,7 +24,7 @@ class EmprunterState extends ChangeNotifier {
   Map<int, Map<int, dynamic>> get listeUstensileDispoByIdReservation =>
       _listeUstensileDispoByIdReservation;
 
-  Map<int, Map<int,Emprunter>> _ustensilesEmprunteByIdReservation = {};
+  Map<int, Map<int, Emprunter>> _ustensilesEmprunteByIdReservation = {};
   Map<int, Map<int, Emprunter>> get ustensilesEmprunteByIdReservation =>
       _ustensilesEmprunteByIdReservation;
 
@@ -33,7 +33,8 @@ class EmprunterState extends ChangeNotifier {
       _isLoading = idReservation;
       Dio _dio = await RestRequest().getDioInstance();
       try {
-        var response = await _dio.get("/reservations/$idReservation/ustensiles");
+        var response =
+            await _dio.get("/reservations/$idReservation/ustensiles");
         var response2 = await _dio.get("/ustensiles/$idReservation");
         var data = response?.data;
         var data2 = response2?.data;
@@ -41,18 +42,19 @@ class EmprunterState extends ChangeNotifier {
             data["data"],
             (ustensile) => Emprunter(
                 ustensile: Ustensile(
-                idUstensile: ustensile["idUstensile"],
-                nomUstensile: ustensile["nomUstensile"],
-                nbTotal: ustensile["nbTotal"]),
+                    idUstensile: ustensile["idUstensile"],
+                    nomUstensile: ustensile["nomUstensile"],
+                    nbTotal: ustensile["nbTotal"]),
                 idReservation: idReservation,
                 nbEmprunte: ustensile["nbEmprunte"])).cast<int, Emprunter>();
 
-        _listeUstensileDispoByIdReservation[idReservation] = Cast.stringToIntMap(
-            data2["data"],
-            (ustensile) => Ustensile(
-                idUstensile: ustensile["idUstensile"],
-                nomUstensile: ustensile["nomUstensile"],
-                nbTotal: ustensile["nbTotal"])).cast<int, Ustensile>();
+        _listeUstensileDispoByIdReservation[idReservation] =
+            Cast.stringToIntMap(
+                data2["data"],
+                (ustensile) => Ustensile(
+                    idUstensile: ustensile["idUstensile"],
+                    nomUstensile: ustensile["nomUstensile"],
+                    nbTotal: ustensile["nbTotal"])).cast<int, Ustensile>();
       } catch (error) {
         HandleDioError(error);
       }
@@ -68,8 +70,7 @@ class EmprunterState extends ChangeNotifier {
       {@required int idReservation, @required int idUstensile}) async {
     Dio _dio = await RestRequest().getDioInstance();
     try {
-      Response response = await _dio
-          .delete("/reservations/$idReservation/ustensiles/$idUstensile");
+      await _dio.delete("/reservations/$idReservation/ustensiles/$idUstensile");
       GlobalState().channel.sink.add("emprunter $idReservation");
       return true;
     } catch (error) {
@@ -82,7 +83,8 @@ class EmprunterState extends ChangeNotifier {
       {@required int idReservation}) async {
     Dio _dio = await RestRequest().getDioInstance();
     try {
-      await _dio.post("/reservations/$idReservation/ustensiles", data: {"data" : data});
+      await _dio.post("/reservations/$idReservation/ustensiles",
+          data: {"data": data});
       GlobalState().channel.sink.add("emprunter $idReservation");
       return true;
     } catch (error) {
@@ -95,8 +97,10 @@ class EmprunterState extends ChangeNotifier {
       {@required int idReservation}) async {
     Dio _dio = await RestRequest().getDioInstance();
     try {
-      Map<String, int> dataEncodable = (data as Map<int, int>).map<String,int>((key,value) => MapEntry(key.toString(), value));
-      await _dio.put("/reservations/$idReservation/ustensiles", data: {"data" : json.encode(dataEncodable)});
+      Map<String, int> dataEncodable = (data as Map<int, int>)
+          .map<String, int>((key, value) => MapEntry(key.toString(), value));
+      await _dio.put("/reservations/$idReservation/ustensiles",
+          data: {"data": json.encode(dataEncodable)});
       GlobalState().channel.sink.add("emprunter $idReservation");
       return true;
     } catch (error) {
@@ -125,13 +129,18 @@ class EmprunterState extends ChangeNotifier {
 }
 
 class Emprunter {
-  Emprunter({@required this.ustensile, @required this.idReservation, @required this.nbEmprunte});
+  Emprunter(
+      {@required this.ustensile,
+      @required this.idReservation,
+      @required this.nbEmprunte});
   final int idReservation;
   final Ustensile ustensile;
   int nbEmprunte;
   @override
   operator ==(emprunter) =>
-      ustensile is Emprunter && emprunter.idReservation == idReservation && emprunter.ustensile == ustensile;
+      ustensile is Emprunter &&
+      emprunter.idReservation == idReservation &&
+      emprunter.ustensile == ustensile;
 
   int get hashCode => idReservation.hashCode ^ ustensile.hashCode;
 }

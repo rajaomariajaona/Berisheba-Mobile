@@ -41,7 +41,9 @@ class MenuDrawer extends StatelessWidget {
                     ListTile(
                       leading: IconButton(
                         icon: Icon(Icons.settings),
-                        onPressed: () {},
+                        onPressed: () {
+                          print(i);
+                        },
                       ),
                       title: const Text("Parametres"),
                       onTap: () async {

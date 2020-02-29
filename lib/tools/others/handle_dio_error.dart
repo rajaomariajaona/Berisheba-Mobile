@@ -1,5 +1,4 @@
 import 'package:berisheba/states/connected_state.dart';
-import 'package:berisheba/states/global_state.dart';
 import 'package:dio/dio.dart';
 
 class HandleDioError {

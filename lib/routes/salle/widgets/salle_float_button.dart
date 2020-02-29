@@ -16,7 +16,6 @@ class SalleFloatButton extends StatelessWidget {
               var t = await Navigator.of(context).push(MaterialPageRoute(
                 builder: (context) => SalleFormulaire(),
               ));
-              //TODO Handle Navigator after changes
               print(t);
             },
           );

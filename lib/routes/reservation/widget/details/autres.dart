@@ -39,8 +39,6 @@ class ReservationAutres extends StatelessWidget {
             child: ExpandableNotifier(
               initialExpanded: false,
               child: ExpandablePanel(
-                tapHeaderToExpand: true,
-                tapBodyToCollapse: false,
                 theme: const ExpandableThemeData(
                   headerAlignment: ExpandablePanelHeaderAlignment.center,
                 ),
@@ -179,21 +177,26 @@ class _AutresItem extends StatelessWidget {
 }
 
 class AutresDialog extends StatefulWidget {
-  AutresDialog({this.autre, this.prixAutre, @required this.idReservation}) {
-    modifier = autre != null && prixAutre != null;
-  }
+  AutresDialog({this.autre, this.prixAutre, @required this.idReservation, Key key}):super(key: key);
   final int idReservation;
   final Autre autre;
   final double prixAutre;
-  bool modifier;
+  
   @override
   State<StatefulWidget> createState() => _AutresDialogState();
 }
 
 class _AutresDialogState extends State<AutresDialog> {
+  bool modifier = false;
+  
   String _motif;
   int _prixAutre;
   final GlobalKey<FormState> _formState = GlobalKey<FormState>();
+  @override
+  void initState(){
+    modifier = (widget.autre != null && widget.prixAutre != null);
+    super.initState();
+  }
   @override
   Widget build(BuildContext context) {
     return Dialog(
@@ -211,7 +214,7 @@ class _AutresDialogState extends State<AutresDialog> {
                     children: <Widget>[
                       TextFormField(
                         initialValue:
-                            widget.modifier ? "${widget.autre.motif}" : "",
+                            modifier ? "${widget.autre.motif}" : "",
                         textCapitalization: TextCapitalization.words,
                         inputFormatters: <TextInputFormatter>[
                           WhitelistingTextInputFormatter(RegExp("[A-Za-z ]")),
@@ -228,7 +231,7 @@ class _AutresDialogState extends State<AutresDialog> {
                       ),
                       TextFormField(
                         initialValue:
-                            widget.modifier ? "${widget.prixAutre}" : "",
+                            modifier ? "${widget.prixAutre}" : "",
                         keyboardType: TextInputType.number,
                         inputFormatters: [
                           WhitelistingTextInputFormatter(RegExp("[0-9]+")),
@@ -241,7 +244,6 @@ class _AutresDialogState extends State<AutresDialog> {
                           _prixAutre = int.parse(val);
                         },
                       ),
-                      //TODO: Switch to Time picker
                     ],
                   ),
                 ),
@@ -262,7 +264,7 @@ class _AutresDialogState extends State<AutresDialog> {
                     onPressed: () {
                       if (_formState.currentState.validate()) {
                         _formState.currentState.save();
-                        widget.modifier
+                        modifier
                             ? AutresState.modifyData({
                                 "idAutre": widget.autre.id.toString(),
                                 "motif": _motif,

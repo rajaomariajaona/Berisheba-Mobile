@@ -1,10 +1,8 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:core';
-import 'dart:io';
 
 import 'package:berisheba/routes/reservation/states/reservation_state.dart';
-import 'package:berisheba/states/config.dart';
 import 'package:berisheba/states/global_state.dart';
 import 'package:berisheba/states/parametres.dart';
 import 'package:berisheba/tools/http/request.dart';
@@ -37,14 +35,11 @@ class ClientState extends ChangeNotifier {
 
   List<int> get idClientSelected => _listIdClientSelected;
 
-  //Add Id Client to Selected List
   void addSelected(int idClient) {
     if (!_listIdClientSelected.contains(idClient))
       _listIdClientSelected.add(idClient);
     notifyListeners();
   }
-
-  //TODO : clean search
 
   void deleteSelected(int idClient) {
     if (_listIdClientSelected.contains(idClient))
@@ -131,11 +126,11 @@ class ClientState extends ChangeNotifier {
     }
   }
 
-  Future<bool> removeDatas() async {
+  Future removeDatas() async {
     Dio _dio = await RestRequest().getDioInstance();
     _dio.options.headers["deletelist"] = json.encode(_listIdClientSelected);
     try {
-      Response response = await _dio.delete("/clients");
+      await _dio.delete("/clients");
       GlobalState().channel.sink.add("client");
       this.isDeletingClient = false;
       return true;
@@ -144,10 +139,10 @@ class ClientState extends ChangeNotifier {
     }
   }
 
-  static Future<bool> removeData(int idClient) async {
+  static Future removeData(int idClient) async {
     Dio _dio = await RestRequest().getDioInstance();
     try {
-      Response response = await _dio.delete("/clients/$idClient");
+      await _dio.delete("/clients/$idClient");
       GlobalState().channel.sink.add("client");
       return true;
     } catch (error) {
@@ -155,7 +150,7 @@ class ClientState extends ChangeNotifier {
     }
   }
 
-  static Future<bool> saveData(dynamic data) async {
+  static Future saveData(dynamic data) async {
     Dio _dio = await RestRequest().getDioInstance();
     try {
       await _dio.post("/clients", data: data);
@@ -165,7 +160,7 @@ class ClientState extends ChangeNotifier {
     }
   }
 
-  static Future<bool> modifyData(dynamic data, {@required int idClient}) async {
+  static Future modifyData(dynamic data, {@required int idClient}) async {
     Dio _dio = await RestRequest().getDioInstance();
     try {
       await _dio.put("/clients/$idClient", data: data);

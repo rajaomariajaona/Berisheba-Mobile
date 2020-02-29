@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:core';
 
-import 'package:berisheba/routes/reservation/states/reservation_state.dart';
 import 'package:berisheba/states/global_state.dart';
 import 'package:berisheba/states/parametres.dart';
 import 'package:berisheba/tools/http/request.dart';
@@ -42,8 +41,6 @@ class SalleState extends ChangeNotifier {
       _listIdSalleSelected.add(idSalle);
     notifyListeners();
   }
-
-  //TODO : clean search
 
   void deleteSelected(int idSalle) {
     if (_listIdSalleSelected.contains(idSalle))
@@ -119,7 +116,8 @@ class SalleState extends ChangeNotifier {
       try {
         var response = await _dio.get("/salles");
         var data = response?.data;
-        _listSalleByIdSalle = Cast.stringToIntMap(data["data"], (value) => value);
+        _listSalleByIdSalle =
+            Cast.stringToIntMap(data["data"], (value) => value);
       } catch (error) {
         HandleDioError(error);
       }
@@ -138,7 +136,7 @@ class SalleState extends ChangeNotifier {
     Dio _dio = await RestRequest().getDioInstance();
     _dio.options.headers["deletelist"] = json.encode(_listIdSalleSelected);
     try {
-      Response response = await _dio.delete("/salles");
+      await _dio.delete("/salles");
       GlobalState().internalStreamController.sink.add("salle delete");
       this.isDeletingSalle = false;
       return true;
@@ -151,7 +149,7 @@ class SalleState extends ChangeNotifier {
   static Future<bool> removeData(int idSalle) async {
     Dio _dio = await RestRequest().getDioInstance();
     try {
-      Response response = await _dio.delete("/salles/$idSalle");
+      await _dio.delete("/salles/$idSalle");
       GlobalState().internalStreamController.sink.add("salle delete");
       return true;
     } catch (error) {

@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:berisheba/main.dart';
 import 'package:berisheba/states/global_state.dart';
 import 'package:berisheba/tools/date.dart';
@@ -42,13 +40,8 @@ class ReservationState extends ChangeNotifier {
 
   get refreshIndicatorStateReservation => _refreshIndicatorStateReservation;
 
-  bool _isDeletingReservation = false;
+  bool isDeletingReservation = false;
 
-  bool get isDeletingReservation => _isDeletingReservation;
-
-  set isDeletingReservation(bool value) {
-    _isDeletingReservation = value;
-  }
 
   Map<int, dynamic> _reservationsById = {};
 

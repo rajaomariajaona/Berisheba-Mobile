@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:core';
 
-import 'package:berisheba/routes/reservation/states/reservation_state.dart';
 import 'package:berisheba/states/global_state.dart';
 import 'package:berisheba/states/parametres.dart';
 import 'package:berisheba/tools/http/request.dart';
@@ -42,8 +41,6 @@ class MaterielState extends ChangeNotifier {
       _listIdMaterielSelected.add(idMateriel);
     notifyListeners();
   }
-
-  //TODO : clean search
 
   void deleteSelected(int idMateriel) {
     if (_listIdMaterielSelected.contains(idMateriel))
@@ -135,11 +132,11 @@ class MaterielState extends ChangeNotifier {
     }
   }
 
-  Future<bool> removeDatas() async {
+  Future removeDatas() async {
     Dio _dio = await RestRequest().getDioInstance();
     _dio.options.headers["deletelist"] = json.encode(_listIdMaterielSelected);
     try {
-      Response response = await _dio.delete("/materiels");
+      await _dio.delete("/materiels");
       GlobalState().internalStreamController.sink.add("materiel delete");
       this.isDeletingMateriel = false;
       return true;
@@ -148,10 +145,10 @@ class MaterielState extends ChangeNotifier {
     }
   }
 
-  static Future<bool> removeData(int idMateriel) async {
+  static Future removeData(int idMateriel) async {
     Dio _dio = await RestRequest().getDioInstance();
     try {
-      Response response = await _dio.delete("/materiels/$idMateriel");
+      await _dio.delete("/materiels/$idMateriel");
       GlobalState().internalStreamController.sink.add("materiel delete");
       return true;
     } catch (error) {
@@ -159,7 +156,7 @@ class MaterielState extends ChangeNotifier {
     }
   }
 
-  static Future<bool> saveData(dynamic data) async {
+  static Future saveData(dynamic data) async {
     Dio _dio = await RestRequest().getDioInstance();
     try {
       await _dio.post("/materiels", data: data);
@@ -169,7 +166,7 @@ class MaterielState extends ChangeNotifier {
     }
   }
 
-  static Future<bool> modifyData(dynamic data, {@required int idMateriel}) async {
+  static Future modifyData(dynamic data, {@required int idMateriel}) async {
     Dio _dio = await RestRequest().getDioInstance();
     try {
       await _dio.put("/materiels/$idMateriel", data: data);

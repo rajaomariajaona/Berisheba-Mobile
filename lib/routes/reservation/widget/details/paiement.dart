@@ -39,8 +39,6 @@ class ReservationPayer extends StatelessWidget {
             child: ExpandableNotifier(
               initialExpanded: false,
               child: ExpandablePanel(
-                tapHeaderToExpand: true,
-                tapBodyToCollapse: false,
                 theme: const ExpandableThemeData(
                   headerAlignment: ExpandablePanelHeaderAlignment.center,
                 ),
@@ -186,17 +184,16 @@ class _PayerItem extends StatelessWidget {
 }
 
 class PayerDialog extends StatefulWidget {
-  PayerDialog({this.payer, @required this.idReservation}) {
-    modifier = payer != null;
-  }
+  PayerDialog({this.payer, @required this.idReservation, Key key}): super(key:key);
   final int idReservation;
   final Payer payer;
-  bool modifier;
+  
   @override
   State<StatefulWidget> createState() => _PayerDialogState();
 }
 
 class _PayerDialogState extends State<PayerDialog> {
+  bool modifier = false;
   double _sommePayee;
   String _typePaiement;
   final List<String> typePaiements = ["avance", "reste", "remise"];
@@ -205,7 +202,7 @@ class _PayerDialogState extends State<PayerDialog> {
   final GlobalKey<FormState> _formState = GlobalKey<FormState>();
   @override
   void initState() {
-    super.initState();
+    modifier = widget.payer != null;
     this._dropdownMenuItems = typePaiements.map((String type) {
       return DropdownMenuItem(
         child: Text("$type"),
@@ -213,6 +210,7 @@ class _PayerDialogState extends State<PayerDialog> {
       );
     }).toList();
     this._typePaiement = widget.payer?.typePaiement ?? typePaiements[0];
+    super.initState();
   }
 
   @override
@@ -242,7 +240,7 @@ class _PayerDialogState extends State<PayerDialog> {
                           }),
                       _typePaiement != "reste"
                           ? TextFormField(
-                              initialValue: widget.modifier
+                              initialValue: modifier
                                   ? "${widget.payer.sommePayee}"
                                   : "",
                               validator: (String val) {
@@ -262,7 +260,7 @@ class _PayerDialogState extends State<PayerDialog> {
                                   var data = _payerState.payerByIdReservation[
                                       widget.idReservation];
                                   double avance = 0;
-                                  if (!widget.modifier) {
+                                  if (!modifier) {
                                     data.forEach((Payer payer) {
                                       if (payer.typePaiement == "avance") {
                                         avance += payer.sommePayee;
@@ -285,7 +283,7 @@ class _PayerDialogState extends State<PayerDialog> {
                                   var data = _payerState.payerByIdReservation[
                                       widget.idReservation];
                                   double remise = 0;
-                                  if (!widget.modifier) {
+                                  if (!modifier) {
                                     data.forEach((Payer payer) {
                                       if (payer.typePaiement == "remise") {
                                         remise += payer.sommePayee;
@@ -309,7 +307,6 @@ class _PayerDialogState extends State<PayerDialog> {
                               },
                             )
                           : Container(),
-                      //TODO: Switch to Time picker
                     ],
                   ),
                 ),
@@ -330,7 +327,7 @@ class _PayerDialogState extends State<PayerDialog> {
                     onPressed: () {
                       if (_formState.currentState.validate()) {
                         _formState.currentState.save();
-                        widget.modifier
+                        modifier
                             ? PayerState.modifyData(
                                 {"sommePayee": _sommePayee.toString()},
                                 idReservation: widget.idReservation,

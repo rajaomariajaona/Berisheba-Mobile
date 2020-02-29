@@ -2,7 +2,6 @@ import 'package:berisheba/routes/reservation/states/concerner_state.dart';
 import 'package:berisheba/routes/reservation/states/conflit_state.dart';
 import 'package:berisheba/routes/reservation/states/reservation_state.dart';
 import 'package:berisheba/routes/salle/salle_state.dart';
-import 'package:berisheba/states/global_state.dart';
 import 'package:berisheba/tools/widgets/loading.dart';
 import 'package:expandable/expandable.dart';
 import 'package:flutter/material.dart';
@@ -38,8 +37,6 @@ class ReservationSalle extends StatelessWidget {
             child: ExpandableNotifier(
               initialExpanded: false,
               child: ExpandablePanel(
-                tapHeaderToExpand: true,
-                tapBodyToCollapse: false,
                 theme: const ExpandableThemeData(
                   headerAlignment: ExpandablePanelHeaderAlignment.center,
                 ),

@@ -1,6 +1,5 @@
 import 'package:berisheba/states/config.dart';
 import 'package:flutter/material.dart';
-//TODO: FIX PAGE AFTER NOT AUTHORIZED
 class TabState extends ChangeNotifier {
   static int _index = 0;
   String _titleAppBar = "Berisheba";

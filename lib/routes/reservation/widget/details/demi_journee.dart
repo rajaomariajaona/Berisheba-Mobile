@@ -4,7 +4,6 @@ import 'package:berisheba/routes/reservation/states/conflit_state.dart';
 import 'package:berisheba/routes/reservation/states/constituer_state.dart';
 import 'package:berisheba/routes/reservation/states/reservation_state.dart';
 import 'package:berisheba/routes/reservation/widget/details/change_dates_dialog.dart';
-import 'package:berisheba/states/config.dart';
 import 'package:berisheba/states/global_state.dart';
 import 'package:berisheba/tools/widgets/loading.dart';
 import 'package:expandable/expandable.dart';
@@ -12,7 +11,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
-//TODO: resolve tsy hita tampoka izy rht xD
 class ReservationDemiJournee extends StatefulWidget {
   final int _idReservation;
   final bool readOnly;
@@ -273,8 +271,6 @@ class _ReservationDemiJourneeState extends State<ReservationDemiJournee> {
             child: ExpandableNotifier(
               initialExpanded: false,
               child: ExpandablePanel(
-                tapHeaderToExpand: true,
-                tapBodyToCollapse: false,
                 theme: const ExpandableThemeData(
                   headerAlignment: ExpandablePanelHeaderAlignment.center,
                 ),

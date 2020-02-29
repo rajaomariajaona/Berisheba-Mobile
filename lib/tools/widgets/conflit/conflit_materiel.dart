@@ -38,7 +38,6 @@ class _ConflitMaterielState extends State<ConflitMateriel> {
   @override
   void didChangeDependencies() {
     _conflitMaterielState = Provider.of<ConflitMaterielState>(context);
-    // TODO: implement didChangeDependencies
     super.didChangeDependencies();
   }
 

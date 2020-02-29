@@ -16,7 +16,6 @@ class UstensileFloatButton extends StatelessWidget {
               var t = await Navigator.of(context).push(MaterialPageRoute(
                 builder: (context) => UstensileFormulaire(),
               ));
-              //TODO Handle Navigator after changes
               print(t);
             },
           );

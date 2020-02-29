@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:berisheba/states/authorization_state.dart';
 import 'package:berisheba/states/config.dart';
 import 'package:berisheba/states/connected_state.dart';
@@ -9,7 +7,6 @@ import 'package:dio/dio.dart';
 import 'package:imei_plugin/imei_plugin.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-//TODO: Test connection coupee et Test token refresh
 class RestRequest {
   static final BaseOptions _options = BaseOptions(
     baseUrl: "${Config.apiURI}",
@@ -36,12 +33,12 @@ class RestRequest {
           } else {
             options.headers["Authorization"] =
                 "Bearer ${pref.getString("TOKEN")}";
-            return options;
           }
+          return options;
         });
       }, onResponse: (Response response) async {
         if (!ConnectedState().isConnected) await GlobalState().connect();
-          AuthorizationState().isAuthorized = true;
+        AuthorizationState().isAuthorized = true;
       }, onError: (DioError error) async {
         if (error.type == DioErrorType.RESPONSE &&
             error?.response?.statusCode == 401) {

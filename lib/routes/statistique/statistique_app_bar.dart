@@ -2,7 +2,6 @@ import 'dart:math';
 
 import 'package:berisheba/main.dart';
 import 'package:berisheba/routes/statistique/statistique_state.dart';
-import 'package:berisheba/tools/date.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:intl/intl.dart';
@@ -20,8 +19,6 @@ class StatistiqueAppBar {
           IconButton(
             icon: Icon(Icons.explore),
             onPressed: () async {
-              var scheduledNotificationDateTime = DateTime.parse(
-                  "${generateDateString(DateTime.now().add(Duration(seconds: 5)))} 08:00:00");
               var androidPlatformChannelSpecifics =
                   new AndroidNotificationDetails(
                       'your other channel id',

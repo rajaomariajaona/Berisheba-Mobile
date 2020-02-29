@@ -68,8 +68,7 @@ class LouerState extends ChangeNotifier {
       {@required int idReservation, @required int idMateriel}) async {
     Dio _dio = await RestRequest().getDioInstance();
     try {
-      Response response = await _dio
-          .delete("/reservations/$idReservation/materiels/$idMateriel");
+      await _dio.delete("/reservations/$idReservation/materiels/$idMateriel");
       GlobalState().channel.sink.add("louer $idReservation");
       return true;
     } catch (error) {

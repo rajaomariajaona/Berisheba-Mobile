@@ -75,8 +75,6 @@ class _ReservationUstensileState extends State<ReservationUstensile> {
             child: ExpandableNotifier(
               initialExpanded: false,
               child: ExpandablePanel(
-                tapHeaderToExpand: true,
-                tapBodyToCollapse: false,
                 theme: const ExpandableThemeData(
                   headerAlignment: ExpandablePanelHeaderAlignment.center,
                 ),
