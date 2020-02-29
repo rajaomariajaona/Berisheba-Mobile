@@ -35,7 +35,7 @@ class StatistiqueAppBar {
                   Random().nextInt(15),
                   'Reservation du ${DateFormat.yMMMd("fr_FR").format(DateTime.now().add(Duration(days: 1)))}',
                   'Client: Rajaomaria Jaona',
-                  scheduledNotificationDateTime,
+                  DateTime.now().add(Duration(seconds: 5)),
                   platformChannelSpecifics,
                   payload: "reservation 1");
             },

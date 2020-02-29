@@ -45,37 +45,51 @@ class __NoInternetBodyState extends State<_NoInternetBody> {
                       await Future.delayed(Duration(seconds: 1))
                           .then((_) async {
                         if (ConnectedState().isConnected) {
-                          if (Navigator.of(context).canPop()) {
-                            Navigator.of(context).pop();
-                            if (MyApp.splashScreen.isCurrent) {
+                          if (GlobalState()
+                              .navigatorState
+                              .currentState
+                              .canPop()) {
+                            GlobalState().navigatorState.currentState.pop();
+                            if ((MyApp.splashScreen != null) ? MyApp.splashScreen.isCurrent : false) {
                               await AuthorizationState
                                       .checkAuthorizationAndInternet()
                                   .whenComplete(() {
                                 if (AuthorizationState().isAuthorized)
-                                  Navigator.of(context)
+                                  GlobalState()
+                                      .navigatorState
+                                      .currentState
                                       .pushReplacementNamed('/');
                                 else {
-                                  if (!MyApp.notAuthorized.isCurrent)
-                                    Navigator.of(context)
+                                  if ((MyApp.notAuthorized != null) ? !MyApp.notAuthorized.isCurrent : true )
+                                    GlobalState()
+                                        .navigatorState
+                                        .currentState
                                         .pushReplacementNamed('not-authorized');
                                 }
                               });
                             }
-                            if (MyApp.notAuthorized.isCurrent) {
+                            if ((MyApp.notAuthorized != null) ? MyApp.notAuthorized.isCurrent : false) {
                               AuthorizationState().fetchData();
                             }
                           } else {
                             if (AuthorizationState().isAuthorized)
-                              Navigator.of(context).pushReplacementNamed('/');
+                              GlobalState()
+                                  .navigatorState
+                                  .currentState
+                                  .pushReplacementNamed('/');
                             else
-                              Navigator.of(context)
+                              GlobalState()
+                                  .navigatorState
+                                  .currentState
                                   .pushReplacementNamed('not-authorized');
                           }
                         }
                       });
-                      setState(() {
-                        isPressing = false;
-                      });
+                      if (this.mounted) {
+                        setState(() {
+                          isPressing = false;
+                        });
+                      }
                     },
             ),
           ),

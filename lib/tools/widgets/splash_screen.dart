@@ -14,8 +14,8 @@ class SplashScreen extends StatelessWidget {
           await Future.delayed(Duration(seconds: 1)).whenComplete(() async {
             var route = "/";
             if (!AuthorizationState().isAuthorized) route = "not-authorized";
-            if (!MyApp.noInternet.isCurrent) {
-              if (!MyApp.notAuthorized.isCurrent)
+            if ((MyApp.noInternet != null) ? !MyApp.noInternet.isCurrent : true) {
+              if ((MyApp.notAuthorized != null) ? !MyApp.notAuthorized.isCurrent : true)
                 await GlobalState()
                     .navigatorState
                     .currentState

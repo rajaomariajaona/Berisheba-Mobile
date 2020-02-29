@@ -88,7 +88,7 @@ class __NotAuthorizedBodyState extends State<_NotAuthorizedBody> {
       if (state.details["authorized"] ?? false) {
         if (Navigator.of(context).canPop()) {
           Navigator.of(context).pop();
-          if (MyApp.splashScreen.isCurrent) {
+          if ((MyApp.splashScreen != null) ? MyApp.splashScreen.isCurrent : false) {
             GlobalState().navigatorState.currentState.pushNamed("/");
           }
         }

@@ -37,7 +37,7 @@ class _SquelleteState extends State<Squellete> {
       if (payload.contains("reservation")) {
         int idReservation = int.tryParse(payload.split(" ")[1]);
         if (idReservation != null) {
-          Navigator.of(context).pushNamed("reservation:$idReservation");
+          GlobalState().navigatorState.currentState.pushNamed("reservation:$idReservation");
         }
       }
     });

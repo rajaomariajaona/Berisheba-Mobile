@@ -9,7 +9,7 @@ class ConnectedState extends ChangeNotifier {
   setIsConnected(bool value) {
     if (_isConnected != value) {
       _isConnected = value;
-      if (!_isConnected && !MyApp.noInternet.isCurrent)
+      if (!_isConnected && ((MyApp.noInternet != null) ? !MyApp.noInternet.isCurrent : true))
         GlobalState().navigatorState.currentState.pushNamed("no-internet");
       notifyListeners();
     }

@@ -3,6 +3,7 @@ import 'package:berisheba/routes/reservation/states/concerner_state.dart';
 import 'package:berisheba/routes/reservation/states/constituer_state.dart';
 import 'package:berisheba/routes/reservation/states/jirama_state.dart';
 import 'package:berisheba/routes/reservation/widget/reservation_details.dart';
+import 'package:berisheba/states/global_state.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -16,7 +17,7 @@ class ReservationItem extends StatefulWidget {
 class _ReservationItemState extends State<ReservationItem> {
   void _watch(BuildContext context) async {
     int _idReservation = widget._reservation["idReservation"];
-    await Navigator.of(context).pushNamed("reservation:$_idReservation");
+    await GlobalState().navigatorState.currentState.pushNamed("reservation:$_idReservation");
   }
 
   @override

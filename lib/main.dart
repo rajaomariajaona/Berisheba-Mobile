@@ -66,7 +66,8 @@ void main() async {
 }
 
 class MyApp extends StatelessWidget {
-  static final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
+  static final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+      FlutterLocalNotificationsPlugin();
   final ThemeData t = ThemeData(
     primarySwatch: Colors.green,
   ).copyWith(
@@ -173,8 +174,8 @@ class MyApp extends StatelessWidget {
         int idReservation = int.tryParse(params[1]);
         if (idReservation != null)
           return MaterialPageRoute(builder: (ctx) {
-      return ReservationDetails(idReservation);
-    });
+            return ReservationDetails(idReservation);
+          });
       }
     } else if (routeName.contains("conflit")) {
       List<String> params = routeName.split(":");
@@ -189,14 +190,22 @@ class MyApp extends StatelessWidget {
     } else {
       switch (routeName) {
         case "no-internet":
+          MyApp.noInternet =
+              (() => MaterialPageRoute(builder: (ctx) => NoInternet()))();
           return MyApp.noInternet;
           break;
         case "not-authorized":
+          MyApp.notAuthorized =
+              (() => MaterialPageRoute(builder: (ctx) => NotAuthorized()))();
           return MyApp.notAuthorized;
+
           break;
         case "splash-screen":
+          MyApp.splashScreen =
+              (() => MaterialPageRoute(builder: (ctx) => SplashScreen()))();
           return MyApp.splashScreen;
         case "/":
+          MyApp.home = (() => MaterialPageRoute(builder: (ctx) => Squellete()))();
           return MyApp.home;
         default:
           return null;
@@ -205,10 +214,8 @@ class MyApp extends StatelessWidget {
     return null;
   }
 
-  static Route home = MaterialPageRoute(builder: (ctx) => Squellete());
-  static Route splashScreen =
-      MaterialPageRoute(builder: (ctx) => SplashScreen());
-  static Route noInternet = MaterialPageRoute(builder: (ctx) => NoInternet());
-  static Route notAuthorized =
-      MaterialPageRoute(builder: (ctx) => NotAuthorized());
+  static Route home;
+  static Route splashScreen;
+  static Route noInternet;
+  static Route notAuthorized;
 }

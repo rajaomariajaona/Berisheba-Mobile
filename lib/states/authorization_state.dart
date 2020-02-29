@@ -14,7 +14,7 @@ class AuthorizationState extends ChangeNotifier {
   set isAuthorized(bool val) {
     if (_isAuthorized != val) {
       _isAuthorized = val;
-      if (!_isAuthorized && !MyApp.notAuthorized.isCurrent) {
+      if (!_isAuthorized && ((MyApp.notAuthorized != null) ? !MyApp.notAuthorized.isCurrent : true)) {
         GlobalState().navigatorState.currentState.pushNamed("not-authorized");
       }
       notifyListeners();
