@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+import 'package:flutter_picker/Picker.dart';
 
 typedef SetValueCallback = void Function(int value);
 
@@ -39,71 +39,22 @@ class _NumberSelectorState extends State<NumberSelector> {
         GestureDetector(
           child: Text("${widget.value}"),
           onTap: () async {
-            GlobalKey<FormState> _form = GlobalKey<FormState>();
-            TextEditingController _controller = TextEditingController();
-            var value = await showDialog(
-              context: context,
-              builder: (BuildContext ctx) {
-                int number;
-                return AlertDialog(
-                  content: Form(
-                    key: _form,
-                    child: TextFormField(
-                      decoration: InputDecoration(
-                        labelText: "Min: ${widget.min} " + (widget.max == null ? "" : ", Max : ${widget.max}"),
-                      ),
-                      controller: _controller..text = "${widget.value}",
-                      keyboardType: TextInputType.number,
-                      inputFormatters: [
-                        WhitelistingTextInputFormatter(RegExp("[0-9]+"))
-                      ],
-                      onSaved: (val) {
-                        number = int.tryParse(val);
-                      },
-                      validator: (val) {
-                        var test;
-                        if(val.trim() == ""){
-                          return "Champ vide";
-                        }
-                        if ((test = int.tryParse(val)) == null) {
-                          return "La valeur n'est pas entière";
-                        } else {
-                          if (test > widget.max) {
-                            _controller.text = "${widget.max}";
-                            return "La valeur excède la valeur max";
-                          }
-                          if (test < widget.min) {
-                            _controller.text = "${widget.min}";
-                            return "La valeur excède la valeur min";
-                          }
-                        }
-                        return null;
-                      },
-                    ),
-                  ),
-                  actions: <Widget>[
-                    IconButton(
-                      icon: Icon(Icons.check),
-                      onPressed: () {
-                        if (_form.currentState.validate()) {
-                          _form.currentState.save();
-                          Navigator.of(ctx).pop(number);
-                        }
-                      },
-                    ),
-                    IconButton(
-                      icon: Icon(Icons.close),
-                      onPressed: () {
-                        Navigator.of(ctx).pop(null);
-                      },
-                    ),
-                  ],
-                );
-              },
-            );
-            if (value != null) {
-              widget.setValue(value);
-            }
+            Picker(
+                    adapter: NumberPickerAdapter(data: [
+                      NumberPickerColumn(
+                          begin: widget.min,
+                          end: widget.max,
+                          initValue: widget.value),
+                    ]),
+                    hideHeader: true,
+
+                    title: new Text("Veuillez selectionner"),
+                    onConfirm: (Picker picker, List<int> values) {
+                      widget.setValue(values[0]);
+                    },
+                    cancelText: "Annuler",
+                    confirmText: "Confirmer")
+                .showDialog(context);
           },
         ),
         IconButton(
