@@ -7,14 +7,12 @@ import 'package:berisheba/tools/others/handle_dio_error.dart';
 import 'package:dio/dio.dart';
 import 'package:image/image.dart' as images;
 import 'package:path_provider/path_provider.dart';
-import 'package:path_provider_ex/path_provider_ex.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:permission_handler/permission_handler.dart';
 
 class PdfGenerator {
-  bool canShare = false;
   Document pdf;
   PdfGenerator() {
     pdf = Document();
@@ -108,43 +106,15 @@ class PdfGenerator {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Text(
-                "Si vous avez des questions concernant ce facture,\ncontactez-nous: 034 11 641 54",
+                "Si vous avez des questions concernant cette facture,\ncontactez-nous: 034 11 641 54",
               )
             ])
       ]);
     }));
-    PermissionHandler permissionHandler = PermissionHandler();
-    await permissionHandler
-        .checkPermissionStatus(PermissionGroup.storage)
-        .then((permissionStatus) async {
-      if (permissionStatus != PermissionStatus.granted) {
-        await permissionHandler.requestPermissions([PermissionGroup.storage]);
-      } else {
-        canShare = true;
-      }
-    });
-    List<StorageInfo> storageInfos = await PathProviderEx.getStorageInfo();
-    var path;
-    if (storageInfos.length > 1) {
-      path = storageInfos[1].rootDir;
-    } else if (storageInfos.length > 0) {
-      path = storageInfos[0].rootDir;
-    } else {
-      path = (await getExternalStorageDirectory()).path;
-    }
-    var dir = Directory("$path/berisheba");
-    dir.exists().then((isExist) async {
-      if (!isExist) {
-        await dir.create();
-      }
-    });
-    final File fichier = File("$path/berisheba/facture.pdf");
+    List<int> bytePdf = pdf.save();
+    String path = ((await getTemporaryDirectory()).path);
+    final File fichier = File("$path/facture.pdf");
     await fichier.writeAsBytes(pdf.save());
-    try {
-      await saveFile("application/pdf", "facture.pdf", "${pdf.save()}");
-    } catch (error) {
-      print(error.toString());
-    }
-    return "$path/berisheba/facture.pdf";
+    return "$path/facture.pdf";
   }
 }

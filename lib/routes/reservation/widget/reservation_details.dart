@@ -16,14 +16,11 @@ import 'package:berisheba/routes/reservation/widget/details/paiement.dart';
 import 'package:berisheba/routes/reservation/widget/details/salles.dart';
 import 'package:berisheba/routes/reservation/widget/details/ustensiles.dart';
 import 'package:berisheba/states/global_state.dart';
-import 'package:berisheba/tools/others/file_saver.dart';
 import 'package:berisheba/tools/printing/pdf_generator.dart';
+import 'package:berisheba/tools/printing/pdf_screen.dart';
 import 'package:berisheba/tools/widgets/confirm.dart';
 import 'package:berisheba/tools/widgets/loading.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_full_pdf_viewer/flutter_full_pdf_viewer.dart';
-import 'package:flutter_share/flutter_share.dart';
-import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 
 enum Actions { salle, materiel, ustensile, jirama, autres, payer }
@@ -111,13 +108,13 @@ class _ReservationDetailsState extends State<ReservationDetailsBody> {
   Widget build(BuildContext context) {
     final ReservationState reservationState =
         Provider.of<ReservationState>(context);
-    final ConflitState conflitState =
-        Provider.of<ConflitState>(context);
+    final ConflitState conflitState = Provider.of<ConflitState>(context);
     return reservationState.reservationsById[widget._idReservation] == null
         ? Scaffold(
             appBar: AppBar(),
             body: Center(
-              child: (reservationState.isLoading || (conflitState.isLoading == widget._idReservation))
+              child: (reservationState.isLoading ||
+                      (conflitState.isLoading == widget._idReservation))
                   ? Loading()
                   : Text("La reservation a été supprimée"),
             ),
@@ -213,7 +210,14 @@ class _ReservationDetailsState extends State<ReservationDetailsBody> {
         icon: Icon(Icons.picture_as_pdf),
         onPressed: () async {
           PdfGenerator pdf = PdfGenerator();
-          await pdf.saveFacture(widget._idReservation);
+          var path = await pdf.saveFacture(widget._idReservation);
+          Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (ctx) => PDFScreen(
+                pathPDF: path,
+              ),
+            ),
+          );
         },
       ),
       IconButton(
@@ -381,49 +385,5 @@ class _ReservationDetailsState extends State<ReservationDetailsBody> {
         )
       ]
     ];
-  }
-}
-
-class PDFScreen extends StatelessWidget {
-  final String pathPDF;
-  PDFScreen({this.pathPDF = ""});
-
-  @override
-  Widget build(BuildContext context) {
-    return PDFViewerScaffold(
-        appBar: AppBar(
-          title: Text("Facture"),
-          actions: <Widget>[
-            IconButton(
-              icon: Icon(Icons.save),
-              onPressed: () async {
-                try {
-                  await saveFile("application/pdf", "facture.pdf", "dfssdfg");
-                } catch (error) {
-                  print(error.toString());
-                }
-              },
-            ),
-            IconButton(
-              icon: Icon(Icons.refresh),
-              onPressed: () async {
-                PermissionStatus permission = await PermissionHandler()
-                    .checkPermissionStatus(PermissionGroup.storage);
-                print(permission);
-              },
-            ),
-            IconButton(
-              icon: Icon(Icons.share),
-              onPressed: () async {
-                await FlutterShare.shareFile(
-                  title: 'Facture',
-                  text: 'Facture ',
-                  filePath: pathPDF,
-                );
-              },
-            ),
-          ],
-        ),
-        path: pathPDF);
   }
 }
