@@ -16,10 +16,7 @@ class ReservationItem extends StatefulWidget {
 class _ReservationItemState extends State<ReservationItem> {
   void _watch(BuildContext context) async {
     int _idReservation = widget._reservation["idReservation"];
-    final Stopwatch st = Stopwatch()..start();
-    await Navigator.of(context).push(MaterialPageRoute(builder: (ctx) {
-      return ReservationDetails(_idReservation);
-    }));
+    await Navigator.of(context).pushNamed("reservation:$_idReservation");
   }
 
   @override

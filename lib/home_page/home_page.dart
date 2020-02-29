@@ -22,7 +22,6 @@ import 'package:berisheba/routes/ustensile/widgets/ustensile_float_button.dart';
 import 'package:berisheba/states/config.dart';
 import 'package:berisheba/states/global_state.dart';
 import 'package:berisheba/states/tab_state.dart';
-import 'package:berisheba/tools/widgets/not_authorized.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -34,10 +33,17 @@ class Squellete extends StatefulWidget {
 class _SquelleteState extends State<Squellete> {
   @override
   void initState() {
+    GlobalState().internalStreamController.stream.listen((String payload) {
+      if (payload.contains("reservation")) {
+        int idReservation = int.tryParse(payload.split(" ")[1]);
+        if (idReservation != null) {
+          Navigator.of(context).pushNamed("reservation:$idReservation");
+        }
+      }
+    });
     super.initState();
     //Connect the app to the websocket
     GlobalState().connect();
-    bool show = false;
   }
 
   @override

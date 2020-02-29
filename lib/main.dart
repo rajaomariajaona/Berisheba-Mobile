@@ -10,6 +10,7 @@ import 'package:berisheba/routes/reservation/states/jirama_state.dart';
 import 'package:berisheba/routes/reservation/states/louer_state.dart';
 import 'package:berisheba/routes/reservation/states/payer_state.dart';
 import 'package:berisheba/routes/reservation/states/reservation_state.dart';
+import 'package:berisheba/routes/reservation/widget/reservation_details.dart';
 import 'package:berisheba/routes/salle/salle_state.dart';
 import 'package:berisheba/routes/statistique/statistique_state.dart';
 import 'package:berisheba/routes/ustensile/ustensile_state.dart';
@@ -23,11 +24,29 @@ import 'package:berisheba/tools/widgets/not_authorized.dart';
 import 'package:berisheba/tools/widgets/splash_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  // NOTE: if you want to find out if the app was launched via notification then you could use the following call and then do something like
+  // change the default route of the app
+  // var notificationAppLaunchDetails =
+  //     await flutterLocalNotificationsPlugin.getNotificationAppLaunchDetails();
+
+  var initializationSettingsAndroid = AndroidInitializationSettings('app_icon');
+  var initializationSettingsIOS = IOSInitializationSettings(
+      onDidReceiveLocalNotification:
+          (int id, String title, String body, String payload) async {});
+  var initializationSettings = InitializationSettings(
+      initializationSettingsAndroid, initializationSettingsIOS);
+  await MyApp.flutterLocalNotificationsPlugin.initialize(initializationSettings,
+      onSelectNotification: (String payload) async {
+    GlobalState().internalStreamController.sink.add(payload);
+  });
+
   runApp(MyApp());
   SharedPreferences.getInstance().then((sharedPreference) {
     if (!sharedPreference.containsKey("api")) {
@@ -47,6 +66,7 @@ void main() async {
 }
 
 class MyApp extends StatelessWidget {
+  static final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
   final ThemeData t = ThemeData(
     primarySwatch: Colors.green,
   ).copyWith(
@@ -145,9 +165,18 @@ class MyApp extends StatelessWidget {
   Route<dynamic> _handleRoute(RouteSettings settings) {
     String routeName = settings.name;
     // if(routeName.contains("pdf")){
-    //   List<String> params = 
+    //   List<String> params =
     // }else
-     if (routeName.contains("conflit")) {
+    if (routeName.contains("reservation")) {
+      List<String> params = routeName.split(":");
+      if (params.length == 2) {
+        int idReservation = int.tryParse(params[1]);
+        if (idReservation != null)
+          return MaterialPageRoute(builder: (ctx) {
+      return ReservationDetails(idReservation);
+    });
+      }
+    } else if (routeName.contains("conflit")) {
       List<String> params = routeName.split(":");
       if (params.length == 2) {
         int idReservation = int.tryParse(params[1]);
@@ -175,8 +204,11 @@ class MyApp extends StatelessWidget {
     }
     return null;
   }
-  static Route home = MaterialPageRoute(builder: (ctx) =>  Squellete());
-  static Route splashScreen = MaterialPageRoute(builder: (ctx) =>  SplashScreen());
+
+  static Route home = MaterialPageRoute(builder: (ctx) => Squellete());
+  static Route splashScreen =
+      MaterialPageRoute(builder: (ctx) => SplashScreen());
   static Route noInternet = MaterialPageRoute(builder: (ctx) => NoInternet());
-  static Route notAuthorized = MaterialPageRoute(builder: (ctx) => NotAuthorized());
+  static Route notAuthorized =
+      MaterialPageRoute(builder: (ctx) => NotAuthorized());
 }

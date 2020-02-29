@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:berisheba/main.dart';
 import 'package:berisheba/states/global_state.dart';
 import 'package:berisheba/tools/date.dart';
 import 'package:berisheba/tools/http/request.dart';
@@ -7,10 +8,11 @@ import 'package:berisheba/tools/others/cast.dart';
 import 'package:berisheba/tools/others/handle_dio_error.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:intl/intl.dart';
 
 import 'package:table_calendar/table_calendar.dart';
 
-//TODO: Lazy loading (ByReservation de alaina amnin xD) Contrainte (Semaine xD) {PAR ID + PAR SEMAINE}
 class ReservationState extends ChangeNotifier {
   bool __isLoading = false;
   bool get isLoading => __isLoading;
@@ -61,7 +63,7 @@ class ReservationState extends ChangeNotifier {
       _reservationsById =
           Cast.stringToIntMap(response.data["data"], (value) => value);
       notifyListeners();
-      this.generateEvents();
+      await this.generateEvents();
     } catch (err) {
       HandleDioError(err);
     } finally {
@@ -78,7 +80,7 @@ class ReservationState extends ChangeNotifier {
       if (data != null) {
         _reservationsById[idReservation] = response.data["data"];
         notifyListeners();
-        this.generateEvents();
+        await this.generateEvents();
       } else {
         throw "No data";
       }
@@ -123,10 +125,29 @@ class ReservationState extends ChangeNotifier {
     }
   }
 
-  void generateEvents() {
+  Future generateEvents() async {
     _events.clear();
-    _reservationsById.forEach((int idReservation, dynamic reservation) {
+    MyApp.flutterLocalNotificationsPlugin.cancelAll();
+    int i = 0;
+    _reservationsById.forEach((int idReservation, dynamic reservation) async {
       DateTime currentDate = DateTime.parse(reservation["dateEntree"]);
+      if (currentDate.isAfter(DateTime.now())) {
+        var scheduledNotificationDateTime = DateTime.parse(
+            "${generateDateString(currentDate.subtract(Duration(days: 1)))} 08:00:00");
+        var androidPlatformChannelSpecifics = new AndroidNotificationDetails(
+            'your other channel id',
+            'your other channel name',
+            'your other channel description');
+        var iOSPlatformChannelSpecifics = new IOSNotificationDetails();
+        NotificationDetails platformChannelSpecifics = new NotificationDetails(
+            androidPlatformChannelSpecifics, iOSPlatformChannelSpecifics);
+        await MyApp.flutterLocalNotificationsPlugin.schedule(
+            i++,
+            'Reservation du ${DateFormat.yMMMd("fr_FR").format(currentDate)}',
+            '${reservation["nomClient"]} ${reservation["prenomClient"]}',
+            scheduledNotificationDateTime,
+            platformChannelSpecifics,payload: "reservation $idReservation");
+      }
       do {
         if (!_events.containsKey(currentDate)) {
           _events[currentDate] = [];

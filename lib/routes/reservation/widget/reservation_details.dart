@@ -1,4 +1,3 @@
-import 'package:berisheba/routes/materiel/materiel_state.dart';
 import 'package:berisheba/routes/reservation/states/autres_state.dart';
 import 'package:berisheba/routes/reservation/states/concerner_state.dart';
 import 'package:berisheba/routes/reservation/states/conflit_state.dart';
@@ -20,6 +19,7 @@ import 'package:berisheba/states/global_state.dart';
 import 'package:berisheba/tools/others/file_saver.dart';
 import 'package:berisheba/tools/printing/pdf_generator.dart';
 import 'package:berisheba/tools/widgets/confirm.dart';
+import 'package:berisheba/tools/widgets/loading.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_full_pdf_viewer/flutter_full_pdf_viewer.dart';
 import 'package:flutter_share/flutter_share.dart';
@@ -116,7 +116,7 @@ class _ReservationDetailsState extends State<ReservationDetailsBody> {
         ? Scaffold(
             appBar: AppBar(),
             body: Center(
-              child: Text("La reservation a été supprimée"),
+              child: reservationState.isLoading ? Loading() : Text("La reservation a été supprimée"),
             ),
           )
         : Scaffold(
