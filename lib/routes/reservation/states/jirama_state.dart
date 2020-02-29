@@ -99,6 +99,13 @@ class JiramaState extends ChangeNotifier {
         await this.fetchData(int.parse(msg.split(" ")[1]));
       }
     });
+    GlobalState().internalStreamController.stream.listen((msg) async {
+      if (msg == "refresh") {
+        _jirama.keys.forEach((idReservation) async {
+          await fetchData(idReservation);
+        });
+      }
+    });
   }
 }
 

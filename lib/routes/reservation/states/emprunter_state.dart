@@ -114,6 +114,13 @@ class EmprunterState extends ChangeNotifier {
         }
       }
     });
+    GlobalState().internalStreamController.stream.listen((msg) async {
+      if (msg == "refresh" || msg == "ustensile delete") {
+        _listeUstensileDispoByIdReservation.keys.forEach((idReservation) async {
+          await fetchData(idReservation);
+        });
+      }
+    });
   }
 }
 

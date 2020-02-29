@@ -117,10 +117,17 @@ class ConstituerState extends ChangeNotifier {
   }
 
   ConstituerState() {
-    GlobalState().externalStreamController.stream.listen((msg) {
+    GlobalState().externalStreamController.stream.listen((msg) async {
       if (msg.contains("constituer") &&
           _demiJournees.containsKey(int.parse(msg.split(" ")[1]))) {
-        this.fetchData(int.parse(msg.split(" ")[1]));
+        await this.fetchData(int.parse(msg.split(" ")[1]));
+      }
+    });
+    GlobalState().internalStreamController.stream.listen((msg) async {
+      if (msg == "refresh") {
+        _demiJournees.keys.forEach((idReservation) async {
+          await fetchData(idReservation);
+        });
       }
     });
   }

@@ -139,7 +139,7 @@ class SalleState extends ChangeNotifier {
     _dio.options.headers["deletelist"] = json.encode(_listIdSalleSelected);
     try {
       Response response = await _dio.delete("/salles");
-      GlobalState().channel.sink.add("salle delete");
+      GlobalState().internalStreamController.sink.add("salle delete");
       this.isDeletingSalle = false;
       return true;
     } catch (error) {
@@ -152,7 +152,7 @@ class SalleState extends ChangeNotifier {
     Dio _dio = await RestRequest().getDioInstance();
     try {
       Response response = await _dio.delete("/salles/$idSalle");
-      GlobalState().channel.sink.add("salle delete");
+      GlobalState().internalStreamController.sink.add("salle delete");
       return true;
     } catch (error) {
       HandleDioError(error);
@@ -225,18 +225,14 @@ class SalleState extends ChangeNotifier {
       this._isNotReverse = _sharedPreferences.getBool(Parametres.salleSort);
     });
     await fetchData();
-    GlobalState().externalStreamController.stream.listen((msg) {
+    GlobalState().externalStreamController.stream.listen((msg) async {
       if (msg == "salle") {
-        fetchData();
-      }
-      if (msg == "salle delete") {
-        //TODO: Optimize this
-        ReservationState().fetchDataByWeekRange("1-53");
+        await fetchData();
       }
     });
-    GlobalState().internalStreamController.stream.listen((msg) {
+    GlobalState().internalStreamController.stream.listen((msg) async {
       if (msg == "refresh") {
-        fetchData();
+        await fetchData();
       }
     });
   }

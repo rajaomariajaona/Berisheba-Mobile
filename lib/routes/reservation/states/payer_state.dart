@@ -90,6 +90,13 @@ class PayerState extends ChangeNotifier {
           await this.fetchData(int.parse(msg.split(" ")[1]));
       }
     });
+    GlobalState().internalStreamController.stream.listen((msg) async {
+      if (msg == "refresh") {
+        _payer.keys.forEach((int idReservation) async {
+          await fetchData(idReservation);
+        });
+      }
+    });
   }
 }
 

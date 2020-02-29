@@ -104,5 +104,12 @@ class ConcernerState extends ChangeNotifier {
         }
       }
     });
+    GlobalState().internalStreamController.stream.listen((msg) async {
+      if (msg == "refresh" || msg == "salle delete") {
+        _sallesByIdReservation.keys.forEach((idReservation) async {
+          await fetchData(idReservation);
+        });
+      }
+    });
   }
 }

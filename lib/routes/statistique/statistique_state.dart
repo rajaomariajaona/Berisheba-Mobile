@@ -59,7 +59,13 @@ class StatistiqueState extends ChangeNotifier {
       if (msg == "statistique") {
         await this.fetchData();
       } else if (msg.contains("statistique")) {
-        await this.fetchDataByAnnee(int.parse(msg.split(" ")[1]));
+        int annee = int.tryParse(msg.split(" ")[1]);
+        if (annee != null) await this.fetchDataByAnnee(annee);
+      }
+    });
+    GlobalState().internalStreamController.stream.listen((msg) async {
+      if (msg == "refresh") {
+        await fetchData();
       }
     });
   }

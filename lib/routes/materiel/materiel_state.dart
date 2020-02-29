@@ -140,7 +140,7 @@ class MaterielState extends ChangeNotifier {
     _dio.options.headers["deletelist"] = json.encode(_listIdMaterielSelected);
     try {
       Response response = await _dio.delete("/materiels");
-      GlobalState().channel.sink.add("materiel");
+      GlobalState().internalStreamController.sink.add("materiel delete");
       this.isDeletingMateriel = false;
       return true;
     } catch (error) {
@@ -152,7 +152,7 @@ class MaterielState extends ChangeNotifier {
     Dio _dio = await RestRequest().getDioInstance();
     try {
       Response response = await _dio.delete("/materiels/$idMateriel");
-      GlobalState().channel.sink.add("materiel");
+      GlobalState().internalStreamController.sink.add("materiel delete");
       return true;
     } catch (error) {
       HandleDioError(error);
@@ -226,10 +226,7 @@ class MaterielState extends ChangeNotifier {
       if (msg == "materiel") {
         fetchData();
       }
-      if (msg == "materiel delete") {
-        //TODO: Optimize this
-        ReservationState().fetchDataByWeekRange("1-53");
-      }
+
     });
     GlobalState().internalStreamController.stream.listen((msg) {
       if (msg == "refresh") {

@@ -222,18 +222,17 @@ class ClientState extends ChangeNotifier {
       this._isNotReverse = _sharedPreferences.getBool(Parametres.clientSort);
     });
     await fetchData();
-    GlobalState().externalStreamController.stream.listen((msg) {
+    GlobalState().externalStreamController.stream.listen((msg) async {
       if (msg == "client") {
-        fetchData();
+        await fetchData();
       }
       if (msg == "client delete") {
-        //TODO: Optimize this
-        ReservationState().fetchDataByWeekRange("1-53");
+        await ReservationState().fetchDataByWeekRange("1-53");
       }
     });
-    GlobalState().internalStreamController.stream.listen((msg) {
+    GlobalState().internalStreamController.stream.listen((msg) async {
       if (msg == "refresh") {
-        fetchData();
+        await fetchData();
       }
     });
   }

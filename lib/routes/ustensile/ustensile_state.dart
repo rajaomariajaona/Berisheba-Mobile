@@ -140,7 +140,7 @@ class UstensileState extends ChangeNotifier {
     _dio.options.headers["deletelist"] = json.encode(_listIdUstensileSelected);
     try {
       Response response = await _dio.delete("/ustensiles");
-      GlobalState().channel.sink.add("ustensile");
+      GlobalState().internalStreamController.sink.add("ustensile delete");
       this.isDeletingUstensile = false;
       return true;
     } catch (error) {
@@ -153,7 +153,7 @@ class UstensileState extends ChangeNotifier {
     Dio _dio = await RestRequest().getDioInstance();
     try {
       Response response = await _dio.delete("/ustensiles/$idUstensile");
-      GlobalState().channel.sink.add("ustensile");
+      GlobalState().internalStreamController.sink.add("ustensile delete");
       return true;
     } catch (error) {
       HandleDioError(error);
@@ -226,18 +226,14 @@ class UstensileState extends ChangeNotifier {
       this._isNotReverse = _sharedPreferences.getBool(Parametres.ustensileSort);
     });
     await fetchData();
-    GlobalState().externalStreamController.stream.listen((msg) {
+    GlobalState().externalStreamController.stream.listen((msg) async {
       if (msg == "ustensile") {
-        fetchData();
-      }
-      if (msg == "ustensile delete") {
-        //TODO: Optimize this
-        ReservationState().fetchDataByWeekRange("1-53");
+        await fetchData();
       }
     });
-    GlobalState().internalStreamController.stream.listen((msg) {
+    GlobalState().internalStreamController.stream.listen((msg) async {
       if (msg == "refresh") {
-        fetchData();
+        await fetchData();
       }
     });
   }

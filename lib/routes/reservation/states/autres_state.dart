@@ -17,19 +17,17 @@ class AutresState extends ChangeNotifier {
   Map<int, Map<String, dynamic>> get statsByIdReservation => _stats;
   Map<int, Map<Autre, double>> get autresByIdReservation => _autres;
   Future fetchData(int idReservation) async {
-
     Dio _dio = await RestRequest().getDioInstance();
     try {
       _isLoading = idReservation;
       var response = await _dio.get("/autres/$idReservation");
       _stats[idReservation] = response.data["stats"];
       _autres[idReservation] = {};
-       (response.data["data"] as List<dynamic>).forEach((dynamic item) {
-           _autres[idReservation][Autre(
-              id: item["autreIdAutre"]["idAutre"],
-              motif: item["autreIdAutre"]["motif"],
-          )] = 
-            item["prixAutre"] + 0.0;
+      (response.data["data"] as List<dynamic>).forEach((dynamic item) {
+        _autres[idReservation][Autre(
+          id: item["autreIdAutre"]["idAutre"],
+          motif: item["autreIdAutre"]["motif"],
+        )] = item["prixAutre"] + 0.0;
       });
       notifyListeners();
       _isLoading = 0;
@@ -66,25 +64,36 @@ class AutresState extends ChangeNotifier {
     }
   }
 
-  static Future<bool> removeData({@required idAutre,@required idReservation}) async {
+  static Future<bool> removeData(
+      {@required idAutre, @required idReservation}) async {
     Dio _dio = await RestRequest().getDioInstance();
     try {
       await _dio.delete("/autres/$idAutre");
       _refresh(idReservation);
       return true;
     } catch (error) {
-     HandleDioError(error);
+      HandleDioError(error);
       return false;
     }
   }
-  static void _refresh(int idReservation){
+
+  static void _refresh(int idReservation) {
     GlobalState().channel.sink.add("autres $idReservation");
   }
 
   AutresState() {
     GlobalState().externalStreamController.stream.listen((msg) async {
       if (msg.contains("autres")) {
-        await this.fetchData(int.parse(msg.split(" ")[1]));
+        var idReservation = int.tryParse(msg.split(" ")[1]);
+        if (idReservation != null && _autres.containsKey(idReservation))
+          await this.fetchData(idReservation);
+      }
+    });
+    GlobalState().internalStreamController.stream.listen((msg) async {
+      if (msg == "refresh") {
+        _autres.keys.forEach((idReservation) async {
+          await fetchData(idReservation);
+        });
       }
     });
   }
@@ -93,12 +102,9 @@ class AutresState extends ChangeNotifier {
 class Autre {
   final String motif;
   final int id;
-  const Autre(
-      {@required this.motif, @required this.id});
+  const Autre({@required this.motif, @required this.id});
 
   bool operator ==(autre) =>
-      autre is Autre &&
-      autre.id == id &&
-      autre.motif == motif;
+      autre is Autre && autre.id == id && autre.motif == motif;
   int get hashCode => id.hashCode ^ motif.hashCode;
 }

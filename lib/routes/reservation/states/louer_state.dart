@@ -24,7 +24,7 @@ class LouerState extends ChangeNotifier {
   Map<int, Map<int, dynamic>> get listeMaterielDispoByIdReservation =>
       _listeMaterielDispoByIdReservation;
 
-  Map<int, Map<int,Louer>> _materielsLoueeByIdReservation = {};
+  Map<int, Map<int, Louer>> _materielsLoueeByIdReservation = {};
   Map<int, Map<int, Louer>> get materielsLoueeByIdReservation =>
       _materielsLoueeByIdReservation;
 
@@ -41,9 +41,9 @@ class LouerState extends ChangeNotifier {
             data["data"],
             (materiel) => Louer(
                 materiel: Materiel(
-                idMateriel: materiel["idMateriel"],
-                nomMateriel: materiel["nomMateriel"],
-                nbStock: materiel["nbStock"]),
+                    idMateriel: materiel["idMateriel"],
+                    nomMateriel: materiel["nomMateriel"],
+                    nbStock: materiel["nbStock"]),
                 idReservation: idReservation,
                 nbLouee: materiel["nbLouee"])).cast<int, Louer>();
 
@@ -82,7 +82,8 @@ class LouerState extends ChangeNotifier {
       {@required int idReservation}) async {
     Dio _dio = await RestRequest().getDioInstance();
     try {
-      await _dio.post("/reservations/$idReservation/materiels", data: {"data" : data});
+      await _dio
+          .post("/reservations/$idReservation/materiels", data: {"data": data});
       GlobalState().channel.sink.add("louer $idReservation");
       return true;
     } catch (error) {
@@ -95,8 +96,10 @@ class LouerState extends ChangeNotifier {
       {@required int idReservation}) async {
     Dio _dio = await RestRequest().getDioInstance();
     try {
-      Map<String, int> dataEncodable = (data as Map<int, int>).map<String,int>((key,value) => MapEntry(key.toString(), value));
-      await _dio.put("/reservations/$idReservation/materiels", data: {"data" : json.encode(dataEncodable)});
+      Map<String, int> dataEncodable = (data as Map<int, int>)
+          .map<String, int>((key, value) => MapEntry(key.toString(), value));
+      await _dio.put("/reservations/$idReservation/materiels",
+          data: {"data": json.encode(dataEncodable)});
       GlobalState().channel.sink.add("louer $idReservation");
       return true;
     } catch (error) {
@@ -114,17 +117,29 @@ class LouerState extends ChangeNotifier {
         }
       }
     });
+    GlobalState().internalStreamController.stream.listen((msg) async {
+      if (msg == "refresh" || msg == "materiel delete") {
+        _listeMaterielDispoByIdReservation.keys.forEach((idReservation) async {
+          await fetchData(idReservation);
+        });
+      }
+    });
   }
 }
 
 class Louer {
-  Louer({@required this.materiel, @required this.idReservation, @required this.nbLouee});
+  Louer(
+      {@required this.materiel,
+      @required this.idReservation,
+      @required this.nbLouee});
   final int idReservation;
   final Materiel materiel;
   int nbLouee;
   @override
   operator ==(louer) =>
-      materiel is Louer && louer.idReservation == idReservation && louer.materiel == materiel;
+      materiel is Louer &&
+      louer.idReservation == idReservation &&
+      louer.materiel == materiel;
 
   int get hashCode => idReservation.hashCode ^ materiel.hashCode;
 }
