@@ -17,27 +17,6 @@ class StatistiqueAppBar {
         title: Text("Statistiques"),
         actions: <Widget>[
           IconButton(
-            icon: Icon(Icons.explore),
-            onPressed: () async {
-              var androidPlatformChannelSpecifics =
-                  new AndroidNotificationDetails(
-                      'your other channel id',
-                      'your other channel name',
-                      'your other channel description');
-              var iOSPlatformChannelSpecifics = new IOSNotificationDetails();
-              NotificationDetails platformChannelSpecifics =
-                  new NotificationDetails(androidPlatformChannelSpecifics,
-                      iOSPlatformChannelSpecifics);
-              await MyApp.flutterLocalNotificationsPlugin.schedule(
-                  Random().nextInt(15),
-                  'Reservation du ${DateFormat.yMMMd("fr_FR").format(DateTime.now().add(Duration(days: 1)))}',
-                  'Client: Rajaomaria Jaona',
-                  DateTime.now().add(Duration(seconds: 5)),
-                  platformChannelSpecifics,
-                  payload: "reservation 1");
-            },
-          ),
-          IconButton(
             icon: Icon(Icons.refresh),
             onPressed: () async {
               await Provider.of<StatistiqueState>(_context, listen: false)

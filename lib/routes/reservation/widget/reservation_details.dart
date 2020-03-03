@@ -22,7 +22,7 @@ import 'package:berisheba/tools/widgets/confirm.dart';
 import 'package:berisheba/tools/widgets/loading.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-
+final Key keyXD = UniqueKey();
 enum Actions { salle, materiel, ustensile, jirama, autres, payer }
 
 class ReservationDetails extends StatelessWidget {
@@ -209,15 +209,18 @@ class _ReservationDetailsState extends State<ReservationDetailsBody> {
       IconButton(
         icon: Icon(Icons.picture_as_pdf),
         onPressed: () async {
+          
           PdfGenerator pdf = PdfGenerator();
           var path = await pdf.saveFacture(widget._idReservation);
           Navigator.of(context).push(
             MaterialPageRoute(
               builder: (ctx) => PDFScreen(
                 pathPDF: path,
+                key: keyXD,
               ),
             ),
           );
+          
         },
       ),
       IconButton(
@@ -364,10 +367,6 @@ class _ReservationDetailsState extends State<ReservationDetailsBody> {
             PopupMenuItem(
               child: const Text("Materiels"),
               value: Actions.materiel,
-            ),
-            PopupMenuItem(
-              child: const Text("Ustensile"),
-              value: Actions.ustensile,
             ),
             PopupMenuItem(
               child: const Text("Jirama"),

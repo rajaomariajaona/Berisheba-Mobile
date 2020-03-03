@@ -1,16 +1,13 @@
 import 'dart:io';
 import 'dart:ui';
 
+import 'package:berisheba/states/config.dart';
 import 'package:berisheba/tools/http/request.dart';
-import 'package:berisheba/tools/others/file_saver.dart';
 import 'package:berisheba/tools/others/handle_dio_error.dart';
 import 'package:dio/dio.dart';
-import 'package:image/image.dart' as images;
 import 'package:path_provider/path_provider.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart';
-import 'package:flutter/services.dart' show rootBundle;
-import 'package:permission_handler/permission_handler.dart';
 
 class PdfGenerator {
   Document pdf;
@@ -18,6 +15,8 @@ class PdfGenerator {
     pdf = Document();
   }
   Future<String> saveFacture(int idReservation) async {
+    var st = Stopwatch()..start();
+    
     Map<String, dynamic> donnee;
     Dio _dio = await RestRequest().getDioInstance();
     try {
@@ -25,8 +24,6 @@ class PdfGenerator {
     } catch (error) {
       HandleDioError(error);
     }
-    var data = await rootBundle.load("assets/logo.png");
-    var img = images.decodeImage(data.buffer.asUint8List());
     pdf.addPage(Page(build: (context) {
       return Column(children: <Widget>[
         Row(
@@ -55,9 +52,9 @@ class PdfGenerator {
                   flex: 2,
                   child: Image(PdfImage(
                     pdf.document,
-                    image: img.data.buffer.asUint8List(),
-                    width: img.width,
-                    height: img.height,
+                    image: Config.img.data.buffer.asUint8List(),
+                    width: Config.img.width,
+                    height: Config.img.height,
                   )))
             ]),
         Container(padding: EdgeInsets.all(15)),
@@ -111,10 +108,11 @@ class PdfGenerator {
             ])
       ]);
     }));
-    List<int> bytePdf = pdf.save();
+    print(st.elapsedMilliseconds); // 2253
     String path = ((await getTemporaryDirectory()).path);
     final File fichier = File("$path/facture.pdf");
     await fichier.writeAsBytes(pdf.save());
+    print(st.elapsedMilliseconds); // 7008
     return "$path/facture.pdf";
   }
 }

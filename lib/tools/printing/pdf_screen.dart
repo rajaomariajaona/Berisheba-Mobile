@@ -2,15 +2,15 @@ import 'dart:io';
 
 import 'package:berisheba/tools/others/file_saver.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_full_pdf_viewer/flutter_full_pdf_viewer.dart';
 import 'package:flutter_share/flutter_share.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path_provider_ex/path_provider_ex.dart';
+import 'package:pdf_viewer_plugin/pdf_viewer_plugin.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 class PDFScreen extends StatefulWidget {
   final String pathPDF;
-  PDFScreen({this.pathPDF = ""});
+  PDFScreen({this.pathPDF = "", Key key}):super(key:key);
 
   @override
   _PDFScreenState createState() => _PDFScreenState();
@@ -77,8 +77,9 @@ class _PDFScreenState extends State<PDFScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return PDFViewerScaffold(
-        appBar: AppBar(
+    return 
+    Scaffold(
+      appBar: AppBar(
           title: Text("Facture"),
           actions: <Widget>[
             if (canShare) ...[
@@ -108,6 +109,9 @@ class _PDFScreenState extends State<PDFScreen> {
             ]
           ],
         ),
-        path: widget.pathPDF);
+      body: PdfViewer(
+        filePath: widget.pathPDF,
+      ),
+    );
   }
 }

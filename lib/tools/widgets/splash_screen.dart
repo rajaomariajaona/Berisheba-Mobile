@@ -1,21 +1,29 @@
 import 'package:berisheba/main.dart';
 import 'package:berisheba/states/authorization_state.dart';
+import 'package:berisheba/states/config.dart';
 import 'package:berisheba/states/global_state.dart';
 import 'package:berisheba/tools/widgets/loading.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart' show rootBundle;
+import 'package:image/image.dart' as images;
 
 class SplashScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return _StatefulWrapper(
       onInit: () async {
+        Config.img = await _loadImage();
         await AuthorizationState.checkAuthorizationAndInternet()
             .whenComplete(() async {
           await Future.delayed(Duration(seconds: 1)).whenComplete(() async {
             var route = "/";
             if (!AuthorizationState().isAuthorized) route = "not-authorized";
-            if ((MyApp.noInternet != null) ? !MyApp.noInternet.isCurrent : true) {
-              if ((MyApp.notAuthorized != null) ? !MyApp.notAuthorized.isCurrent : true)
+            if ((MyApp.noInternet != null)
+                ? !MyApp.noInternet.isCurrent
+                : true) {
+              if ((MyApp.notAuthorized != null)
+                  ? !MyApp.notAuthorized.isCurrent
+                  : true)
                 await GlobalState()
                     .navigatorState
                     .currentState
@@ -25,6 +33,11 @@ class SplashScreen extends StatelessWidget {
         });
       },
     );
+  }
+
+  Future<images.Image> _loadImage() async {
+    var data = await rootBundle.load("assets/logo.png");
+    return images.decodeImage(data.buffer.asUint8List());
   }
 }
 

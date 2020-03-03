@@ -37,27 +37,9 @@ class MenuDrawer extends StatelessWidget {
                   SizedBox(
                     height: 15,
                   ),
-                  for (var i in Iterable.generate(3)) ...[
-                    ListTile(
-                      leading: IconButton(
-                        icon: Icon(Icons.settings),
-                        onPressed: () {
-                          print(i);
-                        },
-                      ),
-                      title: const Text("Parametres"),
-                      onTap: () async {
-                        Navigator.of(context).pop();
-                        await showDialog(
-                          context: context,
-                          builder: (BuildContext ctx) {
-                            return Parametres();
-                          },
-                        );
-                      },
-                    ),
-                    Divider(),
-                  ]
+                  Flexible(
+                    child: _NotificationSettigns(),
+                  ),
                 ],
               ),
             ),
@@ -65,5 +47,43 @@ class MenuDrawer extends StatelessWidget {
         )
       ],
     ));
+  }
+}
+
+class _NotificationSettigns extends StatefulWidget {
+  const _NotificationSettigns({
+    Key key,
+  }) : super(key: key);
+
+  @override
+  __NotificationSettignsState createState() => __NotificationSettignsState();
+}
+
+class __NotificationSettignsState extends State<_NotificationSettigns> {
+  bool notificationOn = false;
+  @override
+  Widget build(BuildContext context) {
+    return SingleChildScrollView(
+      child: ExpansionTile(
+        leading: Icon(Icons.settings),
+        title: const Text("Parametres"),
+        children: <Widget>[
+          ExpansionTile(
+            leading: Switch(
+              value: notificationOn,
+              onChanged: (bool val) {
+                setState(() {
+                  notificationOn = val;
+                });
+              },
+            ),
+            trailing: notificationOn ? null: SizedBox(),
+            title: ListTile(
+              title: const Text("Notification"),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }
