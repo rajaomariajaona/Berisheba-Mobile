@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:image/image.dart' as images;
 
-enum ErrorType {internet,authorization, none}
+enum ErrorType { internet, authorization, none }
+
 class Config {
   static images.Image img;
   //api
   static String get baseURI => apiURI.replaceFirst("/api/", "");
-  static String apiURI = "http://192.168.43.63:3000/api/";
+  static String apiURI = "http://10.0.2.2:3000/api/";
 
   static String get wsURI =>
       apiURI.replaceFirst("http", "ws").replaceFirst("/api/", "");

@@ -61,6 +61,12 @@ class StatistiqueState extends ChangeNotifier {
       } else if (msg.contains("statistique")) {
         int annee = int.tryParse(msg.split(" ")[1]);
         if (annee != null) await this.fetchDataByAnnee(annee);
+      } else if (msg.contains("payer") ||
+          msg.contains("jirama") ||
+          msg.contains("autres") ||
+          msg.contains("constituer") ||
+          msg.contains("reservation")) {
+        this.fetchData();
       }
     });
     GlobalState().internalStreamController.stream.listen((msg) async {
