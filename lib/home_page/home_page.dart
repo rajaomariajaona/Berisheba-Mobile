@@ -1,11 +1,9 @@
 import 'package:berisheba/home_page/menu_drawer.dart';
 import 'package:berisheba/routes/acceuil/acceuil_app_bar.dart';
-import 'package:berisheba/routes/acceuil/acceuil_landscape.dart';
 import 'package:berisheba/routes/acceuil/acceuil_portrait.dart';
 import 'package:berisheba/routes/client/client_portrait.dart';
 import 'package:berisheba/routes/client/widgets/client_app_bar.dart';
 import 'package:berisheba/routes/client/widgets/client_float_button.dart';
-import 'package:berisheba/routes/clients.dart';
 import 'package:berisheba/routes/materiel/materiel_portrait.dart';
 import 'package:berisheba/routes/materiel/widgets/materiel_app_bar.dart';
 import 'package:berisheba/routes/materiel/widgets/materiel_float_button.dart';
@@ -37,7 +35,10 @@ class _SquelleteState extends State<Squellete> {
       if (payload.contains("reservation")) {
         int idReservation = int.tryParse(payload.split(" ")[1]);
         if (idReservation != null) {
-          GlobalState().navigatorState.currentState.pushNamed("reservation:$idReservation");
+          GlobalState()
+              .navigatorState
+              .currentState
+              .pushNamed("reservation:$idReservation");
         }
       }
     });
@@ -73,16 +74,6 @@ class _SquelleteState extends State<Squellete> {
     MaterielPortrait(),
     UstensilePortrait(),
     StatistiquePortrait(),
-  ];
-
-  final List<Widget> routesLandscape = [
-    AcceuilLandscape(),
-    Clients(),
-    Clients(),
-    Clients(),
-    Clients(),
-    Clients(),
-    Clients(),
   ];
 
   final List<Widget> floatButtons = [
@@ -129,37 +120,32 @@ class _SquelleteState extends State<Squellete> {
 
     //Verify if Items are enough
     assert(_bottomNavBar.items.length == routesPortrait.length);
-    assert(_bottomNavBar.items.length == routesLandscape.length);
     assert(_bottomNavBar.items.length == appBar.length);
 
-    return Scaffold(
-      resizeToAvoidBottomInset: false,
-      //fix render flex
-      appBar: appBar[TabState.index],
-      body:
-          //Orientation Builder detect if Orientation Changes
-          OrientationBuilder(
-        builder: (BuildContext context, Orientation orientation) {
-//          return orientation == Orientation.portrait
-//              ? routesPortrait[tabState.index]
-//              : routesLandscape[tabState.index];
+    return WillPopScope(
+      onWillPop: () async => false,
+      child: Scaffold(
+        resizeToAvoidBottomInset: false,
+        //fix render flex
+        appBar: appBar[TabState.index],
+        body: OrientationBuilder(
+          builder: (BuildContext context, Orientation orientation) {
+            return PageView(
+              children: routesPortrait,
+              controller: TabState.controllerPage,
+              onPageChanged: (int tabIndex) {
+                tabState.changeIndex(tabIndex);
+              },
+            );
+          },
+        ),
 
-          return PageView(
-            children: orientation == Orientation.portrait
-                ? routesPortrait
-                : routesLandscape,
-            controller: TabState.controllerPage,
-            onPageChanged: (int tabIndex) {
-              tabState.changeIndex(tabIndex);
-            },
-          );
-        },
+        //Drawer is Menu on the Left side
+        drawer: const MenuDrawer(),
+        bottomNavigationBar:
+            globalState.hideBottomNavBar ? null : _bottomNavBar,
+        floatingActionButton: floatButtons[TabState.index],
       ),
-
-      //Drawer is Menu on the Left side
-      drawer: const MenuDrawer(),
-      bottomNavigationBar: globalState.hideBottomNavBar ? null : _bottomNavBar,
-      floatingActionButton: floatButtons[TabState.index],
     );
   }
 }

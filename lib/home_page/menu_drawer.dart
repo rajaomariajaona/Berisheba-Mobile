@@ -1,4 +1,3 @@
-import 'package:berisheba/home_page/parametres.dart';
 import 'package:berisheba/states/config.dart';
 import 'package:flutter/material.dart';
 

@@ -26,14 +26,13 @@ class _StatistiquePortraitState extends State<StatistiquePortrait> {
       child: SingleChildScrollView(
         child: Column(
           children: <Widget>[
-            Selector<StatistiqueState, List>(
-                selector: (ctx, _statistiqueState) {
-                  return _statistiqueState.revenuMensuelleByYear.keys.toList();
-                },
-                builder: (ctx, annees, __) => DropdownButton(
+            Consumer<StatistiqueState>(
+                builder: (ctx, _statistiqueState, __) => 
+                _statistiqueState.isLoading || _statistiqueState.revenuMensuelleByYear.isEmpty ? Container() :
+                DropdownButton(
                     value: anneeSelected,
                     items: <DropdownMenuItem>[
-                      for (var annee in annees)
+                      for (var annee in _statistiqueState.revenuMensuelleByYear.keys.toList())
                         DropdownMenuItem(
                           child: Text("$annee"),
                           value: annee,
@@ -53,66 +52,72 @@ class _StatistiquePortraitState extends State<StatistiquePortrait> {
                       aspectRatio: 16 / 9,
                       child: Consumer<StatistiqueState>(
                         builder: (ctx, _statistiqueState, __) =>
-                            _statistiqueState.revenuMensuelleByYear[
-                                        anneeSelected] ==
-                                    null
+                            _statistiqueState.isLoading
                                 ? const Loading()
-                                : BezierChart(
-                                    bezierChartScale:
-                                        BezierChartScale.MONTHLY,
-                                    fromDate: DateTime.parse(
-                                        "$anneeSelected-01-01"),
-                                    toDate: DateTime.parse(
-                                        "$anneeSelected-12-31"),
-                                    selectedDate: DateTime.parse(
-                                        "$anneeSelected-01-01"),
-                                    series: [
-                                      BezierLine(
-                                        label: "Revenu",
-                                        onMissingValue: (dateTime) {
-                                          return 0.0;
-                                        },
-                                        data: [
-                                          for (var i in Iterable.generate(
-                                              _statistiqueState
-                                                  .revenuMensuelleByYear[
-                                                      anneeSelected]["data"]
-                                                  .length))
-                                            DataPoint<DateTime>(
-                                              value: _statistiqueState
-                                                  .revenuMensuelleByYear[
-                                                      anneeSelected]["data"]
-                                                      [i]["y"]
-                                                  .toDouble(),
-                                              xAxis: DateTime.parse(
-                                                  "$anneeSelected-${_statistiqueState.revenuMensuelleByYear[anneeSelected]["data"][i]["x"] < 10 ? "0${_statistiqueState.revenuMensuelleByYear[anneeSelected]["data"][i]["x"]}" : _statistiqueState.revenuMensuelleByYear[anneeSelected]["data"][i]["x"]}-01"),
-                                            ),
+                                : _statistiqueState.revenuMensuelleByYear[
+                                            anneeSelected] ==
+                                        null
+                                    ? Container(child: Center(
+                                      child: Text("Aucune donnée existant"),
+                                    ),)
+                                    : BezierChart(
+                                        bezierChartScale:
+                                            BezierChartScale.MONTHLY,
+                                        fromDate: DateTime.parse(
+                                            "$anneeSelected-01-01"),
+                                        toDate: DateTime.parse(
+                                            "$anneeSelected-12-31"),
+                                        selectedDate: DateTime.parse(
+                                            "$anneeSelected-01-01"),
+                                        series: [
+                                          BezierLine(
+                                            label: "Revenu",
+                                            onMissingValue: (dateTime) {
+                                              return 0.0;
+                                            },
+                                            data: [
+                                              for (var i in Iterable.generate(
+                                                  _statistiqueState
+                                                      .revenuMensuelleByYear[
+                                                          anneeSelected]["data"]
+                                                      .length))
+                                                DataPoint<DateTime>(
+                                                  value: _statistiqueState
+                                                      .revenuMensuelleByYear[
+                                                          anneeSelected]["data"]
+                                                          [i]["y"]
+                                                      .toDouble(),
+                                                  xAxis: DateTime.parse(
+                                                      "$anneeSelected-${_statistiqueState.revenuMensuelleByYear[anneeSelected]["data"][i]["x"] < 10 ? "0${_statistiqueState.revenuMensuelleByYear[anneeSelected]["data"][i]["x"]}" : _statistiqueState.revenuMensuelleByYear[anneeSelected]["data"][i]["x"]}-01"),
+                                                ),
+                                            ],
+                                          ),
                                         ],
+                                        bubbleLabelDateTimeBuilder: (DateTime
+                                                dateTime,
+                                            BezierChartScale bezierChartScale) {
+                                          return "${DateFormat.MMM("fr_FR").format(dateTime)} ${DateFormat.y("fr_FR").format(dateTime)}\n";
+                                        },
+                                        bubbleLabelValueBuilder:
+                                            (double value) {
+                                          return "$value ar";
+                                        },
+                                        footerDateTimeBuilder: (DateTime
+                                                dateTime,
+                                            BezierChartScale bezierChartScale) {
+                                          return "${DateFormat.MMM("fr_FR").format(dateTime).replaceAll(".", "")}\n'${DateFormat.y("fr_FR").format(dateTime).substring(2)}";
+                                        },
+                                        config: BezierChartConfig(
+                                          startYAxisFromNonZeroValue: false,
+                                          verticalIndicatorStrokeWidth: 3.0,
+                                          verticalIndicatorColor:
+                                              Colors.black26,
+                                          showVerticalIndicator: true,
+                                          verticalIndicatorFixedPosition: false,
+                                          backgroundColor: Config.primaryBlue,
+                                          footerHeight: 40.0,
+                                        ),
                                       ),
-                                    ],
-                                    bubbleLabelDateTimeBuilder: (DateTime
-                                            dateTime,
-                                        BezierChartScale bezierChartScale) {
-                                      return "${DateFormat.MMM("fr_FR").format(dateTime)} ${DateFormat.y("fr_FR").format(dateTime)}\n";
-                                    },
-                                    bubbleLabelValueBuilder: (double value) {
-                                      return "$value ar";
-                                    },
-                                    footerDateTimeBuilder: (DateTime dateTime,
-                                        BezierChartScale bezierChartScale) {
-                                      return "${DateFormat.MMM("fr_FR").format(dateTime).replaceAll(".", "")}\n'${DateFormat.y("fr_FR").format(dateTime).substring(2)}";
-                                    },
-
-                                    config: BezierChartConfig(
-                                      startYAxisFromNonZeroValue: false,
-                                      verticalIndicatorStrokeWidth: 3.0,
-                                      verticalIndicatorColor: Colors.black26,
-                                      showVerticalIndicator: true,
-                                      verticalIndicatorFixedPosition: false,
-                                      backgroundColor: Config.primaryBlue,
-                                      footerHeight: 40.0,
-                                    ),
-                                  ),
                       ),
                     ),
                     Padding(
