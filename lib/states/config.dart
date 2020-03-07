@@ -10,7 +10,7 @@ class Config {
   static String apiURI = "https://berisheba-api.herokuapp.com//api/";
 
   static String get wsURI =>
-      apiURI.replaceFirst("http", "ws").replaceFirst("/api/", "");
+      apiURI.replaceFirst("https", "ws").replaceFirst("/api/", "");
 
   static Color get primaryBlue => Color.fromARGB(255, 55, 171, 200);
   static Color get secondaryBlue => Color.fromARGB(255, 241, 249, 255);
