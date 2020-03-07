@@ -22,6 +22,7 @@ import 'package:berisheba/tools/widgets/confirm.dart';
 import 'package:berisheba/tools/widgets/loading.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+
 final Key keyXD = UniqueKey();
 enum Actions { salle, materiel, ustensile, jirama, autres, payer }
 
@@ -44,7 +45,7 @@ class ReservationDetailsBody extends StatefulWidget {
 }
 
 class _ReservationDetailsState extends State<ReservationDetailsBody> {
-  bool isReadOnly = true;
+  bool isReadOnly = false;
   @override
   void initState() {
     final ConflitState _conflitState =
@@ -132,71 +133,73 @@ class _ReservationDetailsState extends State<ReservationDetailsBody> {
                       readOnly: isReadOnly),
                   ReservationDemiJournee(widget._idReservation,
                       readOnly: isReadOnly),
-                  Consumer<ConcernerState>(
-                      builder: (ctx, concernerState, __) =>
+                  Selector<ConcernerState, bool>(
+                      selector: (ctx, concernerState) =>
                           concernerState.sallesByIdReservation[
-                                          widget._idReservation] !=
-                                      null &&
-                                  concernerState
-                                          .sallesByIdReservation[
-                                              widget._idReservation]
-                                          .length >
-                                      0
-                              ? ReservationSalle(widget._idReservation,
-                                  readOnly: isReadOnly)
-                              : Container()),
-                  Consumer<EmprunterState>(
-                      builder: (ctx, emprunterState, __) =>
+                                  widget._idReservation] !=
+                              null &&
+                          concernerState
+                                  .sallesByIdReservation[widget._idReservation]
+                                  .length >
+                              0,
+                      builder: (ctx, state, __) => state
+                          ? ReservationSalle(widget._idReservation,
+                              readOnly: isReadOnly)
+                          : Container()),
+                  Selector<EmprunterState, bool>(
+                      selector: (ctx, emprunterState) =>
                           emprunterState.ustensilesEmprunteByIdReservation[
-                                          widget._idReservation] !=
-                                      null &&
-                                  emprunterState
-                                          .ustensilesEmprunteByIdReservation[
-                                              widget._idReservation]
-                                          .length >
-                                      0
-                              ? ReservationUstensile(widget._idReservation,
-                                  readOnly: isReadOnly)
-                              : Container()),
-                  Consumer<LouerState>(
-                      builder: (ctx, louerState, __) =>
+                                  widget._idReservation] !=
+                              null &&
+                          emprunterState
+                                  .ustensilesEmprunteByIdReservation[
+                                      widget._idReservation]
+                                  .length >
+                              0,
+                      builder: (ctx, state, __) => state
+                          ? ReservationUstensile(widget._idReservation,
+                              readOnly: isReadOnly)
+                          : Container()),
+                  Selector<LouerState, bool>(
+                      selector: (ctx, louerState) =>
                           louerState.materielsLoueeByIdReservation[
-                                          widget._idReservation] !=
-                                      null &&
-                                  louerState
-                                          .materielsLoueeByIdReservation[
-                                              widget._idReservation]
-                                          .length >
-                                      0
-                              ? ReservationMateriel(widget._idReservation,
-                                  readOnly: isReadOnly)
-                              : Container()),
-                  Consumer<JiramaState>(
-                      builder: (ctx, jiramaState, __) =>
+                                  widget._idReservation] !=
+                              null &&
+                          louerState
+                                  .materielsLoueeByIdReservation[
+                                      widget._idReservation]
+                                  .length >
+                              0,
+                      builder: (ctx, state, __) => state
+                          ? ReservationMateriel(widget._idReservation,
+                              readOnly: isReadOnly)
+                          : Container()),
+                  Selector<JiramaState, bool>(
+                      selector: (ctx, jiramaState) =>
                           jiramaState.jiramaByIdReservation[
-                                          widget._idReservation] !=
-                                      null &&
-                                  jiramaState
-                                          .jiramaByIdReservation[
-                                              widget._idReservation]
-                                          .length >
-                                      0
-                              ? ReservationJirama(widget._idReservation,
-                                  readOnly: isReadOnly)
-                              : Container()),
-                  Consumer<AutresState>(
-                      builder: (ctx, autresState, __) =>
+                                  widget._idReservation] !=
+                              null &&
+                          jiramaState
+                                  .jiramaByIdReservation[widget._idReservation]
+                                  .length >
+                              0,
+                      builder: (ctx, state, __) => state
+                          ? ReservationJirama(widget._idReservation,
+                              readOnly: isReadOnly)
+                          : Container()),
+                  Selector<AutresState, bool>(
+                      selector: (ctx, autresState) =>
                           autresState.autresByIdReservation[
-                                          widget._idReservation] !=
-                                      null &&
-                                  autresState
-                                          .autresByIdReservation[
-                                              widget._idReservation]
-                                          .length >
-                                      0
-                              ? ReservationAutres(widget._idReservation,
-                                  readOnly: isReadOnly)
-                              : Container()),
+                                  widget._idReservation] !=
+                              null &&
+                          autresState
+                                  .autresByIdReservation[widget._idReservation]
+                                  .length >
+                              0,
+                      builder: (ctx, state, __) => state
+                          ? ReservationAutres(widget._idReservation,
+                              readOnly: isReadOnly)
+                          : Container()),
                   ReservationPayer(widget._idReservation, readOnly: isReadOnly)
                 ],
               ),
@@ -205,24 +208,27 @@ class _ReservationDetailsState extends State<ReservationDetailsBody> {
   }
 
   List<Widget> _actionsAppBar(BuildContext context) {
+    PayerState payerState = Provider.of<PayerState>(context);
     return <Widget>[
-      IconButton(
-        icon: Icon(Icons.picture_as_pdf),
-        onPressed: () async {
-          
-          PdfGenerator pdf = PdfGenerator();
-          var path = await pdf.saveFacture(widget._idReservation);
-          Navigator.of(context).push(
-            MaterialPageRoute(
-              builder: (ctx) => PDFScreen(
-                pathPDF: path,
-                key: keyXD,
+      if (payerState.payerByIdReservation[widget._idReservation] != null)
+        payerState.payerByIdReservation[widget._idReservation]
+                .every((element) => element.typePaiement != "reste")
+            ? Container()
+            : IconButton(
+                icon: Icon(Icons.picture_as_pdf),
+                onPressed: () async {
+                  PdfGenerator pdf = PdfGenerator();
+                  var path = await pdf.saveFacture(widget._idReservation);
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (ctx) => PDFScreen(
+                        pathPDF: path,
+                        key: keyXD,
+                      ),
+                    ),
+                  );
+                },
               ),
-            ),
-          );
-          
-        },
-      ),
       IconButton(
         icon: Icon(Icons.refresh),
         onPressed: () async {

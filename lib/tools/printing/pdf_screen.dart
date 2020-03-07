@@ -23,7 +23,7 @@ class _PDFScreenState extends State<PDFScreen> {
   @override
   void initState() {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      _permissionCheck().then((isOk) async {
+      await _permissionCheck().then((isOk) async {
         canShare = isOk;
         if (isOk) {
           var path = await _prepareStorage();

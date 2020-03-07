@@ -195,18 +195,6 @@ class _SalleDialogState extends State<SalleDialog> {
     return AlertDialog(
       titlePadding: const EdgeInsets.all(0),
       contentPadding: const EdgeInsets.all(0),
-      // actions: <Widget>[
-      //   IconButton(
-      //     icon: Icon(
-      //       Icons.close,
-      //     ),
-      //     onPressed: () => Navigator.of(context).pop(null),
-      //   ),
-      //   IconButton(
-      //     icon: Icon(Icons.check),
-      //     onPressed: () {},
-      //   ),
-      // ],
       content: SingleChildScrollView(
         scrollDirection: Axis.vertical,
         child: Column(

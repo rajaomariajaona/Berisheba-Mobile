@@ -384,28 +384,37 @@ class _UstensileDialogState extends State<UstensileDialog> {
         ),
       ),
       actions: <Widget>[
-        IconButton(
-          icon: Icon(Icons.check),
-          onPressed: () async {
-            await EmprunterState.saveData(
-                    json.encode(value.map<String, int>(
-                        (key, value) => MapEntry(key.toString(), value))),
-                    idReservation: widget.idReservation)
-                .then((res) {
-              if (res) {
-                Provider.of<ConflitState>(context, listen: false)
-                    .fetchConflit(widget.idReservation)
-                    .then((bool containConflit) {
-                  if (containConflit) {
-                    Navigator.of(context).pushReplacementNamed(
-                        "conflit/:${widget.idReservation}");
-                  } else {
-                    Navigator.of(context).pop(null);
-                  }
-                });
-              }
-            });
-          },
+        Selector<EmprunterState, bool>(
+          selector: (_, _emprunterState) =>
+              _emprunterState
+                  .listeUstensileDispoByIdReservation[widget.idReservation]
+                  .length >
+              0,
+          builder: (ctx, isNotEmpty, __) => IconButton(
+            icon: Icon(Icons.check),
+            onPressed: !isNotEmpty
+                ? null
+                : () async {
+                    await EmprunterState.saveData(
+                            json.encode(value.map<String, int>((key, value) =>
+                                MapEntry(key.toString(), value))),
+                            idReservation: widget.idReservation)
+                        .then((res) {
+                      if (res) {
+                        Provider.of<ConflitState>(context, listen: false)
+                            .fetchConflit(widget.idReservation)
+                            .then((bool containConflit) {
+                          if (containConflit) {
+                            Navigator.of(context).pushReplacementNamed(
+                                "conflit/:${widget.idReservation}");
+                          } else {
+                            Navigator.of(context).pop(null);
+                          }
+                        });
+                      }
+                    });
+                  },
+          ),
         ),
         IconButton(
           icon: Icon(Icons.close),
