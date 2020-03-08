@@ -1,19 +1,22 @@
 import 'package:berisheba/home_page/menu_drawer.dart';
 import 'package:berisheba/routes/acceuil/acceuil_app_bar.dart';
-import 'package:berisheba/routes/acceuil/acceuil_landscape.dart';
 import 'package:berisheba/routes/acceuil/acceuil_portrait.dart';
 import 'package:berisheba/routes/client/client_portrait.dart';
 import 'package:berisheba/routes/client/widgets/client_app_bar.dart';
 import 'package:berisheba/routes/client/widgets/client_float_button.dart';
-import 'package:berisheba/routes/clients.dart';
 import 'package:berisheba/routes/materiel/materiel_portrait.dart';
 import 'package:berisheba/routes/materiel/widgets/materiel_app_bar.dart';
+import 'package:berisheba/routes/materiel/widgets/materiel_float_button.dart';
 import 'package:berisheba/routes/reservation/reservation_portrait.dart';
 import 'package:berisheba/routes/reservation/widget/reservation_app_bar.dart';
 import 'package:berisheba/routes/reservation/widget/reservation_float_button.dart';
 import 'package:berisheba/routes/salle/salle_portrait.dart';
 import 'package:berisheba/routes/salle/widgets/salle_app_bar.dart';
 import 'package:berisheba/routes/salle/widgets/salle_float_button.dart';
+import 'package:berisheba/routes/statistique/statistique_app_bar.dart';
+import 'package:berisheba/routes/statistique/statistique_portrait.dart';
+import 'package:berisheba/routes/ustensile/ustensile_portrait.dart';
+import 'package:berisheba/routes/ustensile/widgets/ustensile_float_button.dart';
 import 'package:berisheba/states/config.dart';
 import 'package:berisheba/states/global_state.dart';
 import 'package:berisheba/states/tab_state.dart';
@@ -28,13 +31,29 @@ class Squellete extends StatefulWidget {
 class _SquelleteState extends State<Squellete> {
   @override
   void initState() {
+    GlobalState().internalStreamController.stream.listen((String payload) {
+      if (payload.contains("reservation")) {
+        int idReservation = int.tryParse(payload.split(" ")[1]);
+        if (idReservation != null) {
+          GlobalState()
+              .navigatorState
+              .currentState
+              .pushNamed("reservation:$idReservation");
+        }
+      }
+    });
     super.initState();
     //Connect the app to the websocket
     GlobalState().connect();
   }
 
-  BottomNavigationBarItem _bottomNavigationItem(String title,
-      IconData iconData) {
+  @override
+  void dispose() {
+    super.dispose();
+  }
+
+  BottomNavigationBarItem _bottomNavigationItem(
+      String title, IconData iconData) {
     return BottomNavigationBarItem(
       icon: Icon(
         iconData,
@@ -44,7 +63,6 @@ class _SquelleteState extends State<Squellete> {
         title,
         style: TextStyle(color: Config.bottomNavTextColor, fontSize: 11),
       ),
-//      backgroundColor: Config.bottomNavBgColor,
     );
   }
 
@@ -54,18 +72,8 @@ class _SquelleteState extends State<Squellete> {
     ReservationPortrait(),
     SallePortrait(),
     MaterielPortrait(),
-    Clients(),
-    Clients(),
-  ];
-
-  final List<Widget> routesLandscape = [
-    AcceuilLandscape(),
-    Clients(),
-    Clients(),
-    Clients(),
-    Clients(),
-    Clients(),
-    Clients(),
+    UstensilePortrait(),
+    StatistiquePortrait(),
   ];
 
   final List<Widget> floatButtons = [
@@ -73,9 +81,9 @@ class _SquelleteState extends State<Squellete> {
     ClientFloatButton(),
     ReservationFloatButton(),
     SalleFloatButton(),
-    ClientFloatButton(),
-    ClientFloatButton(),
-    ClientFloatButton(),
+    MaterielFloatButton(),
+    UstensileFloatButton(),
+    null,
   ];
 
   @override
@@ -93,7 +101,7 @@ class _SquelleteState extends State<Squellete> {
         _bottomNavigationItem("Statistique", Config.navIcons["statistique"]),
       ],
       type: BottomNavigationBarType.shifting,
-      currentIndex: tabState.index,
+      currentIndex: TabState.index,
       onTap: (index) {
         tabState.changePage(index);
       },
@@ -101,49 +109,43 @@ class _SquelleteState extends State<Squellete> {
 
     //App bar
     final List<PreferredSizeWidget> appBar = [
-      //TODO: APP BARS
       AcceuilAppBar(context).appbar,
       ClientAppBar(context).appbar,
-      ReservationAppBar(context).appbar,
+      ReservationAppBar().appbar,
       SalleAppBar(context).appbar,
       MaterielAppBar(context).appbar,
       ClientAppBar(context).appbar,
-      ClientAppBar(context).appbar,
+      StatistiqueAppBar(context).appbar,
     ];
 
     //Verify if Items are enough
     assert(_bottomNavBar.items.length == routesPortrait.length);
-    assert(_bottomNavBar.items.length == routesLandscape.length);
     assert(_bottomNavBar.items.length == appBar.length);
-    
-    return Scaffold(
-      resizeToAvoidBottomInset: false,
-      //fix render flex
-      appBar: appBar[tabState.index],
-      body:
-          //Orientation Builder detect if Orientation Changes
-          OrientationBuilder(
-        builder: (BuildContext context, Orientation orientation) {
-//          return orientation == Orientation.portrait
-//              ? routesPortrait[tabState.index]
-//              : routesLandscape[tabState.index];
 
-          return PageView(
-            children: orientation == Orientation.portrait
-                ? routesPortrait
-                : routesLandscape,
-            controller: TabState.controllerPage,
-            onPageChanged: (int tabIndex) {
-              tabState.changeIndex(tabIndex);
-            },
-          );
-        },
+    return WillPopScope(
+      onWillPop: () async => false,
+      child: Scaffold(
+        resizeToAvoidBottomInset: false,
+        //fix render flex
+        appBar: appBar[TabState.index],
+        body: OrientationBuilder(
+          builder: (BuildContext context, Orientation orientation) {
+            return PageView(
+              children: routesPortrait,
+              controller: TabState.controllerPage,
+              onPageChanged: (int tabIndex) {
+                tabState.changeIndex(tabIndex);
+              },
+            );
+          },
+        ),
+
+        //Drawer is Menu on the Left side
+        drawer: const MenuDrawer(),
+        bottomNavigationBar:
+            globalState.hideBottomNavBar ? null : _bottomNavBar,
+        floatingActionButton: floatButtons[TabState.index],
       ),
-
-      //Drawer is Menu on the Left side
-      drawer: const MenuDrawer(),
-      bottomNavigationBar: globalState.hideBottomNavBar ? null : _bottomNavBar,
-      floatingActionButton: floatButtons[tabState.index],
     );
   }
 }

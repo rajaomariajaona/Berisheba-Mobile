@@ -1,10 +1,11 @@
+import 'package:berisheba/routes/client/client_state.dart';
 import 'package:berisheba/states/config.dart';
 import 'package:berisheba/states/global_state.dart';
-import 'package:berisheba/tools/formatters/CaseInputFormatter.dart';
-import 'package:berisheba/tools/formatters/NumTelInputFormatter.dart';
+import 'package:berisheba/tools/formatters/case_input_formatter.dart';
+import 'package:berisheba/tools/formatters/num_tel_input_formatter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:http/http.dart' as http;
+
 
 class ClientFormulaire extends StatefulWidget {
   ClientFormulaire({Key key, this.client}) : super(key: key);
@@ -60,6 +61,7 @@ class _ClientFormulaireState extends State<ClientFormulaire> {
       WhitelistingTextInputFormatter.digitsOnly,
       LengthLimitingTextInputFormatter(10),
       NumTelInputFormatter(),
+      
     ],
     "adresse": <TextInputFormatter>[LengthLimitingTextInputFormatter(100)],
   };
@@ -99,40 +101,36 @@ class _ClientFormulaireState extends State<ClientFormulaire> {
               Icons.check,
               color: Config.primaryBlue,
             ),
-            onPressed: isPostingData ? null : () async {
-              setState(() {
-                isPostingData = true;
-              });
-              _formKey.currentState.save();
-              if (_formKey.currentState.validate()) {
-                dynamic result = modifier
-                    ? await http.put(
-                  Config.apiURI + "clients/${widget.client["idClient"]}",
-                  body: {
-                    "nomClient": nom,
-                    "prenomClient": prenom,
-                    "adresseClient": adresse,
-                    "numTelClient": num
+            onPressed: isPostingData
+                ? null
+                : () async {
+                    setState(() {
+                      isPostingData = true;
+                    });
+                    _formKey.currentState.save();
+                    if (_formKey.currentState.validate()) {
+                      dynamic result = modifier
+                          ? await ClientState.modifyData({
+                              "nomClient": nom,
+                              "prenomClient": prenom,
+                              "adresseClient": adresse,
+                              "numTelClient": num
+                            },idClient: widget.client["idClient"])
+                          : await ClientState.saveData({
+                              "nomClient": nom,
+                              "prenomClient": prenom,
+                              "adresseClient": adresse,
+                              "numTelClient": num
+                            });
+                      print(result);
+                      GlobalState().channel.sink.add("client");
+                      Navigator.of(context).pop(true);
+                    } else {
+                      setState(() {
+                        isPostingData = false;
+                      });
+                    }
                   },
-                )
-                    : await http.post(
-                  Config.apiURI + "clients",
-                  body: {
-                    "nomClient": nom,
-                    "prenomClient": prenom,
-                    "adresseClient": adresse,
-                    "numTelClient": num
-                  },
-                );
-                print(result);
-                GlobalState().channel.sink.add("client");
-                Navigator.of(context).pop(true);
-              }else{
-                setState(() {
-                isPostingData = false;
-              });
-              }
-            },
           ),
         ],
       ),

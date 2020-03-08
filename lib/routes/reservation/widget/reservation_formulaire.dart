@@ -1,75 +1,77 @@
-import 'dart:convert';
+import 'dart:math';
 
-import 'package:berisheba/routes/client/client_portrait.dart';
-import 'package:berisheba/routes/reservation/widget/reservation_details.dart';
+import 'package:berisheba/routes/client/widgets/client_selector.dart';
+import 'package:berisheba/routes/reservation/states/constituer_state.dart';
+import 'package:berisheba/routes/reservation/states/reservation_state.dart';
 import 'package:berisheba/states/config.dart';
 import 'package:berisheba/routes/client/client_state.dart';
 import 'package:berisheba/states/global_state.dart';
 import 'package:berisheba/tools/date.dart';
-import 'package:berisheba/tools/formatters/CaseInputFormatter.dart';
+import 'package:berisheba/tools/formatters/case_input_formatter.dart';
 import 'package:date_range_picker/date_range_picker.dart' as DateRangePicker;
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_colorpicker/block_picker.dart';
-import 'package:flutter_colorpicker/material_picker.dart';
 import 'package:provider/provider.dart';
-import 'package:http/http.dart' as http;
 
 class ReservationFormulaire extends StatefulWidget {
-  ReservationFormulaire({Key key}) : super(key: key);
-
+  final List<Color> _colors = [
+    Colors.red,
+    Colors.pink,
+    Colors.purple,
+    Colors.deepPurple,
+    Colors.indigo,
+    Colors.blue,
+    Colors.lightBlue,
+    Colors.cyan,
+    Colors.teal,
+    Colors.green,
+    Colors.lightGreen,
+    Colors.lime,
+    Colors.yellow,
+    Colors.amber,
+    Colors.orange,
+    Colors.deepOrange,
+    Colors.brown,
+    Colors.grey,
+    Colors.blueGrey,
+    Colors.black,
+  ];
+  ReservationFormulaire({Key key, this.idClient, this.nomClient})
+      : super(key: key);
+  final int idClient;
+  final String nomClient;
   @override
   _ReservationFormulaireState createState() => _ReservationFormulaireState();
 }
-
-enum TypeDemiJournee { jour, nuit }
 
 class _ReservationFormulaireState extends State<ReservationFormulaire> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   String nomReservation;
   String dateEntree = generateDateString(DateTime.now());
-  var _dateEntree = TextEditingController();
+  TextEditingController _dateEntree = TextEditingController();
   String dateSortie = generateDateString(DateTime.now());
-  var _dateSortie = TextEditingController();
+  TextEditingController _dateSortie = TextEditingController();
   TypeDemiJournee typeDemiJourneeEntree = TypeDemiJournee.jour;
 
   TypeDemiJournee typeDemiJourneeSortie = TypeDemiJournee.jour;
   bool isPostingData = false;
   int idClient;
-  var _client = TextEditingController();
-  Color couleur = Color(4294198070);
+  TextEditingController _client = TextEditingController();
+  Color couleur;
   double prixPersonne;
   final bool etatReservation = false;
   int nbPersonne;
 
   @override
   void initState() {
+    couleur = widget._colors[Random().nextInt(widget._colors.length)];
+    idClient = widget.idClient;
     _dateEntree.text = dateEntree;
     _dateSortie.text = dateSortie;
-    _client.text = "";
+    _client.text = widget.nomClient ?? "";
     super.initState();
-  }
-
-  Future<http.Response> _saveToDatabase() async {
-    Map<String, dynamic> data = {
-      "nomReservation": nomReservation,
-      "dateEntree": dateEntree,
-      "typeDemiJourneeEntree":
-          typeDemiJourneeEntree == TypeDemiJournee.jour ? "Jour" : "Nuit",
-      "dateSortie": dateSortie,
-      "typeDemiJourneeSortie":
-          typeDemiJourneeSortie == TypeDemiJournee.jour ? "Jour" : "Nuit",
-      "prixPersonne": prixPersonne.toString(),
-      "nbPersonne": nbPersonne.toString(),
-      "idClient": idClient.toString(),
-      "couleur": couleur.value.toString(),
-      "etatReservation": etatReservation.toString(),
-      "nbPersonneIdentique": true.toString()
-    };
-    return http.post(
-      Config.apiURI + "reservations",
-      body: data,
-    );
   }
 
   @override
@@ -88,33 +90,7 @@ class _ReservationFormulaireState extends State<ReservationFormulaire> {
                   mainAxisSize: MainAxisSize.max,
                   children: <Widget>[
                     Expanded(child: _nomReservation()),
-                    IconButton(
-                      padding: EdgeInsets.all(0),
-                      color: couleur,
-                      icon: Icon(Icons.color_lens),
-                      onPressed: () {
-                        showDialog(
-                          context: context,
-                          builder: (BuildContext context) {
-                            return AlertDialog(
-                              titlePadding: const EdgeInsets.all(0.0),
-                              contentPadding: const EdgeInsets.all(0.0),
-                              content: SingleChildScrollView(
-                                child: BlockPicker(
-                                  pickerColor: couleur,
-                                  onColorChanged: (newCouleur) {
-                                    print(newCouleur.value.toString());
-                                    setState(() {
-                                      couleur = newCouleur;
-                                    });
-                                  },
-                                ),
-                              ),
-                            );
-                          },
-                        );
-                      },
-                    ),
+                    _colorPicker(context),
                   ],
                 ),
                 _clientSelector(context),
@@ -144,20 +120,43 @@ class _ReservationFormulaireState extends State<ReservationFormulaire> {
                                 });
                                 _formKey.currentState.save();
                                 if (_formKey.currentState.validate()) {
-                                  _saveToDatabase().then((result) {
-                                    if (result.statusCode == 201) {
-                                      GlobalState()
-                                          .externalStreamController
-                                          .sink
-                                          .add("reservation");
-                                      Navigator.of(context).pop(dateEntree);
-                                    } else {
-                                      setState(() {
-                                        isPostingData = false;
-                                      });
-                                      print(result.statusCode);
-                                    }
-                                  });
+                                  dynamic data = {
+                                    "nomReservation": nomReservation,
+                                    "dateEntree": dateEntree,
+                                    "typeDemiJourneeEntree":
+                                        typeDemiJourneeEntree ==
+                                                TypeDemiJournee.jour
+                                            ? "Jour"
+                                            : "Nuit",
+                                    "dateSortie": dateSortie,
+                                    "typeDemiJourneeSortie":
+                                        typeDemiJourneeSortie ==
+                                                TypeDemiJournee.jour
+                                            ? "Jour"
+                                            : "Nuit",
+                                    "prixPersonne": prixPersonne.toString(),
+                                    "nbPersonne": nbPersonne.toString(),
+                                    "idClient": idClient.toString(),
+                                    "couleur": couleur.value.toString(),
+                                    "etatReservation":
+                                        etatReservation.toString(),
+                                    "nbPersonneIdentique": true.toString(),
+                                    "prixKW": 600
+                                  };
+
+                                  try {
+                                    await ReservationState.saveData(data);
+                                    GlobalState()
+                                        .channel
+                                        .sink
+                                        .add("reservation");
+                                    Navigator.of(context).pop(dateEntree);
+                                  } catch (error) {
+                                    setState(() {
+                                      isPostingData = false;
+                                    });
+                                    print(error?.response?.data);
+                                  }
                                 } else {
                                   setState(() {
                                     isPostingData = false;
@@ -176,8 +175,39 @@ class _ReservationFormulaireState extends State<ReservationFormulaire> {
     );
   }
 
+  IconButton _colorPicker(BuildContext context) {
+    return IconButton(
+      padding: EdgeInsets.all(0),
+      color: couleur,
+      icon: Icon(Icons.color_lens),
+      onPressed: () {
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              titlePadding: const EdgeInsets.all(0.0),
+              contentPadding: const EdgeInsets.all(0.0),
+              content: SingleChildScrollView(
+                child: BlockPicker(
+                  pickerColor: couleur,
+                  onColorChanged: (newCouleur) {
+                    print(newCouleur.value.toString());
+                    setState(() {
+                      couleur = newCouleur;
+                    });
+                  },
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
   TextFormField _prixPersonne() {
     return TextFormField(
+      initialValue: "10000",
       keyboardType: TextInputType.numberWithOptions(decimal: true),
       decoration: InputDecoration(
         border: UnderlineInputBorder(),
@@ -198,6 +228,9 @@ class _ReservationFormulaireState extends State<ReservationFormulaire> {
         border: UnderlineInputBorder(),
         labelText: "Nombre de Personne",
       ),
+      inputFormatters: [
+        WhitelistingTextInputFormatter(RegExp("[0-9]+"))
+      ],
       onSaved: (val) {
         setState(() {
           nbPersonne = int.tryParse(val) ?? 0;
@@ -215,17 +248,13 @@ class _ReservationFormulaireState extends State<ReservationFormulaire> {
           child: FocusScope(
             canRequestFocus: false,
             child: TextFormField(
+              validator: _isOneClientSelected,
               controller: _client,
               readOnly: true,
               decoration: InputDecoration(
                 border: UnderlineInputBorder(),
                 labelText: "Client",
               ),
-              onSaved: (val) {
-                setState(() {
-                  dateEntree = val;
-                });
-              },
             ),
           ),
         ),
@@ -240,21 +269,19 @@ class _ReservationFormulaireState extends State<ReservationFormulaire> {
   Future<void> _showClientSelector(BuildContext context) async {
     var result =
         await Navigator.of(context).push(MaterialPageRoute(builder: (ctx) {
-      return Scaffold(
-        appBar: AppBar(),
-        body: ClientPortrait(),
-      );
+      return ClientSelectorBody();
     }));
     if (result != null && int.tryParse("$result") != null) {
       idClient = int.parse("$result");
       var client =
-          Provider.of<ClientState>(context).listClientByIdClient["$result"];
+          Provider.of<ClientState>(context, listen: false).listClientByIdClient["$result"];
       _client.text = "${client["nomClient"]} ${client["prenomClient"]}";
     }
   }
 
   TextFormField _nomReservation() {
     return TextFormField(
+      validator: _isValidNomReservation,
       textCapitalization: TextCapitalization.characters,
       inputFormatters: [
         CapitalizeWordsInputFormatter(),
@@ -458,5 +485,19 @@ class _ReservationFormulaireState extends State<ReservationFormulaire> {
         ],
       ),
     );
+  }
+
+  String _isOneClientSelected(String value) {
+    if (value == "") {
+      return "Veuillez selectionner un client";
+    }
+    return null;
+  }
+
+  String _isValidNomReservation(String value) {
+    if (value == "") {
+      return "Champ vide";
+    }
+    return null;
   }
 }

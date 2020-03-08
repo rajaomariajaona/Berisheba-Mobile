@@ -1,7 +1,6 @@
 import 'package:berisheba/routes/salle/salle_state.dart';
 import 'package:berisheba/routes/salle/widgets/salle_liste.dart';
-import 'package:berisheba/states/config.dart';
-import 'package:berisheba/states/global_state.dart';
+import 'package:berisheba/tools/widgets/loading.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
@@ -18,57 +17,27 @@ class SallePortrait extends StatelessWidget {
           salleState.isDeletingSalle = false;
           return false;
         }
+        if(salleState.isSearchingSalle){
+              salleState.isSearchingSalle = false;
+              return false;
+        }
         return true;
       },
-      child: Flex(
-        direction: Axis.vertical,
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: <Widget>[
-          Padding(
-            padding: const EdgeInsets.all(10),
-            child: TextField(
-              style: TextStyle(color: Config.primaryBlue),
-              cursorColor: Config.primaryBlue,
-              decoration: InputDecoration(
-                  contentPadding:
-                      EdgeInsets.symmetric(vertical: 0, horizontal: 10),
-                  focusedBorder: OutlineInputBorder(
-                      borderSide: BorderSide(
-                          color: Config.primaryBlue,
-                          width: 2,
-                          style: BorderStyle.solid)),
-                  border: OutlineInputBorder(
-                      borderSide: BorderSide(
-                          color: Config.secondaryBlue,
-                          width: 1,
-                          style: BorderStyle.solid)),
-                  suffixIcon: IconButton(
-                      icon: Icon(
-                        Icons.search,
-                        color: Config.primaryBlue,
-                      ),
-                      onPressed: () {})),
-              onChanged: (newValue) {
-                salleState.searchData(newValue);
-              },
-            ),
-          ),
-          Expanded(
-            child: RefreshIndicator(
-              key: salleState.refreshIndicatorStateSalle,
-              onRefresh: () async {
-                salleState.fetchData();
-              },
-              child: Scrollbar(
-                  child: ListView.builder(
-                    itemBuilder: (BuildContext ctx, int item) {
-                      return SalleItem(salleState.liste[item]["idSalle"]);
-                    },
-                    itemCount: salleState.liste.length,
-                  )),
-            ),
-          )
-        ],
+      child: salleState.isLoading? const Loading() : RefreshIndicator(
+        key: salleState.refreshIndicatorStateSalle,
+        onRefresh: () async {
+          salleState.fetchData();
+        },
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 10),
+          child: Scrollbar(
+              child: ListView.builder(
+                itemBuilder: (BuildContext ctx, int item) {
+                  return SalleItem(salleState.liste[item]["idSalle"]);
+                },
+                itemCount: salleState.liste.length,
+              )),
+        ),
       ),
     );
   }

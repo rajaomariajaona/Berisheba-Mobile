@@ -1,4 +1,4 @@
-import 'package:berisheba/routes/reservation/reservation_state.dart';
+import 'package:berisheba/routes/reservation/states/reservation_state.dart';
 import 'package:berisheba/routes/reservation/widget/reservation_formulaire.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';

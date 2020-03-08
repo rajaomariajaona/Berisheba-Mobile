@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:image/image.dart' as images;
+
+enum ErrorType { internet, authorization, none }
 
 class Config {
+  static images.Image img;
   //api
-  static String _apiURI = "http://192.168.43.63:3000/api/";
-  static String get apiURI => _apiURI;
+  static String get baseURI => apiURI.replaceFirst("/api/", "");
+  static String apiURI = "https://berisheba-api.herokuapp.com/api/";
 
   static String get wsURI =>
-      _apiURI.replaceFirst("http", "ws").replaceFirst("/api/", "");
-
-  static set apiURI(String value) {
-    _apiURI = value;
-  } //colors
+      apiURI.replaceFirst("http", "ws").replaceFirst("wss", "ws").replaceFirst("/api/", "");
 
   static Color get primaryBlue => Color.fromARGB(255, 55, 171, 200);
   static Color get secondaryBlue => Color.fromARGB(255, 241, 249, 255);

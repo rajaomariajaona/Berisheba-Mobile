@@ -1,7 +1,5 @@
 import 'package:berisheba/routes/salle/salle_state.dart';
-import 'package:berisheba/routes/salle/widgets/salle_detail.dart';
 import 'package:berisheba/states/config.dart';
-import 'package:berisheba/states/tab_state.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -21,12 +19,12 @@ class _SalleItemState extends State<SalleItem> {
   @override
   Widget build(BuildContext context) {
     final SalleState salleState = Provider.of<SalleState>(context);
-    final TabState tabState = Provider.of<TabState>(context);
     Map<String, dynamic> _salle =
-        salleState.listSalleByIdSalle["${widget._idSalle}"];
+        salleState.listSalleByIdSalle[widget._idSalle];
     return Card(
       margin: EdgeInsets.symmetric(horizontal: 20, vertical: 4),
       child: ListTile(
+        selected: salleState.isSelected(widget._idSalle),
         leading: Flex(
           direction: Axis.vertical,
           mainAxisAlignment: MainAxisAlignment.center,
@@ -53,24 +51,6 @@ class _SalleItemState extends State<SalleItem> {
           overflow: TextOverflow.ellipsis,
           style: TextStyle(fontSize: 16),
         ),
-        onTap: () {
-          if (tabState.index == 1) {
-            if (salleState.isDeletingSalle) {
-              setState(() {
-                if (salleState.isSelected(_salle["idSalle"]))
-                  salleState.deleteSelected(_salle["idSalle"]);
-                else
-                  salleState.addSelected(_salle["idSalle"]);
-              });
-            } else {
-              Navigator.of(context).push(MaterialPageRoute(builder: (context) {
-                return SalleDetail(widget._idSalle);
-              }));
-            }
-          }else{
-            Navigator.of(context).pop(_salle["idSalle"]);
-          }
-        },
         onLongPress: () {
           salleState.isDeletingSalle = true;
           setState(() {

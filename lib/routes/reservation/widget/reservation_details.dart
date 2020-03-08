@@ -1,94 +1,394 @@
-import 'package:berisheba/routes/reservation/reservation_state.dart';
-import 'package:berisheba/states/config.dart';
+import 'package:berisheba/routes/reservation/states/autres_state.dart';
+import 'package:berisheba/routes/reservation/states/concerner_state.dart';
+import 'package:berisheba/routes/reservation/states/conflit_state.dart';
+import 'package:berisheba/routes/reservation/states/constituer_state.dart';
+import 'package:berisheba/routes/reservation/states/emprunter_state.dart';
+import 'package:berisheba/routes/reservation/states/jirama_state.dart';
+import 'package:berisheba/routes/reservation/states/louer_state.dart';
+import 'package:berisheba/routes/reservation/states/payer_state.dart';
+import 'package:berisheba/routes/reservation/states/reservation_state.dart';
+import 'package:berisheba/routes/reservation/widget/details/autres.dart';
+import 'package:berisheba/routes/reservation/widget/details/demi_journee.dart';
+import 'package:berisheba/routes/reservation/widget/details/globaldetails.dart';
+import 'package:berisheba/routes/reservation/widget/details/jirama.dart';
+import 'package:berisheba/routes/reservation/widget/details/materiels.dart';
+import 'package:berisheba/routes/reservation/widget/details/paiement.dart';
+import 'package:berisheba/routes/reservation/widget/details/salles.dart';
+import 'package:berisheba/routes/reservation/widget/details/ustensiles.dart';
 import 'package:berisheba/states/global_state.dart';
+import 'package:berisheba/tools/printing/pdf_generator.dart';
+import 'package:berisheba/tools/printing/pdf_screen.dart';
+import 'package:berisheba/tools/widgets/confirm.dart';
+import 'package:berisheba/tools/widgets/loading.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:http/http.dart' as http;
+
+final Key keyXD = UniqueKey();
+enum Actions { salle, materiel, ustensile, jirama, autres, payer }
 
 class ReservationDetails extends StatelessWidget {
   final int _idReservation;
   ReservationDetails(this._idReservation, {Key key}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
-    final ReservationState reservationState =
-        Provider.of<ReservationState>(context);
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(
-            "${reservationState.reservationsById["$_idReservation"]["nomReservation"]}"),
-        actions: <Widget>[
-          IconButton(
-            icon: Icon(Icons.delete),
-            onPressed: () {
-              http.Response result;
-              http
-                  .delete("${Config.apiURI}reservations/$_idReservation")
-                  .then((response) {
-                result = response;
-              }).then((_) {
-                if (result.statusCode == 204) {
-                  Navigator.of(context).pop(true);
-                  GlobalState().externalStreamController.sink.add("reservation");
-                } else {
-                  //TODO: Handle error deleting
-                  print(result.statusCode);
-                  print(result.body);
-                }
-              });
-            },
-          )
-        ],
-      ),
-      body: SingleChildScrollView(
-        child: Column(
-          children: <Widget>[
-            ReservationGlobalDetails(_idReservation),
-          ],
-        ),
-      ),
-    );
+    return ReservationDetailsBody(_idReservation);
   }
 }
 
-class ReservationGlobalDetails extends StatefulWidget {
+class ReservationDetailsBody extends StatefulWidget {
   final int _idReservation;
-  ReservationGlobalDetails(this._idReservation, {Key key}) : super(key: key);
+  ReservationDetailsBody(this._idReservation, {Key key}) : super(key: key);
+
   @override
-  _ReservationGlobalDetailsState createState() =>
-      _ReservationGlobalDetailsState();
+  State<StatefulWidget> createState() => _ReservationDetailsState();
 }
 
-class _ReservationGlobalDetailsState extends State<ReservationGlobalDetails> {
-  bool _editMode = false;
+class _ReservationDetailsState extends State<ReservationDetailsBody> {
+  bool isReadOnly = false;
+  @override
+  void initState() {
+    final ConflitState _conflitState =
+        Provider.of<ConflitState>(context, listen: false);
+    _conflitState
+        .fetchConflit(widget._idReservation)
+        .then((bool containConflit) {
+      var temp = Provider.of<ConflitState>(context, listen: false)
+          .conflictByIdReservation[widget._idReservation];
+      if (temp != null && temp.isNotEmpty) {
+        Navigator.of(context).pushNamed("conflit/:${widget._idReservation}");
+      }
+    });
+    super.initState();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    refresh();
+  }
+
+  Future refresh({bool force = false}) async {
+    final ConstituerState _constituerState =
+        Provider.of<ConstituerState>(context, listen: false);
+    final JiramaState _jiramaState =
+        Provider.of<JiramaState>(context, listen: false);
+    final AutresState _autresState =
+        Provider.of<AutresState>(context, listen: false);
+    final ConcernerState _concernerState =
+        Provider.of<ConcernerState>(context, listen: false);
+    final LouerState _louerState =
+        Provider.of<LouerState>(context, listen: false);
+    final EmprunterState _emprunterState =
+        Provider.of<EmprunterState>(context, listen: false);
+    final PayerState _payerState =
+        Provider.of<PayerState>(context, listen: false);
+    if (!_constituerState.demiJourneesByReservation
+            .containsKey(widget._idReservation) ||
+        force) await _constituerState.fetchData(widget._idReservation);
+    if (!_jiramaState.jiramaByIdReservation
+            .containsKey(widget._idReservation) ||
+        force) await _jiramaState.fetchData(widget._idReservation);
+    if (!_autresState.autresByIdReservation
+            .containsKey(widget._idReservation) ||
+        force) await _autresState.fetchData(widget._idReservation);
+    if (!_concernerState.sallesByIdReservation
+            .containsKey(widget._idReservation) ||
+        force) _concernerState.fetchData(widget._idReservation);
+    if (!_louerState.materielsLoueeByIdReservation
+            .containsKey(widget._idReservation) ||
+        force) await _louerState.fetchData(widget._idReservation);
+    if (!_emprunterState.ustensilesEmprunteByIdReservation
+            .containsKey(widget._idReservation) ||
+        force) await _emprunterState.fetchData(widget._idReservation);
+    if (!_payerState.statsByIdReservation.containsKey(widget._idReservation) ||
+        force) await _payerState.fetchData(widget._idReservation);
+  }
+
   @override
   Widget build(BuildContext context) {
     final ReservationState reservationState =
         Provider.of<ReservationState>(context);
-    final Map<String, dynamic> _reservation =
-        reservationState.reservationsById["${widget._idReservation}"];
-    return Card(
-      margin: EdgeInsets.all(15),
-      child: Padding(
-        padding: const EdgeInsets.all(15.0),
-        child: Column(
-          children: <Widget>[
-            _globalDetails("Client",
-                "${_reservation["nomClient"]} ${_reservation["prenomClient"]}"),
-            _globalDetails("Date Entree", "${_reservation["DateEntree"]} ${_reservation["TypeDemiJourneeEntree"]}"),
-            _globalDetails("Date Sortie", "${_reservation["DateSortie"]} ${_reservation["TypeDemiJourneeSortie"]}"),
-            _globalDetails("Prix par personne", "${_reservation["prixPersonne"]}"),
-          ],
-        ),
-      ),
-    );
+    final ConflitState conflitState = Provider.of<ConflitState>(context);
+    return reservationState.reservationsById[widget._idReservation] == null
+        ? Scaffold(
+            appBar: AppBar(),
+            body: Center(
+              child: (reservationState.isLoading ||
+                      (conflitState.isLoading == widget._idReservation))
+                  ? Loading()
+                  : Text("La reservation a été supprimée"),
+            ),
+          )
+        : Scaffold(
+            appBar: AppBar(
+              title: Text(
+                  "${reservationState.reservationsById[widget._idReservation]["nomReservation"]}"),
+              actions: _actionsAppBar(context),
+            ),
+            body: SingleChildScrollView(
+              child: Column(
+                children: <Widget>[
+                  ReservationGlobalDetails(widget._idReservation,
+                      readOnly: isReadOnly),
+                  ReservationDemiJournee(widget._idReservation,
+                      readOnly: isReadOnly),
+                  Selector<ConcernerState, bool>(
+                      selector: (ctx, concernerState) =>
+                          concernerState.sallesByIdReservation[
+                                  widget._idReservation] !=
+                              null &&
+                          concernerState
+                                  .sallesByIdReservation[widget._idReservation]
+                                  .length >
+                              0,
+                      builder: (ctx, state, __) => state
+                          ? ReservationSalle(widget._idReservation,
+                              readOnly: isReadOnly)
+                          : Container()),
+                  Selector<EmprunterState, bool>(
+                      selector: (ctx, emprunterState) =>
+                          emprunterState.ustensilesEmprunteByIdReservation[
+                                  widget._idReservation] !=
+                              null &&
+                          emprunterState
+                                  .ustensilesEmprunteByIdReservation[
+                                      widget._idReservation]
+                                  .length >
+                              0,
+                      builder: (ctx, state, __) => state
+                          ? ReservationUstensile(widget._idReservation,
+                              readOnly: isReadOnly)
+                          : Container()),
+                  Selector<LouerState, bool>(
+                      selector: (ctx, louerState) =>
+                          louerState.materielsLoueeByIdReservation[
+                                  widget._idReservation] !=
+                              null &&
+                          louerState
+                                  .materielsLoueeByIdReservation[
+                                      widget._idReservation]
+                                  .length >
+                              0,
+                      builder: (ctx, state, __) => state
+                          ? ReservationMateriel(widget._idReservation,
+                              readOnly: isReadOnly)
+                          : Container()),
+                  Selector<JiramaState, bool>(
+                      selector: (ctx, jiramaState) =>
+                          jiramaState.jiramaByIdReservation[
+                                  widget._idReservation] !=
+                              null &&
+                          jiramaState
+                                  .jiramaByIdReservation[widget._idReservation]
+                                  .length >
+                              0,
+                      builder: (ctx, state, __) => state
+                          ? ReservationJirama(widget._idReservation,
+                              readOnly: isReadOnly)
+                          : Container()),
+                  Selector<AutresState, bool>(
+                      selector: (ctx, autresState) =>
+                          autresState.autresByIdReservation[
+                                  widget._idReservation] !=
+                              null &&
+                          autresState
+                                  .autresByIdReservation[widget._idReservation]
+                                  .length >
+                              0,
+                      builder: (ctx, state, __) => state
+                          ? ReservationAutres(widget._idReservation,
+                              readOnly: isReadOnly)
+                          : Container()),
+                  ReservationPayer(widget._idReservation, readOnly: isReadOnly)
+                ],
+              ),
+            ),
+          );
   }
 
-  Widget _globalDetails(String item, String itemDetails) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4),
-      child: Row(
-        children: <Widget>[Text("$item: "), Text(itemDetails)],
+  List<Widget> _actionsAppBar(BuildContext context) {
+    PayerState payerState = Provider.of<PayerState>(context);
+    return <Widget>[
+      if (payerState.payerByIdReservation[widget._idReservation] != null)
+        payerState.payerByIdReservation[widget._idReservation]
+                .every((element) => element.typePaiement != "reste")
+            ? Container()
+            : IconButton(
+                icon: Icon(Icons.picture_as_pdf),
+                onPressed: () async {
+                  PdfGenerator pdf = PdfGenerator();
+                  var path = await pdf.saveFacture(widget._idReservation);
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (ctx) => PDFScreen(
+                        pathPDF: path,
+                        key: keyXD,
+                      ),
+                    ),
+                  );
+                },
+              ),
+      IconButton(
+        icon: Icon(Icons.refresh),
+        onPressed: () async {
+          await refresh(force: true);
+        },
       ),
-    );
+      if (isReadOnly)
+        IconButton(
+          icon: Icon(Icons.lock_outline),
+          onPressed: () {
+            setState(() {
+              isReadOnly = false;
+            });
+          },
+        )
+      else ...[
+        IconButton(
+          icon: Icon(Icons.delete),
+          onPressed: () async {
+            try {
+              if (await Confirm.showDeleteConfirm(context: context)) {
+                await ReservationState.removeData(
+                    idReservation: widget._idReservation);
+                Navigator.of(context).pop(true);
+                GlobalState().channel.sink.add("reservation");
+              }
+            } catch (error) {
+              print(error?.response?.data);
+            }
+          },
+        ),
+        PopupMenuButton(
+          onSelected: (value) async {
+            switch (value) {
+              case Actions.ustensile:
+                var res = await showDialog(
+                  context: context,
+                  builder: (BuildContext context) => UstensileDialog(
+                    idReservation: widget._idReservation,
+                  ),
+                );
+                if (res != null) {
+                  await EmprunterState.saveData({"idUstensile": res},
+                          idReservation: widget._idReservation)
+                      .whenComplete(() {
+                    Provider.of<ConflitState>(context, listen: false)
+                        .fetchConflit(widget._idReservation)
+                        .then((bool containConflit) {
+                      if (containConflit) {
+                        Navigator.of(context)
+                            .pushNamed("conflit/:${widget._idReservation}");
+                      }
+                    });
+                  });
+                }
+                break;
+              case Actions.materiel:
+                var res = await showDialog(
+                  context: context,
+                  builder: (BuildContext context) =>
+                      MaterielDialog(idReservation: widget._idReservation),
+                );
+                if (res != null) {
+                  await LouerState.saveData({"idMateriel": res},
+                          idReservation: widget._idReservation)
+                      .whenComplete(() {
+                    Provider.of<ConflitState>(context, listen: false)
+                        .fetchConflit(widget._idReservation)
+                        .then((bool containConflit) {
+                      if (containConflit) {
+                        Navigator.of(context)
+                            .pushNamed("conflit/:${widget._idReservation}");
+                      }
+                    });
+                  });
+                }
+                break;
+              case Actions.salle:
+                var res = await showDialog(
+                  context: context,
+                  builder: (BuildContext context) => SalleDialog(
+                    idReservation: widget._idReservation,
+                  ),
+                );
+                if (res != null) {
+                  await ConcernerState.saveData({"idSalle": res},
+                          idReservation: widget._idReservation)
+                      .whenComplete(() {
+                    Provider.of<ConflitState>(context, listen: false)
+                        .fetchConflit(widget._idReservation)
+                        .then((bool containConflit) {
+                      if (containConflit) {
+                        Navigator.of(context)
+                            .pushNamed("conflit/:${widget._idReservation}");
+                      }
+                    });
+                  });
+                }
+                break;
+              case Actions.jirama:
+                try {
+                  showDialog(
+                      builder: (BuildContext context) {
+                        return JiramaPriceDialog(
+                            idReservation: widget._idReservation);
+                      },
+                      context: context);
+                } catch (error) {}
+                break;
+              case Actions.autres:
+                try {
+                  showDialog(
+                      builder: (BuildContext context) {
+                        return AutresDialog(
+                            idReservation: widget._idReservation);
+                      },
+                      context: context);
+                } catch (error) {}
+                break;
+              case Actions.payer:
+                try {
+                  showDialog(
+                      builder: (BuildContext context) {
+                        return PayerDialog(
+                            idReservation: widget._idReservation);
+                      },
+                      context: context);
+                } catch (error) {}
+                break;
+              default:
+            }
+          },
+          itemBuilder: (context) => [
+            PopupMenuItem(
+              child: const Text("Salle"),
+              value: Actions.salle,
+            ),
+            PopupMenuItem(
+              child: const Text("Ustensile"),
+              value: Actions.ustensile,
+            ),
+            PopupMenuItem(
+              child: const Text("Materiels"),
+              value: Actions.materiel,
+            ),
+            PopupMenuItem(
+              child: const Text("Jirama"),
+              value: Actions.jirama,
+            ),
+            PopupMenuItem(
+              child: const Text("Autres"),
+              value: Actions.autres,
+            ),
+            PopupMenuItem(
+              child: const Text("Payer"),
+              value: Actions.payer,
+            ),
+          ],
+        )
+      ]
+    ];
   }
 }

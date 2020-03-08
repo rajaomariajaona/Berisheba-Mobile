@@ -1,7 +1,7 @@
 import 'dart:async';
-
-import 'package:berisheba/home_page/no_internet.dart';
+import 'dart:io';
 import 'package:berisheba/states/config.dart';
+import 'package:berisheba/states/connected_state.dart';
 import 'package:flutter/material.dart';
 import 'package:web_socket_channel/io.dart';
 
@@ -14,55 +14,53 @@ class GlobalState extends ChangeNotifier {
 
   GlobalKey<NavigatorState> get navigatorState => _navigatorState;
 
-  // App State if the Websocket is connected or not
-  bool _isConnected = false;
-
-  bool get isConnected => _isConnected;
+  // App State if the Websocket is connected or no
 
   //WebSocket Channel (Listen for messages)
   IOWebSocketChannel _channel;
 
   IOWebSocketChannel get channel => _channel;
-  StreamController<String> _externalStreamController = StreamController.broadcast();
+  StreamController<String> _externalStreamController =
+      StreamController.broadcast();
 
-  StreamController<String> _internalStreamController = StreamController.broadcast();
+  StreamController<String> _internalStreamController =
+      StreamController.broadcast();
 
-  StreamController<String> get internalStreamController => _internalStreamController;
+  StreamController<String> get internalStreamController =>
+      _internalStreamController;
 
-  StreamController<String> get externalStreamController => _externalStreamController;
+  StreamController<String> get externalStreamController =>
+      _externalStreamController;
 
-  IOWebSocketChannel connect() {
+  Future<bool> connect() async {
+    bool res;
     try {
       _channel = IOWebSocketChannel.connect(Config.wsURI,
           pingInterval: Duration(seconds: 30));
-      GlobalState().isConnected = true;
       _channel.stream.listen(
-          (msg) {
-            _externalStreamController.sink.add(msg);
-          },
-          onError: (error) {},
-          onDone: () {
-            GlobalState().isConnected = false;
-            _channel = null;
-          });
+        (msg) {
+          _externalStreamController.sink.add(msg);
+        },
+        onError: (error) async {
+          ConnectedState().setIsConnected(false);
+        },
+        onDone: () async {
+         ConnectedState().setIsConnected(false);
+          _channel = null;
+        },
+      );
+      await WebSocket.connect(Config.wsURI).timeout(Duration(seconds: 15));
+      res = true;
       this.refreshAll();
     } catch (_) {
+      res = false;
       if (_channel != null) _channel.sink.close();
-      GlobalState().isConnected = false;
     }
-    return _channel;
+    ConnectedState().setIsConnected(res);
+    return res;
   }
 
-  set isConnected(bool value) {
-    if (_isConnected != value) {
-      _isConnected = value;
-      if (!_isConnected)
-        _navigatorState.currentState.push(MaterialPageRoute(
-          builder: (_context) => NoInternet(),
-        ));
-      notifyListeners();
-    }
-  }
+
 
   bool _hideBottomNavBar = false;
 
@@ -73,7 +71,7 @@ class GlobalState extends ChangeNotifier {
     notifyListeners();
   }
 
-  void refreshAll(){
+  void refreshAll() {
     this.internalStreamController.sink.add("refresh");
   }
 

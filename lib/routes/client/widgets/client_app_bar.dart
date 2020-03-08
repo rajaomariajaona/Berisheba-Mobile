@@ -1,6 +1,6 @@
 import 'package:berisheba/routes/client/client_state.dart';
-import 'package:berisheba/states/global_state.dart';
 import 'package:berisheba/states/tab_state.dart';
+import 'package:berisheba/tools/widgets/confirm.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -9,7 +9,6 @@ class ClientAppBar {
 
   ClientAppBar(this._context);
   AppBar get appbar {
-    TabState _tabState = Provider.of<TabState>(_context);
     ClientState _clientState = Provider.of<ClientState>(_context);
     if (_clientState.isDeletingClient) {
       return AppBar(
@@ -47,19 +46,18 @@ class ClientAppBar {
               icon: Icon(Icons.delete),
               onPressed: () async {
                 try {
-                  if (!(await _clientState.removeDataInDatabase()))
+                  if (await Confirm.showDeleteConfirm(
+                      context:
+                          _context)) if (!(await _clientState.removeDatas()))
                     throw Exception("Client not deleted");
+                  _clientState.isDeletingClient = false;
                 } on Exception catch (_) {
                   print("error deleting client");
-                } finally {
-                  GlobalState().channel.sink.add("client");
-                  _clientState.isDeletingClient = false;
                 }
               },
             )
           ]);
     } else if (_clientState.isSearchingClient) {
-      
       return AppBar(
         leading: IconButton(
           icon: Icon(Icons.arrow_back),
@@ -76,8 +74,7 @@ class ClientAppBar {
                 icon: const Icon(
                   Icons.close,
                 ),
-                onPressed: (){
-                  //TODO: Change to clear text
+                onPressed: () {
                   _clientState.isSearchingClient = false;
                 },
               )),
@@ -89,18 +86,22 @@ class ClientAppBar {
     } else {
       return AppBar(
           centerTitle: true,
-          title: Text(
-            _tabState.titleAppBar,
+          title: Consumer<TabState>(
+            builder: (_, _tabState, __) {
+              return Text(
+                _tabState.titleAppBar,
+              );
+            },
           ),
           actions: <Widget>[
             IconButton(
-              icon: Icon(Icons.sort_by_alpha),
+              icon: const Icon(Icons.sort_by_alpha),
               onPressed: () async {
                 await _clientState.setIsReverse(!_clientState.isNotReverse);
               },
             ),
             IconButton(
-              icon: Icon(Icons.search),
+              icon: const Icon(Icons.search),
               onPressed: () {
                 _clientState.isSearchingClient = true;
               },

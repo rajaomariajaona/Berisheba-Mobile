@@ -11,7 +11,6 @@ class _ClientsState extends State<Clients> {
   var imei;
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     ImeiPlugin.getImei().then((im) {
       setState(() {

@@ -1,10 +1,10 @@
+import 'package:berisheba/routes/salle/salle_state.dart';
 import 'package:berisheba/states/config.dart';
 import 'package:berisheba/states/global_state.dart';
-import 'package:berisheba/tools/formatters/CaseInputFormatter.dart';
-import 'package:berisheba/tools/formatters/NumTelInputFormatter.dart';
+import 'package:berisheba/tools/formatters/case_input_formatter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:http/http.dart' as http;
+
 
 class SalleFormulaire extends StatefulWidget {
   SalleFormulaire({Key key, this.salle}) : super(key: key);
@@ -16,25 +16,22 @@ class SalleFormulaire extends StatefulWidget {
 
 class _SalleFormulaireState extends State<SalleFormulaire> {
   final _formKey = GlobalKey<FormState>();
-
+  bool isPostingData = false;
   String nom;
-  String prenom;
-  String adresse;
-  String num;
 
   final Map<String, FormFieldValidator> validators = {
     "nom": (value) {
       if (value.isEmpty) return "Champ vide";
       return null;
-    },
+    }
   };
 
   final Map<String, List<TextInputFormatter>> inputFormatters = {
     "nom": <TextInputFormatter>[
-      WhitelistingTextInputFormatter(RegExp("[A-Za-z ]")),
+      WhitelistingTextInputFormatter(RegExp("[A-zÀ-ú ]")),
       LengthLimitingTextInputFormatter(50),
       CapitalizeWordsInputFormatter()
-    ],
+    ]
   };
 
   @override
@@ -69,27 +66,30 @@ class _SalleFormulaireState extends State<SalleFormulaire> {
               Icons.check,
               color: Config.primaryBlue,
             ),
-            onPressed: () async {
-              _formKey.currentState.save();
-              if (_formKey.currentState.validate()) {
-                dynamic result = modifier
-                    ? await http.put(
-                  Config.apiURI + "salles/${widget.salle["idSalle"]}",
-                  body: {
-                    "nomSalle": nom,
+            onPressed: isPostingData
+                ? null
+                : () async {
+                    setState(() {
+                      isPostingData = true;
+                    });
+                    _formKey.currentState.save();
+                    if (_formKey.currentState.validate()) {
+                      dynamic result = modifier
+                          ? await SalleState.modifyData({
+                              "nomSalle": nom,
+                            },idSalle: widget.salle["idSalle"])
+                          : await SalleState.saveData({
+                              "nomSalle": nom,
+                            });
+                      print(result);
+                      GlobalState().channel.sink.add("salle");
+                      Navigator.of(context).pop(true);
+                    } else {
+                      setState(() {
+                        isPostingData = false;
+                      });
+                    }
                   },
-                )
-                    : await http.post(
-                  Config.apiURI + "salles",
-                  body: {
-                    "nomSalle": nom,
-                  },
-                );
-                print(result);
-                GlobalState().channel.sink.add("salle");
-                Navigator.of(context).pop(true);
-              }
-            },
           ),
         ],
       ),

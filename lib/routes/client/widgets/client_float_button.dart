@@ -16,7 +16,6 @@ class ClientFloatButton extends StatelessWidget {
               var t = await Navigator.of(context).push(MaterialPageRoute(
                 builder: (context) => ClientFormulaire(),
               ));
-              //TODO Handle Navigator after changes
               print(t);
             },
           );

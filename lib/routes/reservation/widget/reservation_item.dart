@@ -1,4 +1,4 @@
-import 'package:berisheba/routes/reservation/widget/reservation_details.dart';
+import 'package:berisheba/states/global_state.dart';
 import 'package:flutter/material.dart';
 
 class ReservationItem extends StatefulWidget {
@@ -9,10 +9,12 @@ class ReservationItem extends StatefulWidget {
 }
 
 class _ReservationItemState extends State<ReservationItem> {
-  void _watch(BuildContext context) {
-    Navigator.of(context).push(MaterialPageRoute(builder: (ctx) {
-     return ReservationDetails(widget._reservation["idReservation"]);
-    }));
+  void _watch(BuildContext context) async {
+    int _idReservation = widget._reservation["idReservation"];
+    await GlobalState()
+        .navigatorState
+        .currentState
+        .pushNamed("reservation:$_idReservation");
   }
 
   @override
@@ -26,12 +28,12 @@ class _ReservationItemState extends State<ReservationItem> {
           decoration: BoxDecoration(
             shape: BoxShape.circle,
             color: widget._reservation["couleur"] != null &&
-                int.tryParse(widget._reservation["couleur"]) != null
+                    int.tryParse(widget._reservation["couleur"]) != null
                 ? Color(int.parse(widget._reservation["couleur"]))
                 : Colors.green,
           ),
         ),
-        onTap:() => _watch(context),
+        onTap: () => _watch(context),
         contentPadding: EdgeInsets.fromLTRB(25, 10, 10, 10),
         title: Row(
           children: <Widget>[
@@ -46,20 +48,21 @@ class _ReservationItemState extends State<ReservationItem> {
                 children: <Widget>[
                   const Text("Client: "),
                   Text(
-                      "${widget._reservation["nomClient"]} ${widget
-                          ._reservation["prenomClient"]}"),
+                      "${widget._reservation["nomClient"]} ${widget._reservation["prenomClient"]}"),
                 ],
               ),
               Row(
                 children: <Widget>[
                   const Text("Date Entree: "),
-                  Text("${widget._reservation["DateEntree"]} ${widget._reservation["TypeDemiJourneeEntree"]}"),
+                  Text(
+                      "${widget._reservation["dateEntree"]} ${widget._reservation["typeDemiJourneeEntree"]}"),
                 ],
               ),
               Row(
                 children: <Widget>[
                   const Text("Date Sortie: "),
-                  Text("${widget._reservation["DateSortie"]} ${widget._reservation["TypeDemiJourneeSortie"]}"),
+                  Text(
+                      "${widget._reservation["dateSortie"]} ${widget._reservation["typeDemiJourneeSortie"]}"),
                 ],
               ),
             ],
