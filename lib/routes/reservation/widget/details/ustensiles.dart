@@ -4,6 +4,7 @@ import 'package:berisheba/routes/reservation/states/emprunter_state.dart';
 import 'package:berisheba/routes/reservation/states/conflit_state.dart';
 import 'package:berisheba/routes/reservation/states/reservation_state.dart';
 import 'package:berisheba/routes/ustensile/ustensile_state.dart';
+import 'package:berisheba/routes/ustensile/widgets/ustensile_formulaire.dart';
 import 'package:berisheba/tools/widgets/loading.dart';
 import 'package:berisheba/tools/widgets/number_selector.dart';
 import 'package:expandable/expandable.dart';
@@ -384,6 +385,14 @@ class _UstensileDialogState extends State<UstensileDialog> {
         ),
       ),
       actions: <Widget>[
+        IconButton(
+          icon: Icon(Icons.add),
+          onPressed: () async {
+            await Navigator.of(context).push(MaterialPageRoute(
+              builder: (context) => UstensileFormulaire(),
+            ));
+          },
+        ),
         Selector<EmprunterState, bool>(
           selector: (_, _emprunterState) =>
               _emprunterState

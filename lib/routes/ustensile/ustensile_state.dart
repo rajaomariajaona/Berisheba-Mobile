@@ -229,7 +229,7 @@ class UstensileState extends ChangeNotifier {
       }
     });
     GlobalState().internalStreamController.stream.listen((msg) async {
-      if (msg == "refresh") {
+      if (msg == "refresh" || msg == "ustensile delete") {
         await fetchData();
       }
     });
