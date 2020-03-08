@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:berisheba/routes/materiel/widgets/materiel_formulaire.dart';
 import 'package:berisheba/routes/reservation/states/louer_state.dart';
 import 'package:berisheba/routes/reservation/states/conflit_state.dart';
 import 'package:berisheba/routes/reservation/states/reservation_state.dart';
@@ -385,6 +386,14 @@ class _MaterielDialogState extends State<MaterielDialog> {
         ),
       ),
       actions: <Widget>[
+        IconButton(
+          icon: Icon(Icons.add),
+          onPressed: () async {
+            await Navigator.of(context).push(MaterialPageRoute(
+              builder: (context) => MaterielFormulaire(),
+            ));
+          },
+        ),
         Selector<LouerState, bool>(
           selector: (_, _louerState) =>
               _louerState
@@ -393,26 +402,28 @@ class _MaterielDialogState extends State<MaterielDialog> {
               0,
           builder: (ctx, isNotEmpty, __) => IconButton(
             icon: Icon(Icons.check),
-            onPressed: !isNotEmpty? null: () async {
-              await LouerState.saveData(
-                      json.encode(value.map<String, int>(
-                          (key, value) => MapEntry(key.toString(), value))),
-                      idReservation: widget.idReservation)
-                  .then((res) {
-                if (res) {
-                  Provider.of<ConflitState>(context, listen: false)
-                      .fetchConflit(widget.idReservation)
-                      .then((bool containConflit) {
-                    if (containConflit) {
-                      Navigator.of(context).pushReplacementNamed(
-                          "conflit/:${widget.idReservation}");
-                    } else {
-                      Navigator.of(context).pop(null);
-                    }
-                  });
-                }
-              });
-            },
+            onPressed: !isNotEmpty
+                ? null
+                : () async {
+                    await LouerState.saveData(
+                            json.encode(value.map<String, int>((key, value) =>
+                                MapEntry(key.toString(), value))),
+                            idReservation: widget.idReservation)
+                        .then((res) {
+                      if (res) {
+                        Provider.of<ConflitState>(context, listen: false)
+                            .fetchConflit(widget.idReservation)
+                            .then((bool containConflit) {
+                          if (containConflit) {
+                            Navigator.of(context).pushReplacementNamed(
+                                "conflit/:${widget.idReservation}");
+                          } else {
+                            Navigator.of(context).pop(null);
+                          }
+                        });
+                      }
+                    });
+                  },
           ),
         ),
         IconButton(

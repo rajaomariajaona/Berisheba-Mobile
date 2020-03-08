@@ -226,7 +226,7 @@ class MaterielState extends ChangeNotifier {
 
     });
     GlobalState().internalStreamController.stream.listen((msg) {
-      if (msg == "refresh") {
+      if (msg == "refresh" || msg == "materiel delete") {
         fetchData();
       }
     });

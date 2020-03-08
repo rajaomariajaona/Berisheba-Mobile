@@ -115,6 +115,11 @@ class LouerState extends ChangeNotifier {
           await this.fetchData(idReservation);
         }
       }
+      if(msg == "materiel"){
+        _listeMaterielDispoByIdReservation.keys.forEach((idReservation) async {
+          await fetchData(idReservation);
+        });
+      }
     });
     GlobalState().internalStreamController.stream.listen((msg) async {
       if (msg == "refresh" || msg == "materiel delete") {
