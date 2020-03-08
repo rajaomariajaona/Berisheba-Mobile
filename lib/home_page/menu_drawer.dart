@@ -76,7 +76,7 @@ class MenuDrawer extends StatelessWidget {
                     leading: Icon(Icons.info_outline),
                     title: Text("A propos"),
                     onTap: () async {
-                      await showAboutDialog(
+                      showAboutDialog(
 
                         context: context,
                         children: <Widget>[
