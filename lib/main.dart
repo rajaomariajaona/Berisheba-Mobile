@@ -69,7 +69,8 @@ class MyApp extends StatelessWidget {
   static final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
       FlutterLocalNotificationsPlugin();
   final ThemeData t = ThemeData(
-    primarySwatch: Colors.green,
+    primarySwatch: Colors.lightBlue,
+    fontFamily: "Source Sans Pro"
   ).copyWith(
     appBarTheme: AppBarTheme(
       textTheme: TextTheme(
