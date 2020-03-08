@@ -102,6 +102,11 @@ class ConcernerState extends ChangeNotifier {
           await this.fetchData(idReservation);
         }
       }
+      if (msg == "salle") {
+        _sallesByIdReservation.keys.forEach((idReservation) async {
+          await fetchData(idReservation);
+        });
+      }
     });
     GlobalState().internalStreamController.stream.listen((msg) async {
       if (msg == "refresh" || msg == "salle delete") {

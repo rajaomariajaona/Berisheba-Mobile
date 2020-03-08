@@ -2,6 +2,7 @@ import 'package:berisheba/routes/reservation/states/concerner_state.dart';
 import 'package:berisheba/routes/reservation/states/conflit_state.dart';
 import 'package:berisheba/routes/reservation/states/reservation_state.dart';
 import 'package:berisheba/routes/salle/salle_state.dart';
+import 'package:berisheba/routes/salle/widgets/salle_formulaire.dart';
 import 'package:berisheba/tools/widgets/loading.dart';
 import 'package:expandable/expandable.dart';
 import 'package:flutter/material.dart';
@@ -223,6 +224,15 @@ class _SalleDialogState extends State<SalleDialog> {
           ],
         ),
       ),
+      actions: <Widget>[
+        IconButton(
+            icon: Icon(Icons.add),
+            onPressed: () async {
+              await Navigator.of(context).push(MaterialPageRoute(
+                builder: (context) => SalleFormulaire(),
+              ));
+            })
+      ],
     );
   }
 }

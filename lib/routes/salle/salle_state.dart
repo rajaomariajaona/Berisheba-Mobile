@@ -229,7 +229,7 @@ class SalleState extends ChangeNotifier {
       }
     });
     GlobalState().internalStreamController.stream.listen((msg) async {
-      if (msg == "refresh") {
+      if (msg == "refresh" || msg == "salle delete") {
         await fetchData();
       }
     });
