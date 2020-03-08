@@ -1,3 +1,4 @@
+import 'package:berisheba/routes/reservation/states/conflit_state.dart';
 import 'package:berisheba/routes/reservation/states/payer_state.dart';
 import 'package:berisheba/tools/widgets/loading.dart';
 import 'package:expandable/expandable.dart';
@@ -184,10 +185,11 @@ class _PayerItem extends StatelessWidget {
 }
 
 class PayerDialog extends StatefulWidget {
-  PayerDialog({this.payer, @required this.idReservation, Key key}): super(key:key);
+  PayerDialog({this.payer, @required this.idReservation, Key key})
+      : super(key: key);
   final int idReservation;
   final Payer payer;
-  
+
   @override
   State<StatefulWidget> createState() => _PayerDialogState();
 }
@@ -240,14 +242,14 @@ class _PayerDialogState extends State<PayerDialog> {
                           }),
                       _typePaiement != "reste"
                           ? TextFormField(
-                              initialValue: modifier
-                                  ? "${widget.payer.sommePayee}"
-                                  : "",
+                              initialValue:
+                                  modifier ? "${widget.payer.sommePayee}" : "",
                               validator: (String val) {
                                 if (val.trim().isEmpty) {
                                   return "Champ vide";
                                 }
-                                if (double.tryParse(val) == null && double.parse(val) == 0) {
+                                if (double.tryParse(val) == null &&
+                                    double.parse(val) == 0) {
                                   return "Valeur incorrecte";
                                 }
                                 if (_typePaiement.compareTo("avance") == 0) {
@@ -267,8 +269,9 @@ class _PayerDialogState extends State<PayerDialog> {
                                       }
                                     });
                                   }
-                                  var prixDu =
-                                      stats["prixTotal"] - stats["remise"] - avance;
+                                  var prixDu = stats["prixTotal"] -
+                                      stats["remise"] -
+                                      avance;
                                   if (value > prixDu) {
                                     return "Valeur trop grande";
                                   }
@@ -292,7 +295,9 @@ class _PayerDialogState extends State<PayerDialog> {
                                   }
                                   var prixDu = stats["prixTotal"];
                                   if ((value + remise) > (prixDu / 2)) {
-                                    return remise == 0 ? "Valeur superieur a 50%": "$remise + valeur superieur a 50%";
+                                    return remise == 0
+                                        ? "Valeur superieur a 50%"
+                                        : "$remise + valeur superieur a 50%";
                                   }
                                 }
                                 return null;
@@ -324,22 +329,30 @@ class _PayerDialogState extends State<PayerDialog> {
                   ),
                   IconButton(
                     icon: Icon(Icons.check),
-                    onPressed: () {
+                    onPressed: () async {
                       if (_formState.currentState.validate()) {
                         _formState.currentState.save();
                         modifier
-                            ? PayerState.modifyData(
+                            ? await PayerState.modifyData(
                                 {"sommePayee": _sommePayee.toString()},
                                 idReservation: widget.idReservation,
                                 typePaiement: widget.payer.typePaiement)
                             : _typePaiement != 'reste'
-                                ? PayerState.saveData({
+                                ? await PayerState.saveData({
                                     "typePaiement": _typePaiement,
                                     "sommePayee": _sommePayee.toString()
                                   }, idReservation: widget.idReservation)
-                                : PayerState.saveData(
+                                : await PayerState.saveData(
                                     {"typePaiement": _typePaiement},
                                     idReservation: widget.idReservation);
+                        Provider.of<ConflitState>(context, listen: false)
+                            .fetchConflit(widget.idReservation)
+                            .then((bool containConflit) {
+                          if (containConflit) {
+                            Navigator.of(context)
+                                .pushNamed("conflit/:${widget.idReservation}");
+                          }
+                        });
                         Navigator.of(context).pop(null);
                       }
                     },

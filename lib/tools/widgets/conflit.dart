@@ -1,6 +1,7 @@
 import 'package:berisheba/routes/reservation/states/conflit_state.dart';
 import 'package:berisheba/states/global_state.dart';
 import 'package:berisheba/tools/widgets/conflit/conflit_materiel.dart';
+import 'package:berisheba/tools/widgets/conflit/conflit_payer.dart';
 import 'package:berisheba/tools/widgets/conflit/conflit_salle.dart';
 import 'package:berisheba/tools/widgets/conflit/conflit_ustensile.dart';
 import 'package:flutter/material.dart';
@@ -22,6 +23,9 @@ class ConflitResolver extends StatelessWidget {
           ),
           ChangeNotifierProvider(
             create: (_) => ConflitUstensileState(),
+          ),
+          ChangeNotifierProvider(
+            create: (_) => ConflitPayerState(),
           ),
         ],
         child: Scaffold(
@@ -49,6 +53,7 @@ class _ConflitBodyState extends State<ConflitBody> {
   Map<int, dynamic> _salle;
   Map<int, dynamic> _materiel;
   Map<int, dynamic> _ustensile;
+  Map<String, dynamic> _payer;
   int idReservation;
   @override
   void initState() {
@@ -66,6 +71,8 @@ class _ConflitBodyState extends State<ConflitBody> {
         for (int idSalle in _salle.keys) choix[idSalle] = Choice.change;
       _materiel = temp["materiel"];
       _ustensile = temp["ustensile"];
+      print(temp["payer"]);
+      _payer = temp["payer"];
     } else {
       Navigator.of(context).pop(null);
     }
@@ -96,7 +103,8 @@ class _ConflitBodyState extends State<ConflitBody> {
                       },
                     ),
                   if (_materiel != null) ConflitMateriel(conflit: _materiel),
-                  if (_ustensile != null) ConflitUstensile(conflit: _ustensile)
+                  if (_ustensile != null) ConflitUstensile(conflit: _ustensile),
+                  if (_payer != null) ConflitPayer(conflit: _payer)
                 ],
               ),
             ),
@@ -110,13 +118,15 @@ class _ConflitBodyState extends State<ConflitBody> {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.end,
             children: <Widget>[
-              Consumer2<ConflitMaterielState, ConflitUstensileState>(
-                builder:
-                    (ctx, conflitMaterielState, conflitUstensileState, _) =>
-                        FlatButton(
+              Consumer3<ConflitMaterielState, ConflitUstensileState,
+                  ConflitPayerState>(
+                builder: (ctx, conflitMaterielState, conflitUstensileState,
+                        conflitPayerState, _) =>
+                    FlatButton(
                   child: const Text("Enregistrer"),
                   onPressed: !conflitMaterielState.canSave ||
-                          !conflitUstensileState.canSave
+                          !conflitUstensileState.canSave ||
+                          !conflitPayerState.canSave
                       ? null
                       : () async {
                           if (conflitMaterielState.values.isNotEmpty) {
@@ -124,6 +134,9 @@ class _ConflitBodyState extends State<ConflitBody> {
                           }
                           if (conflitUstensileState.values.isNotEmpty) {
                             await fixUstensile(conflitUstensileState);
+                          }
+                          if (conflitPayerState.values.isNotEmpty) {
+                            await fixPayer(conflitPayerState);
                           }
                           if (choix.isNotEmpty) await fixSalle();
                           Provider.of<ConflitState>(context, listen: false)
@@ -138,6 +151,11 @@ class _ConflitBodyState extends State<ConflitBody> {
         )
       ],
     );
+  }
+
+  Future fixPayer(ConflitPayerState conflitPayerState) async {
+    await ConflitState.fixPayer(conflitPayerState.values,idReservation);
+    GlobalState().channel.sink.add("payer $idReservation");
   }
 
   Future fixMateriel(ConflitMaterielState conflitMaterielState) async {

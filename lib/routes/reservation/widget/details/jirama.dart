@@ -1,5 +1,7 @@
+import 'package:berisheba/routes/reservation/states/conflit_state.dart';
 import 'package:berisheba/routes/reservation/states/reservation_state.dart';
 import 'package:berisheba/states/config.dart';
+import 'package:berisheba/states/global_state.dart';
 import 'package:berisheba/tools/formatters/case_input_formatter.dart';
 import 'package:berisheba/tools/formatters/second_to_string_formatter.dart';
 import 'package:berisheba/tools/widgets/loading.dart';
@@ -107,7 +109,7 @@ class ReservationJirama extends StatelessWidget {
                                             builder: (BuildContext context) {
                                               return JiramaPriceDialog(
                                                   idReservation:
-                                                     _idReservation);
+                                                      _idReservation);
                                             },
                                             context: context);
                                       }),
@@ -209,10 +211,20 @@ class _JiramaItem extends StatelessWidget {
                   )
                 ];
               },
-              onSelected: (dynamic value) {
+              onSelected: (dynamic value) async {
                 if (value == "delete") {
-                  JiramaState.removeData(
+                  await JiramaState.removeData(
                       idAppareil: appareil.id, idReservation: idReservation);
+                  await Provider.of<ConflitState>(context, listen: false)
+                      .fetchConflit(idReservation)
+                      .then((bool containConflit) async {
+                    if (containConflit) {
+                      await GlobalState()
+                          .navigatorState
+                          .currentState
+                          .pushNamed("conflit/:$idReservation");
+                    }
+                  });
                 } else if (value == "edit") {
                   showDialog(
                       builder: (BuildContext context) {
@@ -233,7 +245,9 @@ class _JiramaItem extends StatelessWidget {
 enum Puissance { watt, ampere }
 
 class _JiramaDialog extends StatefulWidget {
-  _JiramaDialog({this.appareil, this.duree, @required this.idReservation, Key key}): super(key: key);
+  _JiramaDialog(
+      {this.appareil, this.duree, @required this.idReservation, Key key})
+      : super(key: key);
   final int idReservation;
   final Appareil appareil;
   final int duree;
@@ -293,8 +307,7 @@ class _JiramaDialogState extends State<_JiramaDialog> {
                     children: <Widget>[
                       TextFormField(
                         validator: _validators["nom"],
-                        initialValue:
-                            modifier ? "${widget.appareil.nom}" : "",
+                        initialValue: modifier ? "${widget.appareil.nom}" : "",
                         textCapitalization: TextCapitalization.words,
                         inputFormatters: <TextInputFormatter>[
                           WhitelistingTextInputFormatter(RegExp("[A-Za-z ]")),
@@ -442,11 +455,11 @@ class _JiramaDialogState extends State<_JiramaDialog> {
                     icon: Icon(Icons.check),
                     onPressed: _duree.inSeconds == 0
                         ? null
-                        : () {
+                        : () async {
                             if (_formState.currentState.validate()) {
                               _formState.currentState.save();
                               modifier
-                                  ? JiramaState.modifyData({
+                                  ? await JiramaState.modifyData({
                                       "idAppareil":
                                           widget.appareil.id.toString(),
                                       "nomAppareil": _nom,
@@ -457,7 +470,7 @@ class _JiramaDialogState extends State<_JiramaDialog> {
                                               : "a",
                                       "duree": _duree.inSeconds.toString()
                                     }, idReservation: widget.idReservation)
-                                  : JiramaState.saveData({
+                                  : await JiramaState.saveData({
                                       "nomAppareil": _nom,
                                       "puissance": _puissanceValue.toString(),
                                       "puissanceType":
@@ -466,6 +479,14 @@ class _JiramaDialogState extends State<_JiramaDialog> {
                                               : "a",
                                       "duree": _duree.inSeconds.toString()
                                     }, idReservation: widget.idReservation);
+                              Provider.of<ConflitState>(context, listen: false)
+                                  .fetchConflit(widget.idReservation)
+                                  .then((bool containConflit) {
+                                if (containConflit) {
+                                  Navigator.of(context).pushNamed(
+                                      "conflit/:${widget.idReservation}");
+                                }
+                              });
                               Navigator.of(context).pop(null);
                             }
                           },

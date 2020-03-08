@@ -44,6 +44,11 @@ class ConflitState extends ChangeNotifier {
         _conflit[idReservation]["ustensile"] =
             Cast.stringToIntMap(conflit["ustensile"], (value) => value);
         res = true;
+      } else if (conflit["payer"] != null &&
+          (conflit["payer"] as Map<String, dynamic>).isNotEmpty) {
+        _conflit[idReservation] = {"payer": {}};
+        _conflit[idReservation]["payer"] = conflit["payer"];
+        res = true;
       }
       _isLoading = 0;
       return res;
@@ -51,7 +56,7 @@ class ConflitState extends ChangeNotifier {
       _isLoading = 0;
       HandleDioError(error);
       return false;
-    }finally{
+    } finally {
       _isLoading = 0;
     }
   }
@@ -67,7 +72,6 @@ class ConflitState extends ChangeNotifier {
     }
   }
 
-
   static Future<bool> fixSalle(List<Map<String, String>> data) async {
     Dio _dio = await RestRequest().getDioInstance();
     try {
@@ -75,7 +79,7 @@ class ConflitState extends ChangeNotifier {
           .patch("/conflits/salles", data: {"deleteList": json.encode(data)});
       return true;
     } catch (error) {
-     HandleDioError(error);
+      HandleDioError(error);
       return false;
     }
   }
@@ -92,12 +96,12 @@ class ConflitState extends ChangeNotifier {
       });
       return true;
     } catch (error) {
-     HandleDioError(error);
+      HandleDioError(error);
       return false;
     }
   }
 
-    static Future<bool> fixUstensile(dynamic data) async {
+  static Future<bool> fixUstensile(dynamic data) async {
     Dio _dio = await RestRequest().getDioInstance();
     try {
       await _dio.patch("/conflits/ustensiles", data: {
@@ -109,7 +113,20 @@ class ConflitState extends ChangeNotifier {
       });
       return true;
     } catch (error) {
-     HandleDioError(error);
+      HandleDioError(error);
+      return false;
+    }
+  }
+
+  static Future<bool> fixPayer(dynamic data, int idReservation) async {
+    Dio _dio = await RestRequest().getDioInstance();
+    try {
+      await _dio.patch("/conflits/payers/$idReservation", data: {
+        "changes": json.encode(data)
+      });
+      return true;
+    } catch (error) {
+      HandleDioError(error);
       return false;
     }
   }

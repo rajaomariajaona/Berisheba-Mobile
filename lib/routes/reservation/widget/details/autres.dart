@@ -1,3 +1,5 @@
+import 'package:berisheba/routes/reservation/states/conflit_state.dart';
+import 'package:berisheba/states/global_state.dart';
 import 'package:berisheba/tools/formatters/case_input_formatter.dart';
 import 'package:berisheba/tools/widgets/loading.dart';
 import 'package:expandable/expandable.dart';
@@ -155,10 +157,20 @@ class _AutresItem extends StatelessWidget {
                   )
                 ];
               },
-              onSelected: (dynamic value) {
+              onSelected: (dynamic value) async {
                 if (value == "delete") {
-                  AutresState.removeData(
+                  await AutresState.removeData(
                       idAutre: autre.id, idReservation: idReservation);
+                  await Provider.of<ConflitState>(context, listen: false)
+                      .fetchConflit(idReservation)
+                      .then((bool containConflit) async {
+                    if (containConflit) {
+                      await GlobalState()
+                          .navigatorState
+                          .currentState
+                          .pushNamed("conflit/:$idReservation");
+                    }
+                  });
                 } else if (value == "edit") {
                   showDialog(
                       builder: (BuildContext context) {
@@ -177,26 +189,29 @@ class _AutresItem extends StatelessWidget {
 }
 
 class AutresDialog extends StatefulWidget {
-  AutresDialog({this.autre, this.prixAutre, @required this.idReservation, Key key}):super(key: key);
+  AutresDialog(
+      {this.autre, this.prixAutre, @required this.idReservation, Key key})
+      : super(key: key);
   final int idReservation;
   final Autre autre;
   final double prixAutre;
-  
+
   @override
   State<StatefulWidget> createState() => _AutresDialogState();
 }
 
 class _AutresDialogState extends State<AutresDialog> {
   bool modifier = false;
-  
+
   String _motif;
   int _prixAutre;
   final GlobalKey<FormState> _formState = GlobalKey<FormState>();
   @override
-  void initState(){
+  void initState() {
     modifier = (widget.autre != null && widget.prixAutre != null);
     super.initState();
   }
+
   @override
   Widget build(BuildContext context) {
     return Dialog(
@@ -213,8 +228,7 @@ class _AutresDialogState extends State<AutresDialog> {
                   child: Column(
                     children: <Widget>[
                       TextFormField(
-                        initialValue:
-                            modifier ? "${widget.autre.motif}" : "",
+                        initialValue: modifier ? "${widget.autre.motif}" : "",
                         textCapitalization: TextCapitalization.words,
                         inputFormatters: <TextInputFormatter>[
                           WhitelistingTextInputFormatter(RegExp("[A-Za-z ]")),
@@ -230,8 +244,7 @@ class _AutresDialogState extends State<AutresDialog> {
                         },
                       ),
                       TextFormField(
-                        initialValue:
-                            modifier ? "${widget.prixAutre}" : "",
+                        initialValue: modifier ? "${widget.prixAutre}" : "",
                         keyboardType: TextInputType.number,
                         inputFormatters: [
                           WhitelistingTextInputFormatter(RegExp("[0-9]+")),
@@ -261,19 +274,27 @@ class _AutresDialogState extends State<AutresDialog> {
                   ),
                   IconButton(
                     icon: Icon(Icons.check),
-                    onPressed: () {
+                    onPressed: () async {
                       if (_formState.currentState.validate()) {
                         _formState.currentState.save();
                         modifier
-                            ? AutresState.modifyData({
+                            ? await AutresState.modifyData({
                                 "idAutre": widget.autre.id.toString(),
                                 "motif": _motif,
                                 "prixAutre": _prixAutre.toString()
                               }, idReservation: widget.idReservation)
-                            : AutresState.saveData({
+                            : await AutresState.saveData({
                                 "motif": _motif,
                                 "prixAutre": _prixAutre.toString()
                               }, idReservation: widget.idReservation);
+                        Provider.of<ConflitState>(context, listen: false)
+                            .fetchConflit(widget.idReservation)
+                            .then((bool containConflit) {
+                          if (containConflit) {
+                            Navigator.of(context)
+                                .pushNamed("conflit/:${widget.idReservation}");
+                          }
+                        });
                         Navigator.of(context).pop(null);
                       }
                     },
