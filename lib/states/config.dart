@@ -7,7 +7,7 @@ class Config {
   static images.Image img;
   //api
   static String get baseURI => apiURI.replaceFirst("/api/", "");
-  static String apiURI = "http://10.0.2.2:3000/api/";
+  static String apiURI = "https://berisheba-api.herokuapp.com/api/";
 
   static String get wsURI =>
       apiURI.replaceFirst("http", "ws").replaceFirst("wss", "ws").replaceFirst("/api/", "");
